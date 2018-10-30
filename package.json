@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-gl",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "gypfile": true,
+  "license": "Apache-2.0",
+  "scripts": {
+    "format": "clang-format -i -style=Google binding/*.cc binding/*.h",
+    "test": "ts-node src/test.ts"
+  },
+  "devDependencies": {
+    "@types/bindings": "^1.3.0",
+    "@types/node": "^10.9.4",
+    "@types/webgl2": "^0.0.4",
+    "clang-format": "^1.2.4",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^0.13.2",
+    "bindings": "^1.3.0",
+    "node-simple-timer": "^0.1.1",
+    "yalc": "^1.0.0-pre.23"
+  }
+}
