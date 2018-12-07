@@ -13,7 +13,8 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "format": "clang-format -i -style=Google binding/*.cc binding/*.h"
+    "format": "clang-format -i -style=Google binding/*.cc binding/*.h",
+    "install": "node scripts/install.js"
   },
   "devDependencies": {
     "@types/bindings": "^1.3.0",

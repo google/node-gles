@@ -16,7 +16,10 @@
  */
 
 const cp = require('child_process');
+const fs = require('fs');
 const os = require('os');
+const path = require('path');
+const util = require('util');
 
 const BASE_URI = 'https://storage.googleapis.com/angle-builds/';
 
@@ -24,25 +27,65 @@ const BASE_URI = 'https://storage.googleapis.com/angle-builds/';
 const LINUX_X64 = '';
 const LINUX_ARM7 = '';
 const LINUX_ARM8 = '';
-const DARWIN = '';
+const DARWIN = 'file:///Users/kreeger/workspace/angle-darwin-x64-3578.tar.gz';
 const WINDOWS = '';
 
-const arch = (os.platform() + os.arch()).toLowerCase();
+const DEPS_PATH = path.join(__dirname, '..', 'deps');
+// const DEPS_LIB_PATH = path.join(DEPS_LIB_PATH, 'lib', libName);
+
+const arch = `${os.platform()}-${os.arch().toLowerCase()}`;
 console.log('platform: ' + arch);
+
+const mkdir = util.promisify(fs.mkdir);
+const exists = util.promisify(fs.exists);
+
+/** Ensures a directory exists, creates as needed. */
+async function ensureDir(dirPath) {
+  if (!await exists(dirPath)) {
+    await mkdir(dirPath);
+  }
+}
 
 /** Downloads ... */
 async function downloadAngleLibs() {
   console.error('* Downloading ANGLE ...');
+
+  await ensureDir(DEPS_PATH);
+
+  // If HTTPS_PROXY, https_proxy, HTTP_PROXY, or http_proxy is set
+  const proxy = process.env['HTTPS_PROXY'] || process.env['https_proxy'] ||
+      process.env['HTTP_PROXY'] || process.env['http_proxy'] || '';
+
+  // Using object destructuring to construct the options object for the
+  // http request.  the '...url.parse(targetUri)' part fills in the host,
+  // path, protocol, etc from the targetUri and then we set the agent to the
+  // default agent which is overridden a few lines down if there is a proxy
+  const options = {...url.parse(targetUri), agent: https.globalAgent};
+
+  if (proxy !== '') {
+    options.agent = new HttpsProxyAgent(proxy);
+  }
+
+  const request = https.get(options, response => {
+    const bar = new ProgressBar('[:bar] :rate/bps :percent :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: 30,
+      total: parseInt(response.headers['content-length'], 10)
+    });
+
+    // TODO Handle untar'ing here?
+  });
 }
 
 /** Builds application */
 async function buildBindings() {
   console.error('* Building bindings ...');
-  cp.execSync('node-gyp rebuild', (err) => {
-    if (err) {
-      throw new Error('node-gyp failed with: ' + err);
-    }
-  });
+  // cp.execSync('node-gyp rebuild', (err) => {
+  //   if (err) {
+  //     throw new Error('node-gyp failed with: ' + err);
+  //   }
+  // });
 }
 
 /** Main execution function */
