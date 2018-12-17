@@ -24,14 +24,17 @@ namespace nodejsgl {
 
 // TODO(kreeger): Let's create some type-defs and inheritance to keep these
 // classes clean!
-class WebGLLoseContext {
+
+// Provides the 'WEBGL_lose_context' extension:
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/
+class WebGL_LoseContextExtension {
  public:
   static napi_status Register(napi_env env, napi_value exports);
   static napi_status NewInstance(napi_env env, napi_value* instance);
 
  private:
-  WebGLLoseContext(napi_env env);
-  ~WebGLLoseContext();
+  WebGL_LoseContextExtension(napi_env env);
+  ~WebGL_LoseContextExtension();
 
   static napi_value InitInternal(napi_env env, napi_callback_info info);
   static void Cleanup(napi_env env, void* native, void* hint);
@@ -39,6 +42,26 @@ class WebGLLoseContext {
   // User facing methods:
   static napi_value LoseContext(napi_env env, napi_callback_info info);
   static napi_value RestoreContext(napi_env env, napi_callback_info info);
+
+  static napi_ref constructor_ref_;
+
+  napi_env env_;
+  napi_ref ref_;
+};
+
+// Provides 'OES_texture_half_float' extension:
+// https://www.khronos.org/registry/webgl/extensions/OES_texture_half_float/
+class WebGL_OESTextureHalfFloatExtension {
+ public:
+  static napi_status Register(napi_env env, napi_value exports);
+  static napi_status NewInstance(napi_env env, napi_value* instance);
+
+ private:
+  WebGL_OESTextureHalfFloatExtension(napi_env env);
+  ~WebGL_OESTextureHalfFloatExtension();
+
+  static napi_value InitInternal(napi_env env, napi_callback_info info);
+  static void Cleanup(napi_env env, void* native, void* hint);
 
   static napi_ref constructor_ref_;
 

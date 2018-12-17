@@ -17,21 +17,29 @@
 
 #include "webgl_extensions.h"
 
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #include "utils.h"
 
 namespace nodejsgl {
 
-napi_ref WebGLLoseContext::constructor_ref_;
+//==============================================================================
+// WebGL_LoseContextExtension
 
-WebGLLoseContext::WebGLLoseContext(napi_env env) : env_(env), ref_(nullptr) {}
+napi_ref WebGL_LoseContextExtension::constructor_ref_;
 
-WebGLLoseContext::~WebGLLoseContext() {
+WebGL_LoseContextExtension::WebGL_LoseContextExtension(napi_env env)
+    : env_(env), ref_(nullptr) {}
+
+WebGL_LoseContextExtension::~WebGL_LoseContextExtension() {
   // TODO(kreeger): Auto-clean this up with inheritance?
   napi_delete_reference(env_, ref_);
 }
 
 /* static */
-napi_status WebGLLoseContext::Register(napi_env env, napi_value exports) {
+napi_status WebGL_LoseContextExtension::Register(napi_env env,
+                                                 napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -41,17 +49,18 @@ napi_status WebGLLoseContext::Register(napi_env env, napi_value exports) {
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "WEBGL_lose_context", NAPI_AUTO_LENGTH,
-                              WebGLLoseContext::InitInternal, nullptr,
+                              WebGL_LoseContextExtension::InitInternal, nullptr,
                               ARRAY_SIZE(properties), properties, &ctor_value);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   return napi_ok;
-}  // namespace nodejsgl
+}
 
 /* static  */
-napi_status WebGLLoseContext::NewInstance(napi_env env, napi_value* instance) {
+napi_status WebGL_LoseContextExtension::NewInstance(napi_env env,
+                                                    napi_value* instance) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -65,8 +74,8 @@ napi_status WebGLLoseContext::NewInstance(napi_env env, napi_value* instance) {
 }
 
 /* static */
-napi_value WebGLLoseContext::InitInternal(napi_env env,
-                                          napi_callback_info info) {
+napi_value WebGL_LoseContextExtension::InitInternal(napi_env env,
+                                                    napi_callback_info info) {
   napi_status nstatus;
 
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
@@ -77,7 +86,7 @@ napi_value WebGLLoseContext::InitInternal(napi_env env,
 
   // TODO(kreeger): If this is a stub class - can probably just define a JS
   // object with no-op methods.
-  WebGLLoseContext* context = new WebGLLoseContext(env);
+  WebGL_LoseContextExtension* context = new WebGL_LoseContextExtension(env);
   ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, context, nullptr);
 
   nstatus = napi_wrap(env, js_this, context, Cleanup, nullptr, &context->ref_);
@@ -87,23 +96,83 @@ napi_value WebGLLoseContext::InitInternal(napi_env env,
 }
 
 /* static */
-void WebGLLoseContext::Cleanup(napi_env env, void* native, void* hint) {
-  WebGLLoseContext* context = static_cast<WebGLLoseContext*>(native);
-  delete context;
+void WebGL_LoseContextExtension::Cleanup(napi_env env, void* native,
+                                         void* hint) {
+  WebGL_LoseContextExtension* extension =
+      static_cast<WebGL_LoseContextExtension*>(native);
+  delete extension;
 }
 
 /* static */
-napi_value WebGLLoseContext::LoseContext(napi_env env,
-                                         napi_callback_info info) {
+napi_value WebGL_LoseContextExtension::LoseContext(napi_env env,
+                                                   napi_callback_info info) {
   // TODO(kreeger): No-op OK?
   return nullptr;
 }
 
 /* static */
-napi_value WebGLLoseContext::RestoreContext(napi_env env,
-                                            napi_callback_info info) {
+napi_value WebGL_LoseContextExtension::RestoreContext(napi_env env,
+                                                      napi_callback_info info) {
   // TODO(kreeger): No-op OK?
   return nullptr;
+}
+
+//==============================================================================
+// WebGL_OESTextureHalfFloatExtension
+
+napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
+
+WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
+    napi_env env)
+    : env_(env), ref_(nullptr) {}
+
+WebGL_OESTextureHalfFloatExtension::~WebGL_OESTextureHalfFloatExtension() {
+  // TODO(kreeger): Auto-clean this up with inheritance?
+  napi_delete_reference(env_, ref_);
+}
+
+/* static */
+napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
+                                                         napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {NapiDefineIntProperty(
+      env, GL_HALF_FLOAT_OES, "HALF_FLOAT_OES")};  // TODO find def
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
+                              WebGL_OESTextureHalfFloatExtension::InitInternal,
+                              nullptr, ARRAY_SIZE(properties), properties,
+                              &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
+    napi_env env, napi_value* instance) {
+  // TODO - write me.
+
+  return napi_ok;
+}
+
+/* static */
+napi_value WebGL_OESTextureHalfFloatExtension::InitInternal(
+    napi_env env, napi_callback_info info) {
+  // TODO - write me.
+  return nullptr;
+}
+
+/* static */
+void WebGL_OESTextureHalfFloatExtension::Cleanup(napi_env env, void* native,
+                                                 void* hint) {
+  WebGL_OESTextureHalfFloatExtension* extension =
+      static_cast<WebGL_OESTextureHalfFloatExtension*>(native);
+  delete extension;
 }
 
 }  // namespace nodejsgl

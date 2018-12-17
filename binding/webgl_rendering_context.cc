@@ -1428,14 +1428,17 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     return stub_object;
   } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
     napi_value lose_context_value;
-    nstatus = WebGLLoseContext::NewInstance(env, &lose_context_value);
+    nstatus = WebGL_LoseContextExtension::NewInstance(env, &lose_context_value);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
     return lose_context_value;
   } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
-    //
-    // TODO(kreeger): write me.
-    //
+    napi_value oes_texture_half_float_value;
+    nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
+        env, &oes_texture_half_float_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    return oes_texture_half_float_value;
   }
 
 #if DEBUG
