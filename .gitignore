@@ -1,6 +1,6 @@
 build/
 dist/
-angle/
+deps/
 node_modules/
 yarn-error.log
 yalc.lock

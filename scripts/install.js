@@ -15,26 +15,36 @@
  * =============================================================================
  */
 
-const cp = require('child_process');
+const https = require('https');
+const HttpsProxyAgent = require('https-proxy-agent');
+const url = require('url');
 const fs = require('fs');
-const os = require('os');
-const path = require('path');
+let path = require('path');
+const rimraf = require('rimraf');
+const tar = require('tar');
 const util = require('util');
+const zip = require('adm-zip');
+const cp = require('child_process');
+const os = require('os');
+const ProgressBar = require('progress');
 
 const BASE_URI = 'https://storage.googleapis.com/angle-builds/';
 
 // TODO(kreeger): Roll these builds:
-const LINUX_X64 = '';
-const LINUX_ARM7 = '';
-const LINUX_ARM8 = '';
-const DARWIN = 'file:///Users/kreeger/workspace/angle-darwin-x64-3578.tar.gz';
+// const LINUX_X64 = '';
+// const LINUX_ARM7 = '';
+// const LINUX_ARM8 = '';
 const WINDOWS = '';
+const DARWIN = 'angle-darwin-x64.tar.gz';
 
 const DEPS_PATH = path.join(__dirname, '..', 'deps');
 // const DEPS_LIB_PATH = path.join(DEPS_LIB_PATH, 'lib', libName);
 
-const arch = `${os.platform()}-${os.arch().toLowerCase()}`;
-console.log('platform: ' + arch);
+const platform = os.platform().toLowerCase();
+const arch = `${platform}-${os.arch().toLowerCase()}`;
+
+const depsPath = path.join(__dirname, '..', 'deps');
+const depsLibPath = path.join(depsPath, 'out', 'Release');
 
 const mkdir = util.promisify(fs.mkdir);
 const exists = util.promisify(fs.exists);
@@ -46,9 +56,11 @@ async function ensureDir(dirPath) {
   }
 }
 
-/** Downloads ... */
-async function downloadAngleLibs() {
-  console.error('* Downloading ANGLE ...');
+/** Downloads Angle tarball and unpacks in the deps directory */
+async function downloadAngleLibs(callback) {
+  console.error('* Downloading ANGLE');
+
+  const targetUri = BASE_URI + DARWIN;  // TODO(kreeger): Fix this.
 
   await ensureDir(DEPS_PATH);
 
@@ -74,24 +86,43 @@ async function downloadAngleLibs() {
       total: parseInt(response.headers['content-length'], 10)
     });
 
-    // TODO Handle untar'ing here?
+    if (platform === 'win32') {
+      //
+      // TODO(kreeger): write me.
+      //
+    } else {
+      // All other platforms use a tarball:
+      response
+          .on('data',
+              (chunk) => {
+                bar.tick(chunk.length);
+              })
+          .pipe(tar.x({C: depsPath, strict: true}))
+          .on('close', () => {
+            if (callback !== undefined) {
+              callback();
+            }
+          });
+    }
   });
+
+  request.end();
 }
 
 /** Builds application */
 async function buildBindings() {
-  console.error('* Building bindings ...');
-  // cp.execSync('node-gyp rebuild', (err) => {
-  //   if (err) {
-  //     throw new Error('node-gyp failed with: ' + err);
-  //   }
-  // });
+  console.error('* Building ANGLE bindings')
+  cp.execSync('node-gyp rebuild', (err) => {
+    if (err) {
+      throw new Error('node-gyp failed with: ' + err);
+    }
+  });
 }
 
 /** Main execution function */
 async function run() {
-  await downloadAngleLibs();
-  await buildBindings();
+  await downloadAngleLibs(buildBindings);
+  // await buildBindings();
 }
 
 run();
