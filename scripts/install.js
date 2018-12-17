@@ -15,53 +15,50 @@
  * =============================================================================
  */
 
-const https = require('https');
-const HttpsProxyAgent = require('https-proxy-agent');
-const url = require('url');
+const cp = require('child_process');
 const fs = require('fs');
-let path = require('path');
+const https = require('https');
+const path = require('path');
 const rimraf = require('rimraf');
 const tar = require('tar');
 const util = require('util');
-const zip = require('adm-zip');
-const cp = require('child_process');
 const os = require('os');
+const url = require('url');
+const HttpsProxyAgent = require('https-proxy-agent');
 const ProgressBar = require('progress');
-
-const BASE_URI = 'https://storage.googleapis.com/angle-builds/';
-
-// TODO(kreeger): Roll these builds:
-// const LINUX_X64 = '';
-// const LINUX_ARM7 = '';
-// const LINUX_ARM8 = '';
-const WINDOWS = '';
-const DARWIN = 'angle-darwin-x64.tar.gz';
-
-const DEPS_PATH = path.join(__dirname, '..', 'deps');
-// const DEPS_LIB_PATH = path.join(DEPS_LIB_PATH, 'lib', libName);
-
-const platform = os.platform().toLowerCase();
-const arch = `${platform}-${os.arch().toLowerCase()}`;
-
-const depsPath = path.join(__dirname, '..', 'deps');
-const depsLibPath = path.join(depsPath, 'out', 'Release');
 
 const mkdir = util.promisify(fs.mkdir);
 const exists = util.promisify(fs.exists);
 
-/** Ensures a directory exists, creates as needed. */
+// Determine which tarball to download based on the OS platform and arch:
+const platform = os.platform().toLowerCase();
+const platformArch = `${platform}-${os.arch().toLowerCase()}`;
+let ANGLE_BINARY_URI = 'https://storage.googleapis.com/angle-builds/';
+if (platform === 'darwin') {
+  ANGLE_BINARY_URI += 'angle-darwin-x64.tar.gz'
+} else {
+  throw new Error(`The platform ${platformArch} is not currently supported!`);
+}
+
+// Dependency storage paths:
+const depsPath = path.join(__dirname, '..', 'deps');
+const depsLibPath = path.join(depsPath, 'out', 'Release');
+
+//
+// Ensures that a directory exists at a given path.
+//
 async function ensureDir(dirPath) {
   if (!await exists(dirPath)) {
     await mkdir(dirPath);
   }
 }
 
-/** Downloads Angle tarball and unpacks in the deps directory */
+//
+// Downloads the ANGLE tarball set at `ANGLE_BINARY_URI` with an optional
+// callback when downloading and extracting has finished.
+//
 async function downloadAngleLibs(callback) {
   console.error('* Downloading ANGLE');
-
-  const targetUri = BASE_URI + DARWIN;  // TODO(kreeger): Fix this.
-
   await ensureDir(DEPS_PATH);
 
   // If HTTPS_PROXY, https_proxy, HTTP_PROXY, or http_proxy is set
@@ -69,10 +66,10 @@ async function downloadAngleLibs(callback) {
       process.env['HTTP_PROXY'] || process.env['http_proxy'] || '';
 
   // Using object destructuring to construct the options object for the
-  // http request.  the '...url.parse(targetUri)' part fills in the host,
-  // path, protocol, etc from the targetUri and then we set the agent to the
-  // default agent which is overridden a few lines down if there is a proxy
-  const options = {...url.parse(targetUri), agent: https.globalAgent};
+  // http request.  the '...url.parse(ANGLE_BINARY_URI)' part fills in the host,
+  // path, protocol, etc from the ANGLE_BINARY_URI and then we set the agent to
+  // the default agent which is overridden a few lines down if there is a proxy
+  const options = {...url.parse(ANGLE_BINARY_URI), agent: https.globalAgent};
 
   if (proxy !== '') {
     options.agent = new HttpsProxyAgent(proxy);
@@ -109,7 +106,9 @@ async function downloadAngleLibs(callback) {
   request.end();
 }
 
-/** Builds application */
+//
+// Wraps and executes a node-gyp rebuild command.
+//
 async function buildBindings() {
   console.error('* Building ANGLE bindings')
   cp.execSync('node-gyp rebuild', (err) => {
@@ -119,10 +118,11 @@ async function buildBindings() {
   });
 }
 
-/** Main execution function */
+//
+// Main execution function for this script.
+//
 async function run() {
   await downloadAngleLibs(buildBindings);
-  // await buildBindings();
 }
 
 run();
