@@ -136,8 +136,8 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
                                                          napi_value exports) {
   napi_status nstatus;
 
-  napi_property_descriptor properties[] = {NapiDefineIntProperty(
-      env, GL_HALF_FLOAT_OES, "HALF_FLOAT_OES")};  // TODO find def
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_HALF_FLOAT_OES, "HALF_FLOAT_OES")};
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
@@ -155,7 +155,14 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 /* static */
 napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
     napi_env env, napi_value* instance) {
-  // TODO - write me.
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   return napi_ok;
 }
@@ -163,8 +170,16 @@ napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
 /* static */
 napi_value WebGL_OESTextureHalfFloatExtension::InitInternal(
     napi_env env, napi_callback_info info) {
-  // TODO - write me.
-  return nullptr;
+  ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
+
+  napi_status nstatus;
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // TODO(kreeger): No need to wrap - can this method go away?
+
+  return js_this;
 }
 
 /* static */
