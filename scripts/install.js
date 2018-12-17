@@ -42,7 +42,7 @@ if (platform === 'darwin') {
 
 // Dependency storage paths:
 const depsPath = path.join(__dirname, '..', 'deps');
-const depsLibPath = path.join(depsPath, 'out', 'Release');
+// const depsLibPath = path.join(depsPath, 'out', 'Release');
 
 //
 // Ensures that a directory exists at a given path.
@@ -59,7 +59,7 @@ async function ensureDir(dirPath) {
 //
 async function downloadAngleLibs(callback) {
   console.error('* Downloading ANGLE');
-  await ensureDir(DEPS_PATH);
+  await ensureDir(depsPath);
 
   // If HTTPS_PROXY, https_proxy, HTTP_PROXY, or http_proxy is set
   const proxy = process.env['HTTPS_PROXY'] || process.env['https_proxy'] ||
