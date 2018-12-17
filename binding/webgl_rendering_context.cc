@@ -1432,6 +1432,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
     return lose_context_value;
+  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
+    //
+    // TODO(kreeger): write me.
+    //
   }
 
 #if DEBUG

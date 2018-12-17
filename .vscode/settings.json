@@ -1,0 +1,57 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "files.associations": {
+    "*.tcc": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "__bit_reference": "cpp",
+    "__functional_base": "cpp",
+    "algorithm": "cpp",
+    "atomic": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "functional": "cpp",
+    "iterator": "cpp",
+    "limits": "cpp",
+    "locale": "cpp",
+    "memory": "cpp",
+    "ratio": "cpp",
+    "tuple": "cpp",
+    "vector": "cpp",
+    "__locale": "cpp",
+    "*.ipp": "cpp",
+    "array": "cpp",
+    "initializer_list": "cpp",
+    "string_view": "cpp",
+    "utility": "cpp",
+    "xstring": "cpp",
+    "string": "cpp"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "coverage/": true,
+    "dist/": true,
+    "**/bundle.js": true,
+    "**/yarn.lock": true
+  },
+  "tslint.enable": true,
+  "tslint.run": "onType",
+  "tslint.configFile": "tslint.json",
+  "files.trimTrailingWhitespace": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "clang-format.style": "Google",
+  "C_Cpp.clang_format_fallbackStyle": "Google",
+  "files.insertFinalNewline": true,
+  "editor.detectIndentation": false,
+  "editor.wrappingIndent": "none",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
+  "C_Cpp.intelliSenseEngineFallback": "Enabled",
+  "python.linting.enabled": false,
+  "editor.formatOnSave": true
+}
