@@ -8,6 +8,29 @@ const gl = gles.binding.createWebGLRenderingContext();
 
 const oes_ext = gl.getExtension('OES_texture_half_float');
 
+gl.disable(gl.DEPTH_TEST);
+gl.disable(gl.STENCIL_TEST);
+gl.disable(gl.BLEND);
+gl.disable(gl.DITHER);
+gl.disable(gl.POLYGON_OFFSET_FILL);
+gl.disable(gl.SAMPLE_COVERAGE);
+gl.enable(gl.SCISSOR_TEST);
+gl.enable(gl.CULL_FACE);
+gl.cullFace(gl.BACK);
+
+const vertexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+const coords = new Float32Array([
+  -1.0, 1.0, 0.0, 0.0, 1.0, -1.0, -1.0, 0.0, 0.0, 0.0,
+  1.0,  1.0, 0.0, 1.0, 1.0, 1.0,  -1.0, 0.0, 1.0, 0.0
+]);
+gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STATIC_DRAW);
+
+const indexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+const indices = new Uint16Array([0, 1, 2, 2, 1, 3]);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
 // Sample script: Simply bind some values to a texture and print them out.
 const texture = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, texture);

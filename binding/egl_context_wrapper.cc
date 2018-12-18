@@ -50,8 +50,8 @@ EGLContextWrapper::EGLContextWrapper(napi_env env) {
   BindProcAddresses();
 
 #if DEBUG
-  LogExtensions("GL_EXTENSIONS",
-                reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
+  // LogExtensions("GL_EXTENSIONS",
+  //               reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
 #endif
 }
 
@@ -63,11 +63,15 @@ void EGLContextWrapper::InitEGL(napi_env env) {
     return;
   }
 
-  // TODO(kreeger): Consider using major/minor versions:
-  if (!eglInitialize(display, nullptr, nullptr)) {
+  EGLint major;
+  EGLint minor;
+  if (!eglInitialize(display, &major, &minor)) {
     NAPI_THROW_ERROR(env, "Could not initialize display");
     return;
   }
+
+  std::cerr << "major: " << major << std::endl;
+  std::cerr << "minor: " << minor << std::endl;
 
   extensions_wrapper = new EGLExtensionsWrapper(display);
 
@@ -101,8 +105,11 @@ void EGLContextWrapper::InitEGL(napi_env env) {
 
   // TODO(kreeger): Add the ability to define or look this up!
   // Hard-code version 2 for now
-  context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
-  context_attributes.push_back(3);
+  // context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
+  // context_attributes.push_back(3);
+
+  context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+  context_attributes.push_back(EGL_TRUE);
 
   context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
 #if DEBUG
