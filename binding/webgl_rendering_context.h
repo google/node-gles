@@ -43,6 +43,7 @@ class WebGLRenderingContext {
   static napi_value AttachShader(napi_env env, napi_callback_info info);
   static napi_value BindBuffer(napi_env env, napi_callback_info info);
   static napi_value BindFramebuffer(napi_env env, napi_callback_info info);
+  static napi_value BindRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value BindTexture(napi_env env, napi_callback_info info);
   static napi_value BufferData(napi_env env, napi_callback_info info);
   static napi_value CheckFramebufferStatus(napi_env env,
@@ -51,6 +52,7 @@ class WebGLRenderingContext {
   static napi_value CreateBuffer(napi_env env, napi_callback_info info);
   static napi_value CreateFramebuffer(napi_env env, napi_callback_info info);
   static napi_value CreateProgram(napi_env env, napi_callback_info info);
+  static napi_value CreateRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value CreateShader(napi_env env, napi_callback_info info);
   static napi_value CreateTexture(napi_env env, napi_callback_info info);
   static napi_value CullFace(napi_env env, napi_callback_info info);
@@ -78,6 +80,7 @@ class WebGLRenderingContext {
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
   static napi_value LinkProgram(napi_env env, napi_callback_info info);
   static napi_value ReadPixels(napi_env env, napi_callback_info info);
+  static napi_value RenderbufferStorage(napi_env env, napi_callback_info info);
   static napi_value Scissor(napi_env env, napi_callback_info info);
   static napi_value ShaderSource(napi_env env, napi_callback_info info);
   static napi_value TexImage2D(napi_env env, napi_callback_info info);

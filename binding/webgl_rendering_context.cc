@@ -216,7 +216,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // bindAttribLocation(program: WebGLProgram | null, index: number, name: string): void;
       NAPI_DEFINE_METHOD("bindBuffer", BindBuffer),
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
-// bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer | null): void;
+      NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
       NAPI_DEFINE_METHOD("bindTexture", BindTexture),
 // blendColor(red: number, green: number, blue: number, alpha: number): void;
 // blendEquation(mode: number): void;
@@ -239,7 +239,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("createBuffer", CreateBuffer),
       NAPI_DEFINE_METHOD("createFramebuffer", CreateFramebuffer),
       NAPI_DEFINE_METHOD("createProgram", CreateProgram),
-// createRenderbuffer(): WebGLRenderbuffer | null;
+      NAPI_DEFINE_METHOD("createRenderbuffer", CreateRenderbuffer),
       NAPI_DEFINE_METHOD("createShader", CreateShader),
       NAPI_DEFINE_METHOD("createTexture", CreateTexture),
       NAPI_DEFINE_METHOD("cullFace", CullFace),
@@ -324,9 +324,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
 // pixelStorei(pname: number, param: number | boolean): void;
 // polygonOffset(factor: number, units: number): void;
-// readPixels(x: number, y: number, width: number, height: number, format: number, type: number, pixels: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
       NAPI_DEFINE_METHOD("readPixels", ReadPixels),
-// renderbufferStorage(target: number, internalformat: number, width: number, height: number): void;
+      NAPI_DEFINE_METHOD("renderbufferStorage", RenderbufferStorage),
 // sampleCoverage(value: number, invert: boolean): void;
       NAPI_DEFINE_METHOD("scissor", Scissor),
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
@@ -763,6 +762,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NapiDefineIntProperty(env, GL_R16F, "R16F"),
       NapiDefineIntProperty(env, GL_R32F, "R32F"),
       NapiDefineIntProperty(env, GL_RGBA32F, "RGBA32F"),
+      NapiDefineIntProperty(env, GL_RGBA8, "RGBA8"),
       NapiDefineIntProperty(env, GL_RED, "RED"),
       NapiDefineIntProperty(env, GL_PIXEL_PACK_BUFFER, "PIXEL_PACK_BUFFER"),
   };
@@ -894,6 +894,25 @@ napi_value WebGLRenderingContext::BindFramebuffer(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBindFramebuffer(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BindRenderbuffer(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("BindRenderbuffer");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  uint32_t args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBindRenderbuffer(args[0], args[1]);
 
 #if DEBUG
   context->CheckForErrors();
@@ -1101,6 +1120,28 @@ napi_value WebGLRenderingContext::CreateProgram(napi_env env,
   context->CheckForErrors();
 #endif
   return program_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::CreateRenderbuffer(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("CreateRenderBuffer");
+
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContext(env, info, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLuint renderbuffer;
+  context->eglContextWrapper_->glGenRenderbuffers(1, &renderbuffer);
+
+  napi_value renderbuffer_value;
+  nstatus = napi_create_uint32(env, renderbuffer, &renderbuffer_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return renderbuffer_value;
 }
 
 /* static */
@@ -1856,6 +1897,54 @@ napi_value WebGLRenderingContext::ReadPixels(napi_env env,
 
   context->eglContextWrapper_->glReadPixels(x, y, width, height, format, type,
                                             buffer);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::RenderbufferStorage(napi_env env,
+                                                      napi_callback_info info) {
+  LOG_CALL("RenderbufferStorage");
+
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum internal_format;
+  nstatus = napi_get_value_uint32(env, args[1], &internal_format);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei width;
+  nstatus = napi_get_value_int32(env, args[2], &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei height;
+  nstatus = napi_get_value_int32(env, args[3], &height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glRenderbufferStorage(target, internal_format,
+                                                     width, height);
 
 #if DEBUG
   context->CheckForErrors();

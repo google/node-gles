@@ -1,6 +1,7 @@
 import * as gles from '.';
 
 const gl = gles.binding.createWebGLRenderingContext();
+const gl2 = gl as WebGL2RenderingContext;
 gl.viewport(0, 0, 1, 1);
 
 const samplingVs = 'attribute vec4 position;\n' +
@@ -53,9 +54,9 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 
 gl.useProgram(program);
 
-// const renderbuffer = gl.createRenderbuffer();
-// gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-// gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA8, 1, 1);
+const renderbuffer = gl.createRenderbuffer();
+gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+gl.renderbufferStorage(gl.RENDERBUFFER, gl2.RGBA8, 1, 1);
 
 const oes_ext = gl.getExtension('OES_texture_half_float');
 

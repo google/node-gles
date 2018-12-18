@@ -161,6 +161,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLBINDBUFFERPROC>(eglGetProcAddress("glBindBuffer"));
   glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(
       eglGetProcAddress("glBindFramebuffer"));
+  glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(
+      eglGetProcAddress("glBindRenderbuffer"));
   glBindTexture = reinterpret_cast<PFNGLBINDTEXTUREPROC>(
       eglGetProcAddress("glBindTexture"));
   glBufferData =
@@ -201,6 +203,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLGENBUFFERSPROC>(eglGetProcAddress("glGenBuffers"));
   glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(
       eglGetProcAddress("glGenFramebuffers"));
+  glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(
+      eglGetProcAddress("glGenRenderbuffers"));
   glGetAttribLocation = reinterpret_cast<PFNGLGETATTRIBLOCATIONPROC>(
       eglGetProcAddress("glGetAttribLocation"));
   glGetError =
@@ -225,6 +229,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glLinkProgram"));
   glReadPixels =
       reinterpret_cast<PFNGLREADPIXELSPROC>(eglGetProcAddress("glReadPixels"));
+  glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(
+      eglGetProcAddress("glRenderbufferStorage"));
   glScissor =
       reinterpret_cast<PFNGLSCISSORPROC>(eglGetProcAddress("glScissor"));
   glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(
