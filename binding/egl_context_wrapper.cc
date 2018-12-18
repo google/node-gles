@@ -70,8 +70,11 @@ void EGLContextWrapper::InitEGL(napi_env env) {
     return;
   }
 
-  std::cerr << "major: " << major << std::endl;
-  std::cerr << "minor: " << minor << std::endl;
+#if DEBUG
+  // TODO(kreeger): Clean this up.
+  // std::cerr << "major: " << major << std::endl;
+  // std::cerr << "minor: " << minor << std::endl;
+#endif
 
   extensions_wrapper = new EGLExtensionsWrapper(display);
 
@@ -97,7 +100,7 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   }
 
 #if DEBUG
-  LogExtensions("EGL_EXTENSIONS", eglQueryString(display, EGL_EXTENSIONS));
+  // LogExtensions("EGL_EXTENSIONS", eglQueryString(display, EGL_EXTENSIONS));
 #endif
 
   // Append attributes based on available features
