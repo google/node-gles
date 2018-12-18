@@ -1799,8 +1799,10 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
       program, uniform_name.c_str());
 
   napi_value location_value;
-  nstatus = napi_create_uint32(env, location, &location_value);
+  nstatus = napi_create_int32(env, location, &location_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  std::cerr << " --- uniform location: " << location << std::endl;
 
 #if DEBUG
   context->CheckForErrors();
@@ -2342,7 +2344,6 @@ napi_value WebGLRenderingContext::Uniform1fv(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // TODO(kreeger): Check this casting here...
   context->eglContextWrapper_->glUniform1fv(location, size,
                                             reinterpret_cast<GLfloat *>(data));
 
@@ -2395,6 +2396,13 @@ napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
   nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  std::cerr << "   uniform: " << location << std::endl;
+  std::cerr << "   size: " << size << std::endl;
+  GLfloat *f_data = reinterpret_cast<GLfloat *>(data);
+  for (size_t i = 0; i < size; ++i) {
+    std::cerr << "    " << f_data[i] << std::endl;
+  }
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);

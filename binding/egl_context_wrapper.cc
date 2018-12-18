@@ -109,10 +109,10 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   // TODO(kreeger): Add the ability to define or look this up!
   // Hard-code version 2 for now
   // context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
-  // context_attributes.push_back(3);
+  // context_attributes.push_back(2);
 
-  context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
-  context_attributes.push_back(EGL_TRUE);
+  // context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+  // context_attributes.push_back(EGL_TRUE);
 
   context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
 #if DEBUG
