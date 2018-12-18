@@ -44,7 +44,6 @@ if (platform === 'darwin') {
 
 // Dependency storage paths:
 const depsPath = path.join(__dirname, '..', 'deps');
-// const depsLibPath = path.join(depsPath, 'out', 'Release');
 
 //
 // Ensures that a directory exists at a given path.

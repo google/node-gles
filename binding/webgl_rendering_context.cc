@@ -246,8 +246,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteBuffer", DeleteBuffer),
       NAPI_DEFINE_METHOD("deleteFramebuffer", DeleteFramebuffer),
       NAPI_DEFINE_METHOD("deleteProgram", DeleteProgram),
-// deleteRenderbuffer(renderbuffer: WebGLRenderbuffer | null): void;
-// deleteShader(shader: WebGLShader | null): void;
+// deleteRenderbuffker(renderbuffer: WebGLRenderbuffer | null): void;
+      NAPI_DEFINE_METHOD("deleteShader", DeleteShader),
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
 // depthFunc(func: number): void;
 // depthMask(flag: boolean): void;
@@ -359,6 +359,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // uniform3iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
 // uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
 // uniform4fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
 // uniform4iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
 // uniformMatrix2fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
@@ -1224,6 +1225,26 @@ napi_value WebGLRenderingContext::DeleteFramebuffer(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glDeleteFramebuffers(1, &frame_buffer);
+
+  // TODO(kreeger): Keep track of global objects.
+  context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DeleteShader(napi_env env,
+                                               napi_callback_info info) {
+  LOG_CALL("DeleteTexture");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint shader;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &shader);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDeleteShader(shader);
 
   // TODO(kreeger): Keep track of global objects.
   context->alloc_count_--;
@@ -2254,6 +2275,44 @@ napi_value WebGLRenderingContext::Uniform2i(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform2i(args[0], args[1], args[2]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform4fv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  size_t size;
+  void *data;
+  nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
+                                     nullptr, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform4fv(location, size,
+                                            reinterpret_cast<GLfloat *>(data));
 
 #if DEBUG
   context->CheckForErrors();

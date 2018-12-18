@@ -178,6 +178,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glDeleteFramebuffers"));
   glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(
       eglGetProcAddress("glDeleteProgram"));
+  glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(
+      eglGetProcAddress("glDeleteShader"));
   glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(
       eglGetProcAddress("glDeleteTextures"));
   glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(
@@ -238,6 +240,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUNIFORM1FVPROC>(eglGetProcAddress("glUniform1fv"));
   glUniform2i =
       reinterpret_cast<PFNGLUNIFORM2IPROC>(eglGetProcAddress("glUniform2i"));
+  glUniform4fv =
+      reinterpret_cast<PFNGLUNIFORM4FVPROC>(eglGetProcAddress("glUniform4fv"));
   glUniform4i =
       reinterpret_cast<PFNGLUNIFORM4IPROC>(eglGetProcAddress("glUniform4i"));
   glUseProgram =

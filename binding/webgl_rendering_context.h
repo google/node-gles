@@ -57,6 +57,7 @@ class WebGLRenderingContext {
   static napi_value DeleteBuffer(napi_env env, napi_callback_info info);
   static napi_value DeleteFramebuffer(napi_env env, napi_callback_info info);
   static napi_value DeleteProgram(napi_env env, napi_callback_info info);
+  static napi_value DeleteShader(napi_env env, napi_callback_info info);
   static napi_value DeleteTexture(napi_env env, napi_callback_info info);
   static napi_value Disable(napi_env env, napi_callback_info info);
   static napi_value DrawElements(napi_env env, napi_callback_info info);
@@ -86,6 +87,7 @@ class WebGLRenderingContext {
   static napi_value Uniform1f(napi_env env, napi_callback_info info);
   static napi_value Uniform1fv(napi_env env, napi_callback_info info);
   static napi_value Uniform2i(napi_env env, napi_callback_info info);
+  static napi_value Uniform4fv(napi_env env, napi_callback_info info);
   static napi_value Uniform4i(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);
   static napi_value VertexAttribPointer(napi_env env, napi_callback_info info);
