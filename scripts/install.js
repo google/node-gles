@@ -35,7 +35,9 @@ const platform = os.platform().toLowerCase();
 const platformArch = `${platform}-${os.arch().toLowerCase()}`;
 let ANGLE_BINARY_URI = 'https://storage.googleapis.com/angle-builds/';
 if (platform === 'darwin') {
-  ANGLE_BINARY_URI += 'angle-darwin-x64.tar.gz'
+  ANGLE_BINARY_URI += `angle-${platformArch}.tar.gz`
+} else if (platform === 'linux') {
+  ANGLE_BINARY_URI += `angle-3578-${platformArch}.tar.gz`;
 } else {
   throw new Error(`The platform ${platformArch} is not currently supported!`);
 }
