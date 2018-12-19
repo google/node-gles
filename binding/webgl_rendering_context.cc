@@ -254,7 +254,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // depthRange(zNear: number, zFar: number): void;
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
       NAPI_DEFINE_METHOD("disable", Disable),
-// disableVertexAttribArray(index: number): void;
+      NAPI_DEFINE_METHOD("disableVertexAttribArray", DisableVertexAttribArray),
       NAPI_DEFINE_METHOD("drawArrays", DrawArrays),
       NAPI_DEFINE_METHOD("drawElements", DrawElements),
       NAPI_DEFINE_METHOD("enable", Enable),
@@ -1327,6 +1327,24 @@ napi_value WebGLRenderingContext::Disable(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glDisable(cap);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DisableVertexAttribArray(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("DisableVertexAttribArray");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint index;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDisableVertexAttribArray(index);
 
 #if DEBUG
   context->CheckForErrors();
