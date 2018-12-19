@@ -261,7 +261,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("enableVertexAttribArray", EnableVertexAttribArray),
       NAPI_DEFINE_METHOD("finish", Finish),
       NAPI_DEFINE_METHOD("flush", Flush),
-// framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer | null): void;
+      NAPI_DEFINE_METHOD("framebufferRenderbuffer", FramebufferRenderbuffer),
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
 // frontFace(mode: number): void;
 // generateMipmap(target: number): void;
@@ -1548,6 +1548,27 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
     default:
       NAPI_THROW_ERROR(env, "Unsupported getParameter() option");
   }
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::FramebufferRenderbuffer(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("FramebufferRenderbuffer");
+
+  napi_status nstatus;
+
+  uint32_t args[4];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextUint32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glFramebufferRenderbuffer(args[0], args[1],
+                                                         args[2], args[3]);
 
 #if DEBUG
   context->CheckForErrors();

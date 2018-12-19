@@ -197,6 +197,9 @@ void EGLContextWrapper::BindProcAddresses() {
           eglGetProcAddress("glEnableVertexAttribArray"));
   glFinish = reinterpret_cast<PFNGLFINISHPROC>(eglGetProcAddress("glFinish"));
   glFlush = reinterpret_cast<PFNGLFLUSHPROC>(eglGetProcAddress("glFlush"));
+  glFramebufferRenderbuffer =
+      reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(
+          eglGetProcAddress("glFramebufferRenderbuffer"));
   glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(
       eglGetProcAddress("glFramebufferTexture2D"));
   glGenBuffers =

@@ -4,6 +4,13 @@ const gl = gles.binding.createWebGLRenderingContext();
 const gl2 = gl as WebGL2RenderingContext;
 gl.viewport(0, 0, 1, 1);
 
+function drawQuad(
+    positionAttribName: string, positionAttribZ: number,
+    positionAttribXYScale: number): void {
+  const previousBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
+  console.log('previousBuffer: ' + previousBuffer);
+}
+
 const samplingVs = 'attribute vec4 position;\n' +
     'varying vec2 texcoord;\n' +
     'void main()\n' +
@@ -58,6 +65,11 @@ const renderbuffer = gl.createRenderbuffer();
 gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
 gl.renderbufferStorage(gl.RENDERBUFFER, gl2.RGBA8, 1, 1);
 
+const framebuffer = gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, renderbuffer);
+
 const oes_ext = gl.getExtension('OES_texture_half_float');
 
 const texture = gl.createTexture();
@@ -72,9 +84,8 @@ gl.uniform1i(gl.getUniformLocation(program, 'tex'), 0);
 const floatData = new Float32Array([7000.0, 100.0, 33.0, -1.0]);
 gl.uniform4fv(gl.getUniformLocation(program, 'subtractor'), floatData);
 
-// const framebuffer = gl.createFramebuffer();
-// gl.bindFramebuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D,
-// texture);
-
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+drawQuad('position', 0.5, 1.0);
+// drawQuad()
