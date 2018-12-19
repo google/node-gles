@@ -1802,6 +1802,8 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
   nstatus = napi_create_int32(env, location, &location_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+  std::cerr << " --- program: " << program << std::endl;
+  std::cerr << " --- uniform name: " << uniform_name.c_str() << std::endl;
   std::cerr << " --- uniform location: " << location << std::endl;
 
 #if DEBUG

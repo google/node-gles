@@ -121,12 +121,12 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   context_attributes.push_back(EGL_FALSE);
 #endif
 
-  context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
-#if DEBUG
-  context_attributes.push_back(EGL_FALSE);
-#else
-  context_attributes.push_back(EGL_TRUE);
-#endif
+  //   context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+  // #if DEBUG
+  //   context_attributes.push_back(EGL_FALSE);
+  // #else
+  //   context_attributes.push_back(EGL_TRUE);
+  // #endif
 
   context_attributes.push_back(EGL_NONE);
 
