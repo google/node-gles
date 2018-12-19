@@ -65,11 +65,10 @@ gl.bindTexture(gl.TEXTURE_2D, texture);
 const texData = new Float32Array([0, 1, 2, 3]);
 gl.texImage2D(
     gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, oes_ext.HALF_FLOAT_OES,
-    texData);  // Need a different list?
+    texData);
 
 gl.uniform1i(gl.getUniformLocation(program, 'tex'), 0);
 
-// TODO(kreeger): Implement this method:
 const floatData = new Float32Array([7000.0, 100.0, 33.0, -1.0]);
 gl.uniform4fv(gl.getUniformLocation(program, 'subtractor'), floatData);
 
