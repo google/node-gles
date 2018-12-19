@@ -1545,6 +1545,20 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
       break;
     }
 
+    case GL_ARRAY_BUFFER_BINDING: {
+      GLint previous_buffer = 0;
+      context->eglContextWrapper_->glGetIntegerv(GL_ARRAY_BUFFER_BINDING,
+                                                 &previous_buffer);
+
+      napi_value previous_buffer_value;
+      nstatus = napi_create_int32(env, previous_buffer, &previous_buffer_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+      return previous_buffer_value;
+    }
+
+      // TODO(kreeger): Add more of these
+
     default:
       NAPI_THROW_ERROR(env, "Unsupported getParameter() option");
   }
