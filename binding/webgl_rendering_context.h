@@ -62,6 +62,7 @@ class WebGLRenderingContext {
   static napi_value DeleteShader(napi_env env, napi_callback_info info);
   static napi_value DeleteTexture(napi_env env, napi_callback_info info);
   static napi_value Disable(napi_env env, napi_callback_info info);
+  static napi_value DrawArrays(napi_env env, napi_callback_info info);
   static napi_value DrawElements(napi_env env, napi_callback_info info);
   static napi_value Enable(napi_env env, napi_callback_info info);
   static napi_value EnableVertexAttribArray(napi_env env,

@@ -255,7 +255,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
       NAPI_DEFINE_METHOD("disable", Disable),
 // disableVertexAttribArray(index: number): void;
-// drawArrays(mode: number, first: number, count: number): void;
+      NAPI_DEFINE_METHOD("drawArrays", DrawArrays),
       NAPI_DEFINE_METHOD("drawElements", DrawElements),
       NAPI_DEFINE_METHOD("enable", Enable),
       NAPI_DEFINE_METHOD("enableVertexAttribArray", EnableVertexAttribArray),
@@ -1334,6 +1334,49 @@ napi_value WebGLRenderingContext::Disable(napi_env env,
   return nullptr;
 }
 
+/* static */
+napi_value WebGLRenderingContext::DrawArrays(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("DrawArrays");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  for (size_t i = 0; i < 3; i++) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nullptr);
+  }
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum mode;
+  nstatus = napi_get_value_uint32(env, args[0], &mode);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint first;
+  nstatus = napi_get_value_int32(env, args[1], &first);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei count;
+  nstatus = napi_get_value_int32(env, args[2], &count);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDrawArrays(mode, first, count);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::DrawElements(napi_env env,
                                                napi_callback_info info) {
   LOG_CALL("DrawElements");

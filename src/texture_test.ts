@@ -5,10 +5,19 @@ const gl2 = gl as WebGL2RenderingContext;
 gl.viewport(0, 0, 1, 1);
 
 function drawQuad(
-    positionAttribName: string, positionAttribZ: number,
+    program: WebGLProgram, positionAttribName: string, positionAttribZ: number,
     positionAttribXYScale: number): void {
   const previousBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
-  console.log('previousBuffer: ' + previousBuffer);
+  const positionLocation = gl.getAttribLocation(program, positionAttribName);
+
+  // TODO setup quad vertex buffer
+
+  gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, previousBuffer);
+  gl.enableVertexAttribArray(positionLocation);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.disableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 4, gl.FLOAT, false, 0, 0);
 }
 
 const samplingVs = 'attribute vec4 position;\n' +
@@ -87,5 +96,5 @@ gl.uniform4fv(gl.getUniformLocation(program, 'subtractor'), floatData);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-drawQuad('position', 0.5, 1.0);
+drawQuad(program, 'position', 0.5, 1.0);
 // drawQuad()

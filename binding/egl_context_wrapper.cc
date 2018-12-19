@@ -187,6 +187,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glDeleteShader"));
   glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(
       eglGetProcAddress("glDeleteTextures"));
+  glDrawArrays =
+      reinterpret_cast<PFNGLDRAWARRAYSPROC>(eglGetProcAddress("glDrawArrays"));
   glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(
       eglGetProcAddress("glDrawElements"));
   glDisable =
