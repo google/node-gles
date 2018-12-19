@@ -1802,10 +1802,6 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
   nstatus = napi_create_int32(env, location, &location_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  std::cerr << " --- program: " << program << std::endl;
-  std::cerr << " --- uniform name: " << uniform_name.c_str() << std::endl;
-  std::cerr << " --- uniform location: " << location << std::endl;
-
 #if DEBUG
   context->CheckForErrors();
 #endif
@@ -2399,18 +2395,11 @@ napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  std::cerr << "   uniform: " << location << std::endl;
-  std::cerr << "   size: " << size << std::endl;
-  GLfloat *f_data = reinterpret_cast<GLfloat *>(data);
-  for (size_t i = 0; i < size; ++i) {
-    std::cerr << "    " << f_data[i] << std::endl;
-  }
-
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform4fv(location, size,
+  context->eglContextWrapper_->glUniform4fv(location, 1,
                                             reinterpret_cast<GLfloat *>(data));
 
 #if DEBUG
