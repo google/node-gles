@@ -46,6 +46,7 @@ class WebGLRenderingContext {
   static napi_value BindRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value BindTexture(napi_env env, napi_callback_info info);
   static napi_value BufferData(napi_env env, napi_callback_info info);
+  static napi_value BufferSubData(napi_env env, napi_callback_info info);
   static napi_value CheckFramebufferStatus(napi_env env,
                                            napi_callback_info info);
   static napi_value CompileShader(napi_env env, napi_callback_info info);
@@ -95,6 +96,9 @@ class WebGLRenderingContext {
   static napi_value Uniform1f(napi_env env, napi_callback_info info);
   static napi_value Uniform1fv(napi_env env, napi_callback_info info);
   static napi_value Uniform2i(napi_env env, napi_callback_info info);
+  static napi_value Uniform2f(napi_env env, napi_callback_info info);
+  static napi_value Uniform2iv(napi_env env, napi_callback_info info);
+  static napi_value Uniform3iv(napi_env env, napi_callback_info info);
   static napi_value Uniform4fv(napi_env env, napi_callback_info info);
   static napi_value Uniform4i(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);
