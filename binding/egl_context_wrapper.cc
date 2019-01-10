@@ -48,6 +48,7 @@ void LogExtensions(const char* extensions_name, const char* extensions) {
 EGLContextWrapper::EGLContextWrapper(napi_env env) {
   InitEGL(env);
   BindProcAddresses();
+  BindExtensions();
 
 #if DEBUG
   // LogExtensions("GL_EXTENSIONS",
@@ -109,8 +110,8 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
   context_attributes.push_back(EGL_TRUE);
 
-  context_attributes.push_back(EGL_EXTENSIONS_ENABLED_ANGLE);
-  context_attributes.push_back(EGL_TRUE);
+  // context_attributes.push_back(EGL_EXTENSIONS_ENABLED_ANGLE);
+  // context_attributes.push_back(EGL_TRUE);
 
   context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
 #if DEBUG
@@ -258,6 +259,37 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glVertexAttribPointer"));
   glViewport =
       reinterpret_cast<PFNGLVIEWPORTPROC>(eglGetProcAddress("glViewport"));
+
+  // ANGLE specific
+  glRequestExtensionANGLE = reinterpret_cast<PFNGLREQUESTEXTENSIONANGLEPROC>(
+      eglGetProcAddress("glRequestExtensionANGLE"));
+}
+
+void EGLContextWrapper::BindExtensions() {
+  //
+  // TODO - write me/doc me.
+  //
+
+  // GLint num_extensions = 0;
+  // this->glGetIntegerv(GL_NUM_REQUESTABLE_EXTENSIONS_ANGLE, &num_extensions);
+  // fprintf(stderr, "----> requestable extensions: %d\n", num_extensions);
+
+  const char* extensions = reinterpret_cast<const char*>(
+      this->glGetString(GL_REQUESTABLE_EXTENSIONS_ANGLE));
+
+  std::string s(extensions);
+  std::string delim = " ";
+  size_t pos = 0;
+  std::string token;
+  std::cout << "---- GL_REQUESTABLE_EXTENSIONS_ANGLE ----" << std::endl;
+  while ((pos = s.find(delim)) != std::string::npos) {
+    token = s.substr(0, pos);
+    std::cout << "Enabling: " << token << std::endl;
+    glRequestExtensionANGLE(token.c_str());
+    s.erase(0, pos + delim.length());
+  }
+  std::cout << s;
+  std::cout << "-------------------------" << std::endl;
 }
 
 EGLContextWrapper::~EGLContextWrapper() {

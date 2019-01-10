@@ -22,6 +22,7 @@
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include <string>
 
@@ -115,11 +116,15 @@ class EGLContextWrapper {
   PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
   PFNGLVIEWPORTPROC glViewport;
 
+  // ANGLE specific
+  PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
+
  private:
   EGLContextWrapper(napi_env env);
 
   void InitEGL(napi_env env);
   void BindProcAddresses();
+  void BindExtensions();
 };
 
 }  // namespace nodejsgl

@@ -40,25 +40,46 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-gl.texImage2D(
-    gl.TEXTURE_2D, 0, gl2.R16F, 1, 1, 0, gl2.RED, gl2.HALF_FLOAT, null);
-
-const values = new Float32Array([1.5, 0, 0, 0]);
-gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl2.RED, gl2.HALF_FLOAT, values);
 
 const framebuffer = gl.createFramebuffer();
-gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-gl.framebufferTexture2D(
-    gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-if (status != gl.FRAMEBUFFER_COMPLETE) {
-  console.error('Exception binding to framebuffer!');
+
+const floatTex = false;
+if (floatTex) {
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl2.R32F, 1, 1, 0, gl2.RED, gl.FLOAT, null);
+  const values = new Float32Array([1.5]);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl2.RED, gl.FLOAT, values);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(
+      gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (status != gl.FRAMEBUFFER_COMPLETE) {
+    console.error('Exception binding to framebuffer!');
+  }
+} else {
+  gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  const values = new Uint8Array([2, 0, 0, 0]);
+  gl.texSubImage2D(
+      gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, values);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(
+      gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (status != gl.FRAMEBUFFER_COMPLETE) {
+    console.error('Exception binding to framebuffer!');
+  }
 }
 
 gl.viewport(0, 0, 1, 1);
 gl.scissor(0, 0, 1, 1);
 gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
-const buffer = new Float32Array(4);
-gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.FLOAT, buffer);
-console.log('buffer', buffer);
+if (floatTex) {
+  const buffer = new Float32Array(1);
+  gl.readPixels(0, 0, 1, 1, gl2.RED, gl.FLOAT, buffer);
+  console.log('buffer', buffer);
+} else {
+  const buffer = new Uint8Array(4);
+  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buffer);
+  console.log('buffer', buffer);
+}
