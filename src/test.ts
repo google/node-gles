@@ -1,12 +1,14 @@
 import * as gles from '.';
 
 const gl = gles.binding.createWebGLRenderingContext();
+const gl2 = gl as WebGL2RenderingContext;
+
 //
 // TODO(kreeger): Port this to an actual Jasmine test.
 // - Ideally, the unit tests are running the WebGL Khronos test suite.
 //
 
-const oes_ext = gl.getExtension('OES_texture_half_float');
+// const oes_ext = gl.getExtension('OES_texture_half_float');
 
 gl.disable(gl.DEPTH_TEST);
 gl.disable(gl.STENCIL_TEST);
@@ -39,10 +41,10 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 gl.texImage2D(
-    gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, oes_ext.HALF_FLOAT_OES, null);
+    gl.TEXTURE_2D, 0, gl2.R16F, 1, 1, 0, gl2.RED, gl2.HALF_FLOAT, null);
 
 const values = new Float32Array([1.5, 0, 0, 0]);
-gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, values);
+gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl2.RED, gl2.HALF_FLOAT, values);
 
 const framebuffer = gl.createFramebuffer();
 gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);

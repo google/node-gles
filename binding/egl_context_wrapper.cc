@@ -106,13 +106,11 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   // Append attributes based on available features
   std::vector<EGLint> context_attributes;
 
-  // TODO(kreeger): Add the ability to define or look this up!
-  // Hard-code version 2 for now
-  // context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
-  // context_attributes.push_back(2);
+  context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+  context_attributes.push_back(EGL_TRUE);
 
-  // context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
-  // context_attributes.push_back(EGL_TRUE);
+  context_attributes.push_back(EGL_EXTENSIONS_ENABLED_ANGLE);
+  context_attributes.push_back(EGL_TRUE);
 
   context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
 #if DEBUG
@@ -121,17 +119,10 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   context_attributes.push_back(EGL_FALSE);
 #endif
 
-  //   context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
-  // #if DEBUG
-  //   context_attributes.push_back(EGL_FALSE);
-  // #else
-  //   context_attributes.push_back(EGL_TRUE);
-  // #endif
-
   context_attributes.push_back(EGL_NONE);
 
-  context = eglCreateContext(display, config, EGL_NO_CONTEXT,
-                             context_attributes.data());
+  context =
+      eglCreateContext(display, config, nullptr, context_attributes.data());
   if (context == EGL_NO_CONTEXT) {
     NAPI_THROW_ERROR(env, "Could not create context");
     return;
