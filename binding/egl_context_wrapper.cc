@@ -110,9 +110,6 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
   context_attributes.push_back(EGL_TRUE);
 
-  // context_attributes.push_back(EGL_EXTENSIONS_ENABLED_ANGLE);
-  // context_attributes.push_back(EGL_TRUE);
-
   context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
 #if DEBUG
   context_attributes.push_back(EGL_TRUE);
