@@ -107,6 +107,12 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   // Append attributes based on available features
   std::vector<EGLint> context_attributes;
 
+  context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+  context_attributes.push_back(2);
+
+  context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+  context_attributes.push_back(0);
+
   context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
   context_attributes.push_back(EGL_TRUE);
 
