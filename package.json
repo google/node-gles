@@ -23,7 +23,8 @@
     "@types/webgl2": "^0.0.4",
     "clang-format": "^1.2.4",
     "ts-node": "^7.0.1",
-    "typescript": "^3.0.3"
+    "typescript": "^3.0.3",
+    "yalc": "^1.0.0-pre.27"
   },
   "dependencies": {
     "adm-zip": "^0.4.13",

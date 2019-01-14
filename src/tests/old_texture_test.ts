@@ -1,4 +1,4 @@
-import * as gles from '.';
+import * as gles from '../.';
 
 const gl = gles.binding.createWebGLRenderingContext();
 const gl2 = gl as WebGL2RenderingContext;
