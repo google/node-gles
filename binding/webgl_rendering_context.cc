@@ -1539,6 +1539,20 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+  //
+  // TODO(kreeger): Need to load these extensions in ANGLE - not enabled by
+  // default!!!
+  //
+  // LEFT OFF RIGHT HERE
+  //
+
+  // context->eglContextWrapper_->glRequestExtensionANGLE(extension_name.c_str());
+  // std::cerr << "Enabling: " << extension_name << std::endl;
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
   // TODO(kreeger): Add more extension support here.
 
   if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
@@ -1548,7 +1562,21 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     nstatus = napi_create_object(env, &stub_object);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+    // Enable extension:
+    context->eglContextWrapper_->glRequestExtensionANGLE(
+        "GL_EXT_color_buffer_float");
+#if DEBUG
+    context->CheckForErrors();
+#endif
+
     return stub_object;
+  } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
+    // Enable extension:
+    context->eglContextWrapper_->glRequestExtensionANGLE(
+        "GL_OES_texture_float");
+#if DEBUG
+    context->CheckForErrors();
+#endif
   } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
     napi_value lose_context_value;
     nstatus = WebGL_LoseContextExtension::NewInstance(env, &lose_context_value);
@@ -1564,9 +1592,6 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     return oes_texture_half_float_value;
   }
 
-#if DEBUG
-  context->CheckForErrors();
-#endif
   return nullptr;
 }
 

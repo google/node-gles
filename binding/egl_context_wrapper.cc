@@ -51,8 +51,8 @@ EGLContextWrapper::EGLContextWrapper(napi_env env) {
   BindExtensions();
 
 #if DEBUG
-  // LogExtensions("GL_EXTENSIONS",
-  //               reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
+  LogExtensions("GL_EXTENSIONS",
+                reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
 #endif
 }
 
@@ -269,14 +269,6 @@ void EGLContextWrapper::BindProcAddresses() {
 }
 
 void EGLContextWrapper::BindExtensions() {
-  //
-  // TODO - write me/doc me.
-  //
-
-  // GLint num_extensions = 0;
-  // this->glGetIntegerv(GL_NUM_REQUESTABLE_EXTENSIONS_ANGLE, &num_extensions);
-  // fprintf(stderr, "----> requestable extensions: %d\n", num_extensions);
-
   const char* extensions = reinterpret_cast<const char*>(
       this->glGetString(GL_REQUESTABLE_EXTENSIONS_ANGLE));
 
@@ -284,15 +276,12 @@ void EGLContextWrapper::BindExtensions() {
   std::string delim = " ";
   size_t pos = 0;
   std::string token;
-  std::cout << "---- GL_REQUESTABLE_EXTENSIONS_ANGLE ----" << std::endl;
   while ((pos = s.find(delim)) != std::string::npos) {
     token = s.substr(0, pos);
-    std::cout << "Enabling: " << token << std::endl;
-    glRequestExtensionANGLE(token.c_str());
+    std::cout << "  - " << token << std::endl;
+    // glRequestExtensionANGLE(token.c_str());
     s.erase(0, pos + delim.length());
   }
-  std::cout << s;
-  std::cout << "-------------------------" << std::endl;
 }
 
 EGLContextWrapper::~EGLContextWrapper() {
