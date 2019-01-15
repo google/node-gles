@@ -308,7 +308,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getShaderParameter", GetShaderParameter),
 // getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat | null;
 // getShaderSource(shader: WebGLShader | null): string | null;
-// getSupportedExtensions(): string[] | null;
+      NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
 // getTexParameter(target: number, pname: number): any;
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
@@ -764,6 +764,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NapiDefineIntProperty(env, GL_HALF_FLOAT, "HALF_FLOAT"),
       NapiDefineIntProperty(env, GL_R16F, "R16F"),
       NapiDefineIntProperty(env, GL_R32F, "R32F"),
+      NapiDefineIntProperty(env, GL_RGBA16F, "RGBA16F"),
       NapiDefineIntProperty(env, GL_RGBA32F, "RGBA32F"),
       NapiDefineIntProperty(env, GL_RGBA8, "RGBA8"),
       NapiDefineIntProperty(env, GL_RED, "RED"),
@@ -1542,21 +1543,8 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  //
-  // TODO(kreeger): Need to load these extensions in ANGLE - not enabled by
-  // default!!!
-  //
-  // LEFT OFF RIGHT HERE
-  //
-
-  // context->eglContextWrapper_->glRequestExtensionANGLE(extension_name.c_str());
-  // std::cerr << "Enabling: " << extension_name << std::endl;
-
-#if DEBUG
-  context->CheckForErrors();
-#endif
-
-  // TODO(kreeger): Add more extension support here.
+  // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
+  // different names and matching that needs to be done in this binding.
 
   if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
     // TODO(kreeger): Determine if we need to actually look up the ability to
@@ -1568,6 +1556,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     // Enable extension:
     context->eglContextWrapper_->glRequestExtensionANGLE(
         "GL_EXT_color_buffer_float");
+    context->eglContextWrapper_->glRequestExtensionANGLE(
+        "GL_CHROMIUM_color_buffer_float_rgb");
+    context->eglContextWrapper_->glRequestExtensionANGLE(
+        "GL_CHROMIUM_color_buffer_float_rgba");
 #if DEBUG
     context->CheckForErrors();
 #endif
@@ -1891,6 +1883,45 @@ napi_value WebGLRenderingContext::GetShaderParameter(napi_env env,
   context->CheckForErrors();
 #endif
   return out_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetSupportedExtensions(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetSupportedExtensions");
+
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus;
+  nstatus = GetContext(env, info, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value extensions_value;
+  nstatus = napi_create_array(env, &extensions_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->RefreshGLExtensions();
+
+  std::string s(context->eglContextWrapper_->angle_requestable_extensions
+                    ->GetExtensions());
+
+  std::string delim = " ";
+  size_t pos = 0;
+  uint32_t index = 0;
+  std::string token;
+  while ((pos = s.find(delim)) != std::string::npos) {
+    token = s.substr(0, pos);
+    s.erase(0, pos + delim.length());
+
+    napi_value str_value;
+    nstatus =
+        napi_create_string_utf8(env, token.c_str(), token.size(), &str_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_set_element(env, extensions_value, index++, str_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
+
+  return extensions_value;
 }
 
 /* static */

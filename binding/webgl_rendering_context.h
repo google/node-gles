@@ -82,6 +82,8 @@ class WebGLRenderingContext {
   static napi_value GetProgramParameter(napi_env env, napi_callback_info info);
   static napi_value GetShaderInfoLog(napi_env env, napi_callback_info info);
   static napi_value GetShaderParameter(napi_env env, napi_callback_info info);
+  static napi_value GetSupportedExtensions(napi_env env,
+                                           napi_callback_info info);
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
   static napi_value LinkProgram(napi_env env, napi_callback_info info);
   static napi_value ReadPixels(napi_env env, napi_callback_info info);

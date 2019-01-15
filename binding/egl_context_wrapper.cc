@@ -23,7 +23,6 @@
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 
-#include <iostream>
 #include <vector>
 
 namespace nodejsgl {
@@ -49,12 +48,7 @@ EGLContextWrapper::EGLContextWrapper(napi_env env,
                                      const GLContextOptions& context_options) {
   InitEGL(env, context_options);
   BindProcAddresses();
-  BindExtensions();
-
-#if DEBUG
-  LogExtensions("GL_EXTENSIONS",
-                reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
-#endif
+  RefreshGLExtensions();
 }
 
 void EGLContextWrapper::InitEGL(napi_env env,
@@ -73,16 +67,11 @@ void EGLContextWrapper::InitEGL(napi_env env,
     return;
   }
 
-#if DEBUG
-  // TODO(kreeger): Clean this up.
-  // std::cerr << "major: " << major << std::endl;
-  // std::cerr << "minor: " << minor << std::endl;
-#endif
-
   egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
       new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
-  // egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
-  //     new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
+#if DEBUG
+  egl_extensions->LogExtensions();
+#endif
 
   EGLint attrib_list[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                           EGL_RED_SIZE,     8,
@@ -105,10 +94,6 @@ void EGLContextWrapper::InitEGL(napi_env env,
     return;
   }
 
-#if DEBUG
-  // LogExtensions("EGL_EXTENSIONS", eglQueryString(display, EGL_EXTENSIONS));
-#endif
-
   EGLint config_renderable_type;
   if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE,
                           &config_renderable_type)) {
@@ -130,20 +115,19 @@ void EGLContextWrapper::InitEGL(napi_env env,
   std::vector<EGLint> context_attributes;
 
   context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
-  context_attributes.push_back(2);
+  context_attributes.push_back(major_version);
 
   context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
-  context_attributes.push_back(0);
+  context_attributes.push_back(minor_version);
 
-  context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
-  context_attributes.push_back(EGL_TRUE);
+  // TODO(kreeger): Consider dropping this:
+  if (context_options.webgl_compatibility) {
+    context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+    context_attributes.push_back(EGL_TRUE);
+  }
 
-  context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
-#if DEBUG
-  context_attributes.push_back(EGL_TRUE);
-#else
-  context_attributes.push_back(EGL_FALSE);
-#endif
+  // context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+  // context_attributes.push_back(EGL_TRUE);
 
   context_attributes.push_back(EGL_NONE);
 
@@ -290,28 +274,29 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glRequestExtensionANGLE"));
 }
 
-void EGLContextWrapper::BindExtensions() {
-  const char* extensions = reinterpret_cast<const char*>(
-      this->glGetString(GL_REQUESTABLE_EXTENSIONS_ANGLE));
+void EGLContextWrapper::RefreshGLExtensions() {
+  gl_extensions = std::unique_ptr<GLExtensionsWrapper>(new GLExtensionsWrapper(
+      reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS))));
 
-  std::string s(extensions);
-  std::string delim = " ";
-  size_t pos = 0;
-  std::string token;
-  while ((pos = s.find(delim)) != std::string::npos) {
-    token = s.substr(0, pos);
-    std::cout << "  - " << token << std::endl;
-    // glRequestExtensionANGLE(token.c_str());
-    s.erase(0, pos + delim.length());
-  }
+  angle_requestable_extensions = std::unique_ptr<GLExtensionsWrapper>(
+      new GLExtensionsWrapper(reinterpret_cast<const char*>(
+          glGetString(GL_REQUESTABLE_EXTENSIONS_ANGLE))));
 }
 
 EGLContextWrapper::~EGLContextWrapper() {
+  if (context) {
+    if (!eglDestroyContext(display, context)) {
+      std::cerr << "Failed to delete EGL context: " << std::endl;
+    }
+    context = nullptr;
+  }
+
+  //
+  // TODO(kreeger): LEFT OFF RIGHT HERE.
+  //
+
   // TODO(kreeger): Close context attributes.
   // TODO(kreeger): Cleanup global objects.
-  // if (extensions_wrapper != nullptr) {
-  //   delete extensions_wrapper;
-  // }
 }
 
 EGLContextWrapper* EGLContextWrapper::Create(

@@ -24,6 +24,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+#include <iostream>
 #include <string>
 
 namespace nodejsgl {
@@ -39,15 +40,30 @@ struct GLContextOptions {
 class GLExtensionsWrapper {
  public:
   GLExtensionsWrapper(const char* extensions_str)
-      : client_extensions_(extensions_str) {}
-  // : client_extensions_(eglQueryString(display, EGL_EXTENSIONS)) {}
+      : extensions_(extensions_str) {}
 
   bool HasExtension(const char* name) {
-    return client_extensions_.find(name) != std::string::npos;
+    return extensions_.find(name) != std::string::npos;
   }
 
+  const char* GetExtensions() { return extensions_.c_str(); }
+
+#if DEBUG
+  void LogExtensions() {
+    std::string s(extensions_);
+    std::string delim = " ";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delim)) != std::string::npos) {
+      token = s.substr(0, pos);
+      s.erase(0, pos + delim.length());
+      std::cerr << token << std::endl;
+    }
+  }
+#endif
+
  private:
-  std::string client_extensions_;
+  std::string extensions_;
 };
 
 // Wraps an EGLContext instance for off screen usage.
@@ -66,6 +82,7 @@ class EGLContextWrapper {
 
   std::unique_ptr<GLExtensionsWrapper> egl_extensions;
   std::unique_ptr<GLExtensionsWrapper> gl_extensions;
+  std::unique_ptr<GLExtensionsWrapper> angle_requestable_extensions;
 
   // Function pointers
   PFNGLACTIVETEXTUREPROC glActiveTexture;
@@ -129,12 +146,14 @@ class EGLContextWrapper {
   // ANGLE specific
   PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
 
+  // Refreshes extensions list:
+  void RefreshGLExtensions();
+
  private:
   EGLContextWrapper(napi_env env, const GLContextOptions& context_options);
 
   void InitEGL(napi_env env, const GLContextOptions& context_options);
   void BindProcAddresses();
-  void BindExtensions();
 };
 
 }  // namespace nodejsgl
