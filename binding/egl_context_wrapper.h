@@ -25,6 +25,7 @@
 #include <GLES2/gl2ext.h>
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace nodejsgl {

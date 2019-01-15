@@ -17,7 +17,7 @@
 # Node.js TensorFlow Binding config:
 {
   'variables' : {
-    'angle_lib_dir': '<(module_root_dir)/../angle/out/Release'
+    'angle_lib_dir': '<(module_root_dir)/deps/angle/out/Release'
   },
   'targets' : [{
     'target_name' : 'nodejs_gl_binding',
