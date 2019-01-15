@@ -45,8 +45,9 @@ void LogExtensions(const char* extensions_name, const char* extensions) {
 }
 #endif
 
-EGLContextWrapper::EGLContextWrapper(napi_env env) {
-  InitEGL(env);
+EGLContextWrapper::EGLContextWrapper(napi_env env,
+                                     const GLContextOptions& context_options) {
+  InitEGL(env, context_options);
   BindProcAddresses();
   BindExtensions();
 
@@ -56,7 +57,8 @@ EGLContextWrapper::EGLContextWrapper(napi_env env) {
 #endif
 }
 
-void EGLContextWrapper::InitEGL(napi_env env) {
+void EGLContextWrapper::InitEGL(napi_env env,
+                                const GLContextOptions& context_options) {
   // TODO(kreeger): Figure out how to make this work headless
   display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (display == EGL_NO_DISPLAY) {
@@ -77,7 +79,10 @@ void EGLContextWrapper::InitEGL(napi_env env) {
   // std::cerr << "minor: " << minor << std::endl;
 #endif
 
-  extensions_wrapper = new EGLExtensionsWrapper(display);
+  egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
+      new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
+  // egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
+  //     new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
 
   EGLint attrib_list[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
                           EGL_RED_SIZE,     8,
@@ -103,6 +108,23 @@ void EGLContextWrapper::InitEGL(napi_env env) {
 #if DEBUG
   // LogExtensions("EGL_EXTENSIONS", eglQueryString(display, EGL_EXTENSIONS));
 #endif
+
+  EGLint config_renderable_type;
+  if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE,
+                          &config_renderable_type)) {
+    NAPI_THROW_ERROR(env, "Failed to get EGL_RENDERABLE_TYPE");
+    return;
+  }
+
+  // If the requested context is ES3 but the config cannot support ES3, request
+  // ES2 instead.
+  EGLint major_version = context_options.client_major_es_version;
+  EGLint minor_version = context_options.client_minor_es_version;
+  if ((config_renderable_type & EGL_OPENGL_ES3_BIT) == 0 &&
+      major_version >= 3) {
+    major_version = 2;
+    minor_version = 0;
+  }
 
   // Append attributes based on available features
   std::vector<EGLint> context_attributes;
@@ -287,13 +309,14 @@ void EGLContextWrapper::BindExtensions() {
 EGLContextWrapper::~EGLContextWrapper() {
   // TODO(kreeger): Close context attributes.
   // TODO(kreeger): Cleanup global objects.
-  if (extensions_wrapper != nullptr) {
-    delete extensions_wrapper;
-  }
+  // if (extensions_wrapper != nullptr) {
+  //   delete extensions_wrapper;
+  // }
 }
 
-EGLContextWrapper* EGLContextWrapper::Create(napi_env env) {
-  return new EGLContextWrapper(env);
+EGLContextWrapper* EGLContextWrapper::Create(
+    napi_env env, const GLContextOptions& context_options) {
+  return new EGLContextWrapper(env, context_options);
 }
 
 }  // namespace nodejsgl

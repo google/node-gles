@@ -28,11 +28,19 @@
 
 namespace nodejsgl {
 
-// Provides lookup of EGL extensions.
-class EGLExtensionsWrapper {
+// Provides initialization of EGL/GL context options.
+struct GLContextOptions {
+  bool webgl_compatibility = false;
+  int client_major_es_version = 3;
+  int client_minor_es_version = 0;
+};
+
+// Provides lookup of EGL/GL extensions.
+class GLExtensionsWrapper {
  public:
-  EGLExtensionsWrapper(EGLDisplay display)
-      : client_extensions_(eglQueryString(display, EGL_EXTENSIONS)) {}
+  GLExtensionsWrapper(const char* extensions_str)
+      : client_extensions_(extensions_str) {}
+  // : client_extensions_(eglQueryString(display, EGL_EXTENSIONS)) {}
 
   bool HasExtension(const char* name) {
     return client_extensions_.find(name) != std::string::npos;
@@ -48,14 +56,16 @@ class EGLContextWrapper {
   ~EGLContextWrapper();
 
   // Creates and in
-  static EGLContextWrapper* Create(napi_env env);
+  static EGLContextWrapper* Create(napi_env env,
+                                   const GLContextOptions& context_options);
 
   EGLContext context;
   EGLDisplay display;
   EGLConfig config;
   EGLSurface surface;
 
-  EGLExtensionsWrapper* extensions_wrapper;
+  std::unique_ptr<GLExtensionsWrapper> egl_extensions;
+  std::unique_ptr<GLExtensionsWrapper> gl_extensions;
 
   // Function pointers
   PFNGLACTIVETEXTUREPROC glActiveTexture;
@@ -120,9 +130,9 @@ class EGLContextWrapper {
   PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
 
  private:
-  EGLContextWrapper(napi_env env);
+  EGLContextWrapper(napi_env env, const GLContextOptions& context_options);
 
-  void InitEGL(napi_env env);
+  void InitEGL(napi_env env, const GLContextOptions& context_options);
   void BindProcAddresses();
   void BindExtensions();
 };

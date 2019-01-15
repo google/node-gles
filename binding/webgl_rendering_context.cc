@@ -188,7 +188,10 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
-  eglContextWrapper_ = EGLContextWrapper::Create(env);
+  GLContextOptions options;
+  options.webgl_compatibility = true;
+
+  eglContextWrapper_ = EGLContextWrapper::Create(env, options);
   if (!eglContextWrapper_) {
     NAPI_THROW_ERROR(env, "Could not create EGL context");
     return;
