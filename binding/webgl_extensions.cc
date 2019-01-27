@@ -25,6 +25,96 @@
 namespace nodejsgl {
 
 //==============================================================================
+// WebGL_OESTextureFloatExtension
+
+napi_ref WebGL_OESTextureFloatExtension::constructor_ref_;
+
+WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(
+    napi_env env, EGLContextWrapper* egl_context_wrapper)
+    : WebGLExtensionBase(env, egl_context_wrapper) {}
+
+WebGL_OESTextureFloatExtension::~WebGL_OESTextureFloatExtension() {}
+
+/* static */
+napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
+                                                     napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_float", NAPI_AUTO_LENGTH,
+                              WebGL_OESTextureFloatExtension::InitInternal,
+                              nullptr, 0, nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_OESTextureFloatExtension::NewInstance(napi_env env,
+                                                        napi_value* instance) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_value WebGL_OESTextureFloatExtension::InitInternal(
+    napi_env env, napi_callback_info info) {
+  ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
+
+  napi_status nstatus;
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // Unwrap EGLContextWrapper?
+
+  WebGL_OESTextureFloatExtension* extension =
+      new WebGL_OESTextureFloatExtension();
+  ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, extension, nullptr);
+
+  nstatus =
+      napi_wrap(env, js_this, extension, Cleanup, nullptr, &extension->ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // TODO - create instance of this class!
+
+  /* if (egl_context_wrapper_->gl_extensions->HasExtension( */
+  /*         "GL_OES_texture_float")) { */
+  /*   fprintf(stderr, "Has extension.\n"); */
+  /* } */
+
+  // TODO(kreeger): Need a reference to the EGL Context here....
+  // Load these extensions:
+  // if (context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //         "GL_OES_texture_float")) {
+  //   // Implicitly enable rendering to float textures
+  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //       "GL_CHROMIUM_color_buffer_float_rgba");
+  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //       "GL_CHROMIUM_color_buffer_float_rgb");
+  // }
+
+  return js_this;
+}
+
+/* static */
+void WebGL_OESTextureFloatExtension::Cleanup(napi_env env, void* native,
+                                             void* hint) {
+  // TODO(kreeger): write  me.
+}
+
+//==============================================================================
 // WebGL_LoseContextExtension
 
 napi_ref WebGL_LoseContextExtension::constructor_ref_;

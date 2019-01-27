@@ -20,10 +20,46 @@
 
 #include <node_api.h>
 
+#include "egl_context_wrapper.h"
+
+#ifndef NAPI_BOOTSTRAP_METHODS
+#define NAPI_BOOTSTRAP_METHODS                                            \
+  static napi_status Register(napi_env env, napi_value exports);          \
+  static napi_status NewInstance(napi_env env, napi_value* instance,      \
+                                 EGLContextWrapper* egl_context_wrapper); \
+                                                                          \
+ private:                                                                 \
+  static napi_ref constructor_ref_;
+#endif
+
 namespace nodejsgl {
 
-// TODO(kreeger): Let's create some type-defs and inheritance to keep these
-// classes clean!
+// Base class for all WebGL Extensions
+class WebGLExtensionBase {
+ public:
+  WebGLExtensionBase(napi_env env, EGLContextWrapper* egl_context_wrapper)
+      : env_(env), ref_(nullptr), egl_context_wrapper_(egl_context_wrapper) {}
+  virtual ~WebGLExtensionBase() { napi_delete_reference(env_, ref_); }
+
+ protected:
+  napi_env env_;
+  napi_ref ref_;
+  EGLContextWrapper* egl_context_wrapper_;  // use auto:ptr? weakptr?
+};
+
+// Provides 'OES_texture_float':
+class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
+ public:
+  WebGL_OESTextureFloatExtension(napi_env env,
+                                 EGLContextWrapper* egl_context_wrapper);
+  virtual ~WebGL_OESTextureFloatExtension();
+
+  NAPI_BOOTSTRAP_METHODS
+
+ private:
+  static napi_value InitInternal(napi_env env, napi_callback_info info);
+  static void Cleanup(napi_env env, void* native, void* hint);
+};
 
 // Provides the 'WEBGL_lose_context' extension:
 // https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/
