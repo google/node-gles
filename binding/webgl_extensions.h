@@ -37,21 +37,18 @@ namespace nodejsgl {
 // Base class for all WebGL Extensions
 class WebGLExtensionBase {
  public:
-  WebGLExtensionBase(napi_env env, EGLContextWrapper* egl_context_wrapper)
-      : env_(env), ref_(nullptr), egl_context_wrapper_(egl_context_wrapper) {}
+  WebGLExtensionBase(napi_env env) : env_(env), ref_(nullptr) {}
   virtual ~WebGLExtensionBase() { napi_delete_reference(env_, ref_); }
 
  protected:
   napi_env env_;
   napi_ref ref_;
-  EGLContextWrapper* egl_context_wrapper_;  // use auto:ptr? weakptr?
 };
 
 // Provides 'OES_texture_float':
 class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
  public:
-  WebGL_OESTextureFloatExtension(napi_env env,
-                                 EGLContextWrapper* egl_context_wrapper);
+  WebGL_OESTextureFloatExtension(napi_env env);
   virtual ~WebGL_OESTextureFloatExtension();
 
   NAPI_BOOTSTRAP_METHODS

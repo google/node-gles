@@ -1567,7 +1567,8 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     return stub_object;
   } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
     napi_value extension_value;
-    nstatus = WebGL_OESTextureFloatExtension::NewInstance(env, context);
+    nstatus = WebGL_OESTextureFloatExtension::NewInstance(
+        env, &extension_value, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 #if DEBUG
     context->CheckForErrors();

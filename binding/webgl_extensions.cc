@@ -29,9 +29,8 @@ namespace nodejsgl {
 
 napi_ref WebGL_OESTextureFloatExtension::constructor_ref_;
 
-WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(
-    napi_env env, EGLContextWrapper* egl_context_wrapper)
-    : WebGLExtensionBase(env, egl_context_wrapper) {}
+WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(napi_env env)
+    : WebGLExtensionBase(env) {}
 
 WebGL_OESTextureFloatExtension::~WebGL_OESTextureFloatExtension() {}
 
@@ -53,8 +52,9 @@ napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_OESTextureFloatExtension::NewInstance(napi_env env,
-                                                        napi_value* instance) {
+napi_status WebGL_OESTextureFloatExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -63,6 +63,23 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(napi_env env,
 
   nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  // TODO(kreeger): Check and enable things
+  /* if (egl_context_wrapper_->gl_extensions->HasExtension( */
+  /*         "GL_OES_texture_float")) { */
+  /*   fprintf(stderr, "Has extension.\n"); */
+  /* } */
+
+  // TODO(kreeger): Need a reference to the EGL Context here....
+  // Load these extensions:
+  // if (context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //         "GL_OES_texture_float")) {
+  //   // Implicitly enable rendering to float textures
+  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //       "GL_CHROMIUM_color_buffer_float_rgba");
+  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
+  //       "GL_CHROMIUM_color_buffer_float_rgb");
+  // }
 
   return napi_ok;
 }
@@ -80,30 +97,14 @@ napi_value WebGL_OESTextureFloatExtension::InitInternal(
   // Unwrap EGLContextWrapper?
 
   WebGL_OESTextureFloatExtension* extension =
-      new WebGL_OESTextureFloatExtension();
+      new WebGL_OESTextureFloatExtension(env);
   ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, extension, nullptr);
 
   nstatus =
       napi_wrap(env, js_this, extension, Cleanup, nullptr, &extension->ref_);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // TODO - create instance of this class!
-
-  /* if (egl_context_wrapper_->gl_extensions->HasExtension( */
-  /*         "GL_OES_texture_float")) { */
-  /*   fprintf(stderr, "Has extension.\n"); */
-  /* } */
-
-  // TODO(kreeger): Need a reference to the EGL Context here....
-  // Load these extensions:
-  // if (context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //         "GL_OES_texture_float")) {
-  //   // Implicitly enable rendering to float textures
-  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //       "GL_CHROMIUM_color_buffer_float_rgba");
-  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //       "GL_CHROMIUM_color_buffer_float_rgb");
-  // }
+  // TODO - create instance of this class?!
 
   return js_this;
 }
