@@ -64,22 +64,16 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(
   nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  // TODO(kreeger): Check and enable things
-  /* if (egl_context_wrapper_->gl_extensions->HasExtension( */
-  /*         "GL_OES_texture_float")) { */
-  /*   fprintf(stderr, "Has extension.\n"); */
-  /* } */
+  if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
+          "GL_OES_texture_float")) {
+    egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_float");
+    egl_context_wrapper->glRequestExtensionANGLE(
+        "GL_CHROMIUM_color_buffer_float_rgba");
+    egl_context_wrapper->glRequestExtensionANGLE(
+        "GL_CHROMIUM_color_buffer_float_rgb");
 
-  // TODO(kreeger): Need a reference to the EGL Context here....
-  // Load these extensions:
-  // if (context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //         "GL_OES_texture_float")) {
-  //   // Implicitly enable rendering to float textures
-  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //       "GL_CHROMIUM_color_buffer_float_rgba");
-  //   context->ExtensionsUtil()->EnsureExtensionEnabled(
-  //       "GL_CHROMIUM_color_buffer_float_rgb");
-  // }
+    egl_context_wrapper->RefreshGLExtensions();
+  }
 
   return napi_ok;
 }
