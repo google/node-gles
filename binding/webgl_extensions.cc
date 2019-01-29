@@ -75,12 +75,6 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(
     egl_context_wrapper->RefreshGLExtensions();
   }
 
-  // TEST HACK
-  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_texture_storage");
-  egl_context_wrapper->glRequestExtensionANGLE("GL_ANGLE_framebuffer_blit");
-  egl_context_wrapper->glRequestExtensionANGLE(
-      "GL_ANGLE_framebuffer_multisample");
-
   return napi_ok;
 }
 
@@ -112,7 +106,9 @@ napi_value WebGL_OESTextureFloatExtension::InitInternal(
 /* static */
 void WebGL_OESTextureFloatExtension::Cleanup(napi_env env, void* native,
                                              void* hint) {
+  //
   // TODO(kreeger): write  me.
+  //
 }
 
 //==============================================================================

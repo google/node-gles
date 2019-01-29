@@ -189,7 +189,6 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
   GLContextOptions options;
-  /* options.client_major_es_version = 2; */
   options.webgl_compatibility = true;
 
   eglContextWrapper_ = EGLContextWrapper::Create(env, options);
