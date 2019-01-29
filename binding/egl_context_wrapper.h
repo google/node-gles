@@ -22,23 +22,49 @@
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
+#include <iostream>
+#include <memory>
 #include <string>
 
 namespace nodejsgl {
 
-// Provides lookup of EGL extensions.
-class EGLExtensionsWrapper {
+// Provides initialization of EGL/GL context options.
+struct GLContextOptions {
+  bool webgl_compatibility = false;
+  int client_major_es_version = 3;
+  int client_minor_es_version = 0;
+};
+
+// Provides lookup of EGL/GL extensions.
+class GLExtensionsWrapper {
  public:
-  EGLExtensionsWrapper(EGLDisplay display)
-      : client_extensions_(eglQueryString(display, EGL_EXTENSIONS)) {}
+  GLExtensionsWrapper(const char* extensions_str)
+      : extensions_(extensions_str) {}
 
   bool HasExtension(const char* name) {
-    return client_extensions_.find(name) != std::string::npos;
+    return extensions_.find(name) != std::string::npos;
   }
 
+  const char* GetExtensions() { return extensions_.c_str(); }
+
+#if DEBUG
+  void LogExtensions() {
+    std::string s(extensions_);
+    std::string delim = " ";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delim)) != std::string::npos) {
+      token = s.substr(0, pos);
+      s.erase(0, pos + delim.length());
+      std::cerr << token << std::endl;
+    }
+  }
+#endif
+
  private:
-  std::string client_extensions_;
+  std::string extensions_;
 };
 
 // Wraps an EGLContext instance for off screen usage.
@@ -47,20 +73,24 @@ class EGLContextWrapper {
   ~EGLContextWrapper();
 
   // Creates and in
-  static EGLContextWrapper* Create(napi_env env);
+  static EGLContextWrapper* Create(napi_env env,
+                                   const GLContextOptions& context_options);
 
   EGLContext context;
   EGLDisplay display;
   EGLConfig config;
   EGLSurface surface;
 
-  EGLExtensionsWrapper* extensions_wrapper;
+  std::unique_ptr<GLExtensionsWrapper> egl_extensions;
+  std::unique_ptr<GLExtensionsWrapper> gl_extensions;
+  std::unique_ptr<GLExtensionsWrapper> angle_requestable_extensions;
 
   // Function pointers
   PFNGLACTIVETEXTUREPROC glActiveTexture;
   PFNGLATTACHSHADERPROC glAttachShader;
   PFNGLBINDBUFFERPROC glBindBuffer;
   PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+  PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
   PFNGLBINDTEXTUREPROC glBindTexture;
   PFNGLBUFFERDATAPROC glBufferData;
   PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
@@ -71,16 +101,21 @@ class EGLContextWrapper {
   PFNGLDELETEBUFFERSPROC glDeleteBuffers;
   PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
   PFNGLDELETEPROGRAMPROC glDeleteProgram;
+  PFNGLDELETESHADERPROC glDeleteShader;
   PFNGLDELETETEXTURESPROC glDeleteTextures;
   PFNGLDISABLEPROC glDisable;
+  PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+  PFNGLDRAWARRAYSPROC glDrawArrays;
   PFNGLDRAWELEMENTSPROC glDrawElements;
   PFNGLENABLEPROC glEnable;
   PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
   PFNGLFINISHPROC glFinish;
   PFNGLFLUSHPROC glFlush;
+  PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
   PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
   PFNGLGENBUFFERSPROC glGenBuffers;
   PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+  PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
   PFNGLGENTEXTURESPROC glGenTextures;
   PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
   PFNGLGETERRORPROC glGetError;
@@ -93,6 +128,7 @@ class EGLContextWrapper {
   PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
   PFNGLLINKPROGRAMPROC glLinkProgram;
   PFNGLREADPIXELSPROC glReadPixels;
+  PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
   PFNGLSCISSORPROC glScissor;
   PFNGLSHADERSOURCEPROC glShaderSource;
   PFNGLTEXIMAGE2DPROC glTexImage2D;
@@ -102,15 +138,22 @@ class EGLContextWrapper {
   PFNGLUNIFORM1FPROC glUniform1f;
   PFNGLUNIFORM1FVPROC glUniform1fv;
   PFNGLUNIFORM2IPROC glUniform2i;
+  PFNGLUNIFORM4FVPROC glUniform4fv;
   PFNGLUNIFORM4IPROC glUniform4i;
   PFNGLUSEPROGRAMPROC glUseProgram;
   PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
   PFNGLVIEWPORTPROC glViewport;
 
- private:
-  EGLContextWrapper(napi_env env);
+  // ANGLE specific
+  PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
 
-  void InitEGL(napi_env env);
+  // Refreshes extensions list:
+  void RefreshGLExtensions();
+
+ private:
+  EGLContextWrapper(napi_env env, const GLContextOptions& context_options);
+
+  void InitEGL(napi_env env, const GLContextOptions& context_options);
   void BindProcAddresses();
 };
 
