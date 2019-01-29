@@ -1547,7 +1547,6 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
   // different names and matching that needs to be done in this binding.
 
-  fprintf(stderr, "Enabling : %s\n", extension_name.c_str());
   if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
     // TODO(kreeger): Move this into those helper classes.
     //     napi_value stub_object;
@@ -1576,7 +1575,6 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
 #if DEBUG
     context->CheckForErrors();
 #endif
-
     return nullptr;
   } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
     napi_value extension_value;
@@ -1587,7 +1585,6 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
 #if DEBUG
     context->CheckForErrors();
 #endif
-
     return extension_value;
   } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
     napi_value lose_context_value;

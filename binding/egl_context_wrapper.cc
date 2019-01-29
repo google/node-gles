@@ -122,8 +122,8 @@ void EGLContextWrapper::InitEGL(napi_env env,
 
   context_attributes.push_back(EGL_NONE);
 
-  context =
-      eglCreateContext(display, config, EGL_NO_CONTEXT, context_attributes.data());
+  context = eglCreateContext(display, config, EGL_NO_CONTEXT,
+                             context_attributes.data());
   if (context == EGL_NO_CONTEXT) {
     NAPI_THROW_ERROR(env, "Could not create context");
     return;
