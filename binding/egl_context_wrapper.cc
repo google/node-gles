@@ -282,10 +282,6 @@ EGLContextWrapper::~EGLContextWrapper() {
     context = nullptr;
   }
 
-  //
-  // TODO(kreeger): LEFT OFF RIGHT HERE.
-  //
-
   // TODO(kreeger): Close context attributes.
   // TODO(kreeger): Cleanup global objects.
 }
