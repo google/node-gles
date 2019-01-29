@@ -89,53 +89,36 @@ void EGLContextWrapper::InitEGL(napi_env env,
     return;
   }
 
-  /* EGLint config_renderable_type; */
-  /* if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE, */
-  /*                         &config_renderable_type)) { */
-  /*   NAPI_THROW_ERROR(env, "Failed to get EGL_RENDERABLE_TYPE"); */
-  /*   return; */
-  /* } */
+  EGLint config_renderable_type;
+  if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE,
+                          &config_renderable_type)) {
+    NAPI_THROW_ERROR(env, "Failed to get EGL_RENDERABLE_TYPE");
+    return;
+  }
 
-  /* // If the requested context is ES3 but the config cannot support ES3, request */
-  /* // ES2 instead. */
-  /* EGLint major_version = context_options.client_major_es_version; */
-  /* EGLint minor_version = context_options.client_minor_es_version; */
-  /* if ((config_renderable_type & EGL_OPENGL_ES3_BIT) == 0 && */
-  /*     major_version >= 3) { */
-  /*   major_version = 2; */
-  /*   minor_version = 0; */
-  /* } */
+  // If the requested context is ES3 but the config cannot support ES3, request
+  // ES2 instead.
+  EGLint major_version = context_options.client_major_es_version;
+  EGLint minor_version = context_options.client_minor_es_version;
+  if ((config_renderable_type & EGL_OPENGL_ES3_BIT) == 0 &&
+      major_version >= 3) {
+    major_version = 2;
+    minor_version = 0;
+  }
 
   // Append attributes based on available features
   std::vector<EGLint> context_attributes;
 
-  context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
-  context_attributes.push_back(3);
+  context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+  context_attributes.push_back(major_version);
 
-  context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
-#if DEBUG
-  context_attributes.push_back(EGL_TRUE);
-#else
-  context_attributes.push_back(EGL_FALSE);
-#endif
+  context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+  context_attributes.push_back(minor_version);
 
-  context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
-#if DEBUG
-  context_attributes.push_back(EGL_FALSE);
-#else
-  context_attributes.push_back(EGL_TRUE);
-#endif
-
-  /* context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR); */
-  /* context_attributes.push_back(major_version); */
-
-  /* context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR); */
-  /* context_attributes.push_back(minor_version); */
-
-  /* if (context_options.webgl_compatibility) { */
-  /*   context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE); */
-  /*   context_attributes.push_back(EGL_TRUE); */
-  /* } */
+  if (context_options.webgl_compatibility) {
+    context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
+    context_attributes.push_back(EGL_TRUE);
+  }
 
   context_attributes.push_back(EGL_NONE);
 
