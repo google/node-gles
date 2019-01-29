@@ -72,6 +72,19 @@ export function createTexture2D(
 export function ensureFramebufferAttachment(gl: WebGLRenderingContext) {
   const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
   if (status != gl.FRAMEBUFFER_COMPLETE) {
+    if (status === gl.FRAMEBUFFER_COMPLETE) {
+      console.log('FRAMEBUFFER_COMPLETE');
+    } else if (status === gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+      console.log('FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+    } else if (status === gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+      console.log('FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+    } else if (status === gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
+      console.log('FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+    } else if (status === gl.FRAMEBUFFER_UNSUPPORTED) {
+      console.log('FRAMEBUFFER_UNSUPPORTED');
+    } else {
+      console.error('Unknown error');
+    }
     throw new Error('Exception binding to framebuffer!');
   }
 }

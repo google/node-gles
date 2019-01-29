@@ -189,6 +189,7 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
   GLContextOptions options;
+  /* options.client_major_es_version = 2; */
   options.webgl_compatibility = true;
 
   eglContextWrapper_ = EGLContextWrapper::Create(env, options);
@@ -1546,47 +1547,62 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
   // different names and matching that needs to be done in this binding.
 
+  fprintf(stderr, "Enabling : %s\n", extension_name.c_str());
   if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
-    // TODO(kreeger): Determine if we need to actually look up the ability to
-    // render a variety of floating point format.
-    napi_value stub_object;
-    nstatus = napi_create_object(env, &stub_object);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+    // TODO(kreeger): Move this into those helper classes.
+    //     napi_value stub_object;
+    //     nstatus = napi_create_object(env, &stub_object);
+    //     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    // Enable extension:
-    context->eglContextWrapper_->glRequestExtensionANGLE(
-        "GL_EXT_color_buffer_float");
-    context->eglContextWrapper_->glRequestExtensionANGLE(
-        "GL_CHROMIUM_color_buffer_float_rgb");
-    context->eglContextWrapper_->glRequestExtensionANGLE(
-        "GL_CHROMIUM_color_buffer_float_rgba");
+    //     // Enable extension:
+    //     context->eglContextWrapper_->glRequestExtensionANGLE(
+    //         "GL_EXT_color_buffer_float");
+    //     context->eglContextWrapper_->glRequestExtensionANGLE(
+    //         "GL_CHROMIUM_color_buffer_float_rgb");
+    //     context->eglContextWrapper_->glRequestExtensionANGLE(
+    //         "GL_CHROMIUM_color_buffer_float_rgba");
+    // #if DEBUG
+    //     context->CheckForErrors();
+    // #endif
+
+    //     return stub_object;
+
+    // Easy hack for now?
+
+    // This might be the problem?
+    // context->eglContextWrapper_->glRequestExtensionANGLE(
+    //     "GL_EXT_color_buffer_float");
+
 #if DEBUG
     context->CheckForErrors();
 #endif
 
-    return stub_object;
+    return nullptr;
   } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
-    fprintf(stderr, "----> DOING SOMETHING\n");
     napi_value extension_value;
     nstatus = WebGL_OESTextureFloatExtension::NewInstance(
         env, &extension_value, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
 #if DEBUG
     context->CheckForErrors();
 #endif
+
+    return extension_value;
   } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
     napi_value lose_context_value;
     nstatus = WebGL_LoseContextExtension::NewInstance(env, &lose_context_value);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
     return lose_context_value;
-  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
-    napi_value oes_texture_half_float_value;
-    nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
-        env, &oes_texture_half_float_value);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+    // } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0)
+    // {
+    //   napi_value oes_texture_half_float_value;
+    //   nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
+    //       env, &oes_texture_half_float_value);
+    //   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    return oes_texture_half_float_value;
+    //   return oes_texture_half_float_value;
   }
 
   return nullptr;

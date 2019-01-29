@@ -27,28 +27,21 @@
 
 namespace nodejsgl {
 
-#if DEBUG
-void LogExtensions(const char* extensions_name, const char* extensions) {
-  std::string s(extensions);
-  std::string delim = " ";
-  size_t pos = 0;
-  std::string token;
-  std::cout << "---- " << extensions_name << "----" << std::endl;
-  while ((pos = s.find(delim)) != std::string::npos) {
-    token = s.substr(0, pos);
-    std::cout << token << std::endl;
-    s.erase(0, pos + delim.length());
-  }
-  std::cout << s;
-  std::cout << "-------------------------" << std::endl;
-}
-#endif
-
 EGLContextWrapper::EGLContextWrapper(napi_env env,
                                      const GLContextOptions& context_options) {
   InitEGL(env, context_options);
   BindProcAddresses();
   RefreshGLExtensions();
+
+#if DEBUG
+  std::cerr << "** GL_EXTENSIONS:" << std::endl;
+  gl_extensions->LogExtensions();
+  std::cerr << std::endl;
+
+  std::cerr << "** REQUESTABLE_EXTENSIONS:" << std::endl;
+  angle_requestable_extensions->LogExtensions();
+  std::cerr << std::endl;
+#endif
 }
 
 void EGLContextWrapper::InitEGL(napi_env env,
@@ -70,7 +63,9 @@ void EGLContextWrapper::InitEGL(napi_env env,
   egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
       new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
 #if DEBUG
+  std::cerr << "** EGL_EXTENSIONS:" << std::endl;
   egl_extensions->LogExtensions();
+  std::cerr << std::endl;
 #endif
 
   EGLint attrib_list[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -94,45 +89,58 @@ void EGLContextWrapper::InitEGL(napi_env env,
     return;
   }
 
-  EGLint config_renderable_type;
-  if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE,
-                          &config_renderable_type)) {
-    NAPI_THROW_ERROR(env, "Failed to get EGL_RENDERABLE_TYPE");
-    return;
-  }
+  /* EGLint config_renderable_type; */
+  /* if (!eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE, */
+  /*                         &config_renderable_type)) { */
+  /*   NAPI_THROW_ERROR(env, "Failed to get EGL_RENDERABLE_TYPE"); */
+  /*   return; */
+  /* } */
 
-  // If the requested context is ES3 but the config cannot support ES3, request
-  // ES2 instead.
-  EGLint major_version = context_options.client_major_es_version;
-  EGLint minor_version = context_options.client_minor_es_version;
-  if ((config_renderable_type & EGL_OPENGL_ES3_BIT) == 0 &&
-      major_version >= 3) {
-    major_version = 2;
-    minor_version = 0;
-  }
+  /* // If the requested context is ES3 but the config cannot support ES3, request */
+  /* // ES2 instead. */
+  /* EGLint major_version = context_options.client_major_es_version; */
+  /* EGLint minor_version = context_options.client_minor_es_version; */
+  /* if ((config_renderable_type & EGL_OPENGL_ES3_BIT) == 0 && */
+  /*     major_version >= 3) { */
+  /*   major_version = 2; */
+  /*   minor_version = 0; */
+  /* } */
 
   // Append attributes based on available features
   std::vector<EGLint> context_attributes;
 
-  context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
-  context_attributes.push_back(major_version);
+  context_attributes.push_back(EGL_CONTEXT_CLIENT_VERSION);
+  context_attributes.push_back(3);
 
-  context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
-  context_attributes.push_back(minor_version);
+  context_attributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
+#if DEBUG
+  context_attributes.push_back(EGL_TRUE);
+#else
+  context_attributes.push_back(EGL_FALSE);
+#endif
 
-  // TODO(kreeger): Consider dropping this:
-  if (context_options.webgl_compatibility) {
-    context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE);
-    context_attributes.push_back(EGL_TRUE);
-  }
+  context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+#if DEBUG
+  context_attributes.push_back(EGL_FALSE);
+#else
+  context_attributes.push_back(EGL_TRUE);
+#endif
 
-  // context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
-  // context_attributes.push_back(EGL_TRUE);
+  /* context_attributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR); */
+  /* context_attributes.push_back(major_version); */
+
+  /* context_attributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR); */
+  /* context_attributes.push_back(minor_version); */
+
+  /* if (context_options.webgl_compatibility) { */
+  /*   context_attributes.push_back(EGL_CONTEXT_WEBGL_COMPATIBILITY_ANGLE); */
+  /*   context_attributes.push_back(EGL_TRUE); */
+  /* } */
 
   context_attributes.push_back(EGL_NONE);
 
   context =
-      eglCreateContext(display, config, nullptr, context_attributes.data());
+      eglCreateContext(display, config, EGL_NO_CONTEXT, context_attributes.data());
   if (context == EGL_NO_CONTEXT) {
     NAPI_THROW_ERROR(env, "Could not create context");
     return;
@@ -281,11 +289,6 @@ void EGLContextWrapper::RefreshGLExtensions() {
   angle_requestable_extensions = std::unique_ptr<GLExtensionsWrapper>(
       new GLExtensionsWrapper(reinterpret_cast<const char*>(
           glGetString(GL_REQUESTABLE_EXTENSIONS_ANGLE))));
-
-#if DEBUG
-  gl_extensions->LogExtensions();
-  angle_requestable_extensions->LogExtensions();
-#endif
 }
 
 EGLContextWrapper::~EGLContextWrapper() {

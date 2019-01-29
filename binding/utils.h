@@ -30,7 +30,7 @@
 #define DEBUG 0
 #endif
 
-#define LOG_CALLS 0
+#define LOG_CALLS 1
 
 #define DEBUG_LOG(message, file, lineNumber)                             \
   do {                                                                   \
