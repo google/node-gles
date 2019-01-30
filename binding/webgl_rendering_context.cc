@@ -1591,14 +1591,16 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
     return lose_context_value;
-    // } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0)
-    // {
-    //   napi_value oes_texture_half_float_value;
-    //   nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
-    //       env, &oes_texture_half_float_value);
-    //   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
+    napi_value extension_value;
+    nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
+        env, &extension_value, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    //   return oes_texture_half_float_value;
+#if DEBUG
+    context->CheckForErrors();
+#endif
+    return extension_value;
   }
 
   return nullptr;
