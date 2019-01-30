@@ -81,6 +81,7 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(
 /* static */
 napi_value WebGL_OESTextureFloatExtension::InitInternal(
     napi_env env, napi_callback_info info) {
+  // TODO(kreeger): Make this a base method
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
 
   napi_status nstatus;
@@ -88,27 +89,82 @@ napi_value WebGL_OESTextureFloatExtension::InitInternal(
   nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // Unwrap EGLContextWrapper?
-
-  WebGL_OESTextureFloatExtension* extension =
-      new WebGL_OESTextureFloatExtension(env);
-  ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, extension, nullptr);
-
-  nstatus =
-      napi_wrap(env, js_this, extension, Cleanup, nullptr, &extension->ref_);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  // TODO - create instance of this class?!
-
   return js_this;
 }
 
+//==============================================================================
+// WebGL_OESTextureFloatExtension
+
+napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
+
+WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
+    napi_env env)
+    : WebGLExtensionBase(env) {}
+
+WebGL_OESTextureHalfFloatExtension::~WebGL_OESTextureHalfFloatExtension() {}
+
 /* static */
-void WebGL_OESTextureFloatExtension::Cleanup(napi_env env, void* native,
-                                             void* hint) {
-  //
-  // TODO(kreeger): write  me.
-  //
+napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
+                                                         napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_HALF_FLOAT_OES, "HALF_FLOAT_OES")};
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
+                              WebGL_OESTextureHalfFloatExtension::InitInternal,
+                              nullptr, ARRAY_SIZE(properties), properties,
+                              &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  /* // Enable the extensions: */
+  if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
+          "GL_OES_texture_half_float")) {
+    egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_half_float");
+    egl_context_wrapper->RefreshGLExtensions();
+  }
+  if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
+          "GL_EXT_color_buffer_half_float")) {
+    egl_context_wrapper->glRequestExtensionANGLE(
+        "GL_EXT_color_buffer_half_float");
+    egl_context_wrapper->RefreshGLExtensions();
+  }
+
+  return napi_ok;
+}
+
+/* static */
+napi_value WebGL_OESTextureHalfFloatExtension::InitInternal(
+    napi_env env, napi_callback_info info) {
+  // TODO(kreeger): Make this a base method
+  ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
+
+  napi_status nstatus;
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return js_this;
 }
 
 //==============================================================================
@@ -202,79 +258,6 @@ napi_value WebGL_LoseContextExtension::RestoreContext(napi_env env,
                                                       napi_callback_info info) {
   // TODO(kreeger): No-op OK?
   return nullptr;
-}
-
-//==============================================================================
-// WebGL_OESTextureHalfFloatExtension
-
-napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
-
-WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
-    napi_env env)
-    : env_(env), ref_(nullptr) {}
-
-WebGL_OESTextureHalfFloatExtension::~WebGL_OESTextureHalfFloatExtension() {
-  // TODO(kreeger): Auto-clean this up with inheritance?
-  napi_delete_reference(env_, ref_);
-}
-
-/* static */
-napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
-                                                         napi_value exports) {
-  napi_status nstatus;
-
-  napi_property_descriptor properties[] = {
-      NapiDefineIntProperty(env, GL_HALF_FLOAT_OES, "HALF_FLOAT_OES")};
-
-  napi_value ctor_value;
-  nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
-                              WebGL_OESTextureHalfFloatExtension::InitInternal,
-                              nullptr, ARRAY_SIZE(properties), properties,
-                              &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
-}
-
-/* static */
-napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
-    napi_env env, napi_value* instance) {
-  napi_status nstatus;
-
-  napi_value ctor_value;
-  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
-}
-
-/* static */
-napi_value WebGL_OESTextureHalfFloatExtension::InitInternal(
-    napi_env env, napi_callback_info info) {
-  ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
-
-  napi_status nstatus;
-  napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  // TODO(kreeger): No need to wrap - can this method go away?
-
-  return js_this;
-}
-
-/* static */
-void WebGL_OESTextureHalfFloatExtension::Cleanup(napi_env env, void* native,
-                                                 void* hint) {
-  WebGL_OESTextureHalfFloatExtension* extension =
-      static_cast<WebGL_OESTextureHalfFloatExtension*>(native);
-  delete extension;
 }
 
 }  // namespace nodejsgl
