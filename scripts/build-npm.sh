@@ -18,6 +18,5 @@ set -e
 
 rimraf dist/
 yarn
-yarn prep
 tsc --sourceMap false
 npm pack
