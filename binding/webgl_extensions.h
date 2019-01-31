@@ -43,6 +43,10 @@ class WebGLExtensionBase {
   // TODO(kreeger): Need a 'supported' method here!
 
  protected:
+  // Returns a default JS object without wrapping a C++ object. Subclasses that
+  // don't need to expose any methods should use this.
+  static napi_value InitStubClass(napi_env env, napi_callback_info info);
+
   napi_env env_;
   napi_ref ref_;
 };
@@ -57,7 +61,6 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  private:
-  static napi_value InitInternal(napi_env env, napi_callback_info info);
   static void Cleanup(napi_env env, void* native, void* hint);
 };
 
@@ -69,9 +72,6 @@ class WebGL_OESTextureHalfFloatExtension : public WebGLExtensionBase {
   virtual ~WebGL_OESTextureHalfFloatExtension();
 
   NAPI_BOOTSTRAP_METHODS
-
- private:
-  static napi_value InitInternal(napi_env env, napi_callback_info info);
 };
 
 //
