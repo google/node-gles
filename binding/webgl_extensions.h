@@ -24,6 +24,7 @@
 
 #ifndef NAPI_BOOTSTRAP_METHODS
 #define NAPI_BOOTSTRAP_METHODS                                            \
+ public:                                                                  \
   static napi_status Register(napi_env env, napi_value exports);          \
   static napi_status NewInstance(napi_env env, napi_value* instance,      \
                                  EGLContextWrapper* egl_context_wrapper); \
@@ -36,16 +37,19 @@ namespace nodejsgl {
 
 // Base class for all WebGL Extensions
 class WebGLExtensionBase {
- public:
-  WebGLExtensionBase(napi_env env) : env_(env), ref_(nullptr) {}
-  virtual ~WebGLExtensionBase() { napi_delete_reference(env_, ref_); }
-
   // TODO(kreeger): Need a 'supported' method here!
 
  protected:
+  WebGLExtensionBase(napi_env env) : env_(env), ref_(nullptr) {}
+  virtual ~WebGLExtensionBase() { napi_delete_reference(env_, ref_); }
+
   // Returns a default JS object without wrapping a C++ object. Subclasses that
   // don't need to expose any methods should use this.
   static napi_value InitStubClass(napi_env env, napi_callback_info info);
+
+  // Creates a new instance from a constructor ref.
+  static napi_status NewInstanceBase(napi_env env, napi_ref constructor_ref,
+                                     napi_value* instance);
 
   napi_env env_;
   napi_ref ref_;
@@ -54,51 +58,42 @@ class WebGLExtensionBase {
 // Provides 'OES_texture_float':
 // https://www.khronos.org/registry/webgl/extensions/OES_texture_float/
 class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
- public:
-  WebGL_OESTextureFloatExtension(napi_env env);
-  virtual ~WebGL_OESTextureFloatExtension();
-
   NAPI_BOOTSTRAP_METHODS
 
+ protected:
+  WebGL_OESTextureFloatExtension(napi_env env);
+  virtual ~WebGL_OESTextureFloatExtension() {}
+
  private:
-  static void Cleanup(napi_env env, void* native, void* hint);
+  static void Cleanup(napi_env env, void* native, void* hint);  // REmove?
 };
 
 // Provides 'OES_texture_half_float':
 // https://www.khronos.org/registry/webgl/extensions/OES_texture_half_float/
 class WebGL_OESTextureHalfFloatExtension : public WebGLExtensionBase {
- public:
-  WebGL_OESTextureHalfFloatExtension(napi_env env);
-  virtual ~WebGL_OESTextureHalfFloatExtension();
-
   NAPI_BOOTSTRAP_METHODS
-};
 
-//
-// TODO(kreeger): Cleanup the below classes:
+ protected:
+  WebGL_OESTextureHalfFloatExtension(napi_env env);
+  virtual ~WebGL_OESTextureHalfFloatExtension() {}
+};
 
 // Provides the 'WEBGL_lose_context' extension:
 // https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/
-class WebGL_LoseContextExtension {
- public:
-  static napi_status Register(napi_env env, napi_value exports);
-  static napi_status NewInstance(napi_env env, napi_value* instance);
+class WebGL_LoseContextExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
 
- private:
+ protected:
   WebGL_LoseContextExtension(napi_env env);
-  ~WebGL_LoseContextExtension();
-
-  static napi_value InitInternal(napi_env env, napi_callback_info info);
-  static void Cleanup(napi_env env, void* native, void* hint);
+  virtual ~WebGL_LoseContextExtension() {}
 
   // User facing methods:
   static napi_value LoseContext(napi_env env, napi_callback_info info);
   static napi_value RestoreContext(napi_env env, napi_callback_info info);
 
-  static napi_ref constructor_ref_;
-
-  napi_env env_;
-  napi_ref ref_;
+ private:
+  static napi_value InitInternal(napi_env env, napi_callback_info info);
+  static void Cleanup(napi_env env, void* native, void* hint);
 };
 
 }  // namespace nodejsgl

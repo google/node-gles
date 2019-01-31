@@ -25,10 +25,11 @@
 namespace nodejsgl {
 
 //==============================================================================
-// WebGL_OESTextureFloatExtension
+// WebGLExtensionBase
 
-  /* static */
-napi_value WebGLExtensionBase::InitStubClass(napi_env env, napi_callback_info info) {
+/* static */
+napi_value WebGLExtensionBase::InitStubClass(napi_env env,
+                                             napi_callback_info info) {
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
 
   napi_status nstatus;
@@ -39,6 +40,22 @@ napi_value WebGLExtensionBase::InitStubClass(napi_env env, napi_callback_info in
   return js_this;
 }
 
+/* static */
+napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
+                                                napi_ref constructor_ref,
+                                                napi_value* instance) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_get_reference_value(env, constructor_ref, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
 //==============================================================================
 // WebGL_OESTextureFloatExtension
 
@@ -47,8 +64,6 @@ napi_ref WebGL_OESTextureFloatExtension::constructor_ref_;
 WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(napi_env env)
     : WebGLExtensionBase(env) {}
 
-WebGL_OESTextureFloatExtension::~WebGL_OESTextureFloatExtension() {}
-
 /* static */
 napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
                                                      napi_value exports) {
@@ -56,8 +71,8 @@ napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "OES_texture_float", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass,
-                              nullptr, 0, nullptr, &ctor_value);
+                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -70,13 +85,7 @@ napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
 napi_status WebGL_OESTextureFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
-  napi_status nstatus;
-
-  napi_value ctor_value;
-  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
@@ -102,8 +111,6 @@ WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
     napi_env env)
     : WebGLExtensionBase(env) {}
 
-WebGL_OESTextureHalfFloatExtension::~WebGL_OESTextureHalfFloatExtension() {}
-
 /* static */
 napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
                                                          napi_value exports) {
@@ -114,9 +121,8 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass,
-                              nullptr, ARRAY_SIZE(properties), properties,
-                              &ctor_value);
+                              WebGLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -129,16 +135,9 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
-  napi_status nstatus;
-
-  napi_value ctor_value;
-  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  /* // Enable the extensions: */
   if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
           "GL_OES_texture_half_float")) {
     egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_half_float");
@@ -158,14 +157,6 @@ napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
 // WebGL_LoseContextExtension
 
 napi_ref WebGL_LoseContextExtension::constructor_ref_;
-
-WebGL_LoseContextExtension::WebGL_LoseContextExtension(napi_env env)
-    : env_(env), ref_(nullptr) {}
-
-WebGL_LoseContextExtension::~WebGL_LoseContextExtension() {
-  // TODO(kreeger): Auto-clean this up with inheritance?
-  napi_delete_reference(env_, ref_);
-}
 
 /* static */
 napi_status WebGL_LoseContextExtension::Register(napi_env env,
@@ -189,18 +180,10 @@ napi_status WebGL_LoseContextExtension::Register(napi_env env,
 }
 
 /* static  */
-napi_status WebGL_LoseContextExtension::NewInstance(napi_env env,
-                                                    napi_value* instance) {
-  napi_status nstatus;
-
-  napi_value ctor_value;
-  nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
+napi_status WebGL_LoseContextExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  return NewInstanceBase(env, constructor_ref_, instance);
 }
 
 /* static */
