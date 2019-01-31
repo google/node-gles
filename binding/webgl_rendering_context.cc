@@ -188,6 +188,10 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
+  //
+  // TODO(kreeger): Make this an option that can be passed into the binding when
+  // constructing a WebGL session: https://github.com/google/node-gles/issues/9
+  //
   GLContextOptions options;
   options.webgl_compatibility = true;
 
