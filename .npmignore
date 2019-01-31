@@ -1,6 +1,6 @@
 .vscode/
 demo/
-deps/tensorflow/*
+deps/angle/*
 scripts/build-npm.sh
 scripts/make-version
 scripts/tag-version
