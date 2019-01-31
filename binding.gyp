@@ -51,6 +51,30 @@
           ],
           'library_dirs' : ['<(angle_lib_dir)'],
         }
+      ],
+      [
+        'OS=="win"', {
+          'defines': ['COMPILER_MSVC'],
+          'libraries': ['libEGL', 'libGLESv2'],
+          'library_dirs' : ['<(module_root_dir)/../angle/out/Release'],
+          'actions': [
+            # {
+            #   'action_name': 'generate_def',
+            #   'inputs': [
+            #     '<(module_root_dir)/scripts/generate_defs.js',
+            #     '<@(tensorflow_headers)',
+            #     "<(PRODUCT_DIR)/tensorflow.dll"
+            #   ],
+            #   'outputs': [
+            #     '<(INTERMEDIATE_DIR)/tensorflow.def'
+            #   ],
+            #   'action': [
+            #     'cmd',
+            #     '/c node <@(_inputs) > <@(_outputs)'
+            #   ]
+            # },
+          ],
+        },
       ]
     ]
   }]
