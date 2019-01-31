@@ -120,6 +120,11 @@ void EGLContextWrapper::InitEGL(napi_env env,
     context_attributes.push_back(EGL_TRUE);
   }
 
+  // TODO(kreeger): This is only needed to avoid validation.
+  // This is needed for OES_TEXTURE_HALF_FLOAT textures uploading as FLOAT
+  context_attributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+  context_attributes.push_back(EGL_TRUE);
+
   context_attributes.push_back(EGL_NONE);
 
   context = eglCreateContext(display, config, EGL_NO_CONTEXT,
