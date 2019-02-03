@@ -35,6 +35,11 @@
 
 namespace nodejsgl {
 
+// TODO(kreeger): WebGL extensions enable a variety of core ANGLE extensions.
+// This directory contains the extensions Chrome enables through WebGL
+// extensions:
+// https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/webgl/
+
 // Base class for all WebGL Extensions
 class WebGLExtensionBase {
   // TODO(kreeger): Need a 'supported' method here!
