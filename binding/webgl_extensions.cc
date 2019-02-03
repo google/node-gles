@@ -65,6 +65,12 @@ WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(napi_env env)
     : WebGLExtensionBase(env) {}
 
 /* static */
+bool WebGL_OESTextureFloatExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  return true;
+}
+
+/* static */
 napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
                                                      napi_value exports) {
   napi_status nstatus;
@@ -110,6 +116,12 @@ napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
 WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
     napi_env env)
     : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_OESTextureHalfFloatExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  return true;
+}
 
 /* static */
 napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
@@ -162,6 +174,12 @@ WebGL_EXTColorBufferFloat::WebGL_EXTColorBufferFloat(napi_env env)
     : WebGLExtensionBase(env) {}
 
 /* static */
+bool WebGL_EXTColorBufferFloat::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  return true;
+}
+
+/* static */
 napi_status WebGL_EXTColorBufferFloat::Register(napi_env env,
                                                 napi_value exports) {
   napi_status nstatus;
@@ -192,6 +210,12 @@ napi_status WebGL_EXTColorBufferFloat::NewInstance(
 // WebGL_LoseContextExtension
 
 napi_ref WebGL_LoseContextExtension::constructor_ref_;
+
+/* static */
+bool WebGL_LoseContextExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  return true;
+}
 
 /* static */
 napi_status WebGL_LoseContextExtension::Register(napi_env env,

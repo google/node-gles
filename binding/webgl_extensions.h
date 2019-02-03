@@ -25,6 +25,7 @@
 #ifndef NAPI_BOOTSTRAP_METHODS
 #define NAPI_BOOTSTRAP_METHODS                                            \
  public:                                                                  \
+  static bool IsSupported(EGLContextWrapper* egl_context_wrapper);        \
   static napi_status Register(napi_env env, napi_value exports);          \
   static napi_status NewInstance(napi_env env, napi_value* instance,      \
                                  EGLContextWrapper* egl_context_wrapper); \
