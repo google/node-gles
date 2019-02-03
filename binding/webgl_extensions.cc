@@ -103,7 +103,7 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(
 }
 
 //==============================================================================
-// WebGL_OESTextureFloatExtension
+// WebGL_OESTextureHalfFloatExtension
 
 napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
 
@@ -152,6 +152,13 @@ napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
 
   return napi_ok;
 }
+
+//==============================================================================
+// WebGL_EXTColorBufferFloat
+
+//
+// TODO(kreeger): left off right here.
+//
 
 //==============================================================================
 // WebGL_LoseContextExtension

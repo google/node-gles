@@ -65,7 +65,7 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
   virtual ~WebGL_OESTextureFloatExtension() {}
 
  private:
-  static void Cleanup(napi_env env, void* native, void* hint);  // REmove?
+  static void Cleanup(napi_env env, void* native, void* hint);  // TODO(kreeger): Remove?
 };
 
 // Provides 'OES_texture_half_float':
@@ -76,6 +76,16 @@ class WebGL_OESTextureHalfFloatExtension : public WebGLExtensionBase {
  protected:
   WebGL_OESTextureHalfFloatExtension(napi_env env);
   virtual ~WebGL_OESTextureHalfFloatExtension() {}
+};
+
+// Provides 'EXT_color_buffer_float':
+// https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_float/
+class WebGL_EXTColorBufferFloat : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+protected:
+  WebGL_EXTColorBufferFloat(napi_env env);
+  virtual ~WebGL_EXTColorBufferFloat() {}
 };
 
 // Provides the 'WEBGL_lose_context' extension:
