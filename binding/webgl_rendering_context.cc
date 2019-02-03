@@ -1547,19 +1547,31 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+  // It would be nice to try and assign to the base class here?
+
   // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
   // different names and matching that needs to be done in this binding.
 
   if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
-    //
-    // TODO(kreeger): write me.
-    //
+    if (!WebGL_EXTColorBufferFloat::IsSupported(context->eglContextWrapper_)) {
+      return nullptr;
+    }
+
+    napi_value extension_value;
+    nstatus = WebGL_EXTColorBufferFloat::NewInstance(
+        env, &extension_value, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
     context->CheckForErrors();
 #endif
-    return nullptr;
+    return extension_value;
   } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
+    if (!WebGL_OESTextureFloatExtension::IsSupported(
+            context->eglContextWrapper_)) {
+      return nullptr;
+    }
+
     napi_value extension_value;
     nstatus = WebGL_OESTextureFloatExtension::NewInstance(
         env, &extension_value, context->eglContextWrapper_);
@@ -1570,6 +1582,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
 #endif
     return extension_value;
   } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
+    if (!WebGL_LoseContextExtension::IsSupported(context->eglContextWrapper_)) {
+      return nullptr;
+    }
+
     napi_value lose_context_value;
     nstatus = WebGL_LoseContextExtension::NewInstance(
         env, &lose_context_value, context->eglContextWrapper_);
@@ -1577,6 +1593,11 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
 
     return lose_context_value;
   } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
+    if (!WebGL_OESTextureHalfFloatExtension::IsSupported(
+            context->eglContextWrapper_)) {
+      return nullptr;
+    }
+
     napi_value extension_value;
     nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
         env, &extension_value, context->eglContextWrapper_);
