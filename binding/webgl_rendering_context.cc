@@ -232,7 +232,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void;
       NAPI_DEFINE_METHOD("bufferData", BufferData),
       NAPI_DEFINE_METHOD("bufferSubData", BufferSubData),
-// bufferSubData(target: number, offset: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | null): void;
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
 // clear(mask: number): void;
 // clearColor(red: number, green: number, blue: number, alpha: number): void;
@@ -1013,13 +1012,15 @@ napi_value WebGLRenderingContext::BufferSubData(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_ARRAY_BUFFER_RETVAL(env, args[2], nullptr);
+
   GLenum target;
   nstatus = napi_get_value_uint32(env, args[0], &target);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // start here
   uint32_t offset;
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
   nstatus = napi_get_value_uint32(env, args[1], &offset);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -1027,6 +1028,7 @@ napi_value WebGLRenderingContext::BufferSubData(napi_env env,
   nstatus = napi_typeof(env, args[2], &arg_valuetype);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+  // TODO: Needs support for standard js arrays
   if (arg_valuetype == napi_object) {
     bool is_typedarray;
     nstatus = napi_is_typedarray(env, args[2], &is_typedarray);
@@ -2657,6 +2659,7 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
 
   size_t size;
   void *data;
+  // TODO: Needs support for standard js arrays
   nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -2695,6 +2698,7 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
 
   size_t size;
   void *data;
+  // TODO: Needs support for standard js arrays
   nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
