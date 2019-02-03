@@ -188,10 +188,6 @@ napi_status WebGL_EXTColorBufferFloat::NewInstance(
   return napi_ok;
 }
 
-//
-// TODO(kreeger): left off right here.
-//
-
 //==============================================================================
 // WebGL_LoseContextExtension
 
