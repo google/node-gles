@@ -65,7 +65,8 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
   virtual ~WebGL_OESTextureFloatExtension() {}
 
  private:
-  static void Cleanup(napi_env env, void* native, void* hint);  // TODO(kreeger): Remove?
+  static void Cleanup(napi_env env, void* native,
+                      void* hint);  // TODO(kreeger): Remove?
 };
 
 // Provides 'OES_texture_half_float':
@@ -83,7 +84,7 @@ class WebGL_OESTextureHalfFloatExtension : public WebGLExtensionBase {
 class WebGL_EXTColorBufferFloat : public WebGLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
-protected:
+ protected:
   WebGL_EXTColorBufferFloat(napi_env env);
   virtual ~WebGL_EXTColorBufferFloat() {}
 };

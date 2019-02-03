@@ -156,6 +156,38 @@ napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
 //==============================================================================
 // WebGL_EXTColorBufferFloat
 
+napi_ref WebGL_EXTColorBufferFloat::constructor_ref_;
+
+WebGL_EXTColorBufferFloat::WebGL_EXTColorBufferFloat(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+napi_status WebGL_EXTColorBufferFloat::Register(napi_env env,
+                                                napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_color_buffer_float", NAPI_AUTO_LENGTH,
+                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_EXTColorBufferFloat::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  //
+  // TODO(kreeger): Check to see if the extension can be registered here.
+  //
+  return napi_ok;
+}
+
 //
 // TODO(kreeger): left off right here.
 //
