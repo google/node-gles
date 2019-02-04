@@ -25,6 +25,7 @@
 #ifndef NAPI_BOOTSTRAP_METHODS
 #define NAPI_BOOTSTRAP_METHODS                                            \
  public:                                                                  \
+  static bool IsSupported(EGLContextWrapper* egl_context_wrapper);        \
   static napi_status Register(napi_env env, napi_value exports);          \
   static napi_status NewInstance(napi_env env, napi_value* instance,      \
                                  EGLContextWrapper* egl_context_wrapper); \
@@ -34,6 +35,11 @@
 #endif
 
 namespace nodejsgl {
+
+// TODO(kreeger): WebGL extensions enable a variety of core ANGLE extensions.
+// This directory contains the extensions Chrome enables through WebGL
+// extensions:
+// https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/webgl/
 
 // Base class for all WebGL Extensions
 class WebGLExtensionBase {
@@ -65,7 +71,8 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
   virtual ~WebGL_OESTextureFloatExtension() {}
 
  private:
-  static void Cleanup(napi_env env, void* native, void* hint);  // REmove?
+  static void Cleanup(napi_env env, void* native,
+                      void* hint);  // TODO(kreeger): Remove?
 };
 
 // Provides 'OES_texture_half_float':
@@ -76,6 +83,26 @@ class WebGL_OESTextureHalfFloatExtension : public WebGLExtensionBase {
  protected:
   WebGL_OESTextureHalfFloatExtension(napi_env env);
   virtual ~WebGL_OESTextureHalfFloatExtension() {}
+};
+
+// Provides 'EXT_color_buffer_float':
+// https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_float/
+class WebGL_EXTColorBufferFloat : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTColorBufferFloat(napi_env env);
+  virtual ~WebGL_EXTColorBufferFloat() {}
+};
+
+// Provides 'EXT_color_buffer_half_float':
+// https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_half_float/
+class WebGL_EXTColorBufferHalfFloat : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTColorBufferHalfFloat(napi_env env);
+  virtual ~WebGL_EXTColorBufferHalfFloat() {}
 };
 
 // Provides the 'WEBGL_lose_context' extension:

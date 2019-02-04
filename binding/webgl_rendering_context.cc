@@ -1550,45 +1550,45 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
   // different names and matching that needs to be done in this binding.
 
-  if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0) {
-    //
-    // TODO(kreeger): write me.
-    //
-
-#if DEBUG
-    context->CheckForErrors();
-#endif
-    return nullptr;
-  } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0) {
-    napi_value extension_value;
+  napi_value webgl_extension = nullptr;
+  if (strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0 &&
+      WebGL_EXTColorBufferFloat::IsSupported(context->eglContextWrapper_)) {
+    nstatus = WebGL_EXTColorBufferFloat::NewInstance(
+        env, &webgl_extension, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else if (strcmp(extension_name.c_str(), "EXT_color_buffer_half_float") ==
+                 0 &&
+             WebGL_EXTColorBufferHalfFloat::IsSupported(
+                 context->eglContextWrapper_)) {
+    nstatus = WebGL_EXTColorBufferHalfFloat::NewInstance(
+        env, &webgl_extension, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0 &&
+             WebGL_OESTextureFloatExtension::IsSupported(
+                 context->eglContextWrapper_)) {
     nstatus = WebGL_OESTextureFloatExtension::NewInstance(
-        env, &extension_value, context->eglContextWrapper_);
+        env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-#if DEBUG
-    context->CheckForErrors();
-#endif
-    return extension_value;
-  } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0) {
-    napi_value lose_context_value;
+  } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0 &&
+             WebGL_LoseContextExtension::IsSupported(
+                 context->eglContextWrapper_)) {
     nstatus = WebGL_LoseContextExtension::NewInstance(
-        env, &lose_context_value, context->eglContextWrapper_);
+        env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-    return lose_context_value;
-  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0) {
-    napi_value extension_value;
+  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0 &&
+             WebGL_OESTextureHalfFloatExtension::IsSupported(
+                 context->eglContextWrapper_)) {
     nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
-        env, &extension_value, context->eglContextWrapper_);
+        env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-#if DEBUG
-    context->CheckForErrors();
-#endif
-    return extension_value;
+  } else {
+    NAPI_THROW_ERROR(env, "Unsupported extension");
   }
 
-  return nullptr;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return webgl_extension;
 }
 
 /* static */
