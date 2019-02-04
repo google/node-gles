@@ -24,6 +24,23 @@
 
 namespace nodejsgl {
 
+// Throws error if extension is not supported:
+#ifndef ENSURE_EXTENSION_IS_SUPPORTED
+#define ENSURE_EXTENSION_IS_SUPPORTED               \
+  if (!IsSupported(egl_context_wrapper)) {          \
+    NAPI_THROW_ERROR(env, "Unsupported extension"); \
+    return napi_invalid_arg;                        \
+  }
+#endif
+
+// Returns true if extension is requestable or enabled:
+#ifndef IS_EXTENSION_NAME_AVAILABLE
+#define IS_EXTENSION_NAME_AVAILABLE(ext_name)                             \
+  return egl_context_wrapper->angle_requestable_extensions->HasExtension( \
+             ext_name) ||                                                 \
+         egl_context_wrapper->gl_extensions->HasExtension(ext_name);
+#endif
+
 //==============================================================================
 // WebGLExtensionBase
 
@@ -67,7 +84,7 @@ WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(napi_env env)
 /* static */
 bool WebGL_OESTextureFloatExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
-  return true;
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_float");
 }
 
 /* static */
@@ -91,19 +108,17 @@ napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
 napi_status WebGL_OESTextureFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
-          "GL_OES_texture_float")) {
-    egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_float");
-    egl_context_wrapper->glRequestExtensionANGLE(
-        "GL_CHROMIUM_color_buffer_float_rgba");
-    egl_context_wrapper->glRequestExtensionANGLE(
-        "GL_CHROMIUM_color_buffer_float_rgb");
-
-    egl_context_wrapper->RefreshGLExtensions();
-  }
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_float");
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_CHROMIUM_color_buffer_float_rgba");
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_CHROMIUM_color_buffer_float_rgb");
+  egl_context_wrapper->RefreshGLExtensions();
 
   return napi_ok;
 }
@@ -120,7 +135,7 @@ WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
 /* static */
 bool WebGL_OESTextureHalfFloatExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
-  return true;
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_half_float");
 }
 
 /* static */
@@ -147,21 +162,20 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
-          "GL_OES_texture_half_float")) {
-    egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_half_float");
-    egl_context_wrapper->RefreshGLExtensions();
-  }
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_half_float");
+
   if (egl_context_wrapper->angle_requestable_extensions->HasExtension(
           "GL_EXT_color_buffer_half_float")) {
     egl_context_wrapper->glRequestExtensionANGLE(
         "GL_EXT_color_buffer_half_float");
-    egl_context_wrapper->RefreshGLExtensions();
   }
 
+  egl_context_wrapper->RefreshGLExtensions();
   return napi_ok;
 }
 
@@ -176,7 +190,7 @@ WebGL_EXTColorBufferFloat::WebGL_EXTColorBufferFloat(napi_env env)
 /* static */
 bool WebGL_EXTColorBufferFloat::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
-  return true;
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_float");
 }
 
 /* static */
@@ -200,9 +214,61 @@ napi_status WebGL_EXTColorBufferFloat::Register(napi_env env,
 napi_status WebGL_EXTColorBufferFloat::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
-  //
-  // TODO(kreeger): Check to see if the extension can be registered here.
-  //
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_color_buffer_float");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
+// WebGL_EXTColorBufferHalfFloat
+
+napi_ref WebGL_EXTColorBufferHalfFloat::constructor_ref_;
+
+WebGL_EXTColorBufferHalfFloat::WebGL_EXTColorBufferHalfFloat(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_EXTColorBufferHalfFloat::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_half_float");
+}
+
+/* static */
+napi_status WebGL_EXTColorBufferHalfFloat::Register(napi_env env,
+                                                    napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(
+      env, "EXT_color_buffer_half_float", NAPI_AUTO_LENGTH,
+      WebGLExtensionBase::InitStubClass, nullptr, 0, nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_EXTColorBufferHalfFloat::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_EXT_color_buffer_half_float");
+  egl_context_wrapper->RefreshGLExtensions();
+
   return napi_ok;
 }
 
@@ -214,6 +280,7 @@ napi_ref WebGL_LoseContextExtension::constructor_ref_;
 /* static */
 bool WebGL_LoseContextExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
+  // This extension is purely a stub in Node - return true.
   return true;
 }
 
@@ -256,8 +323,6 @@ napi_value WebGL_LoseContextExtension::InitInternal(napi_env env,
   nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // TODO(kreeger): If this is a stub class - can probably just define a JS
-  // object with no-op methods.
   WebGL_LoseContextExtension* context = new WebGL_LoseContextExtension(env);
   ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, context, nullptr);
 
@@ -278,14 +343,14 @@ void WebGL_LoseContextExtension::Cleanup(napi_env env, void* native,
 /* static */
 napi_value WebGL_LoseContextExtension::LoseContext(napi_env env,
                                                    napi_callback_info info) {
-  // TODO(kreeger): No-op OK?
+  // Pure stub extension - no-op.
   return nullptr;
 }
 
 /* static */
 napi_value WebGL_LoseContextExtension::RestoreContext(napi_env env,
                                                       napi_callback_info info) {
-  // TODO(kreeger): No-op OK?
+  // Pure stub extension - no-op.
   return nullptr;
 }
 

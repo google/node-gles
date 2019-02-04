@@ -95,6 +95,16 @@ class WebGL_EXTColorBufferFloat : public WebGLExtensionBase {
   virtual ~WebGL_EXTColorBufferFloat() {}
 };
 
+// Provides 'EXT_color_buffer_half_float':
+// https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_half_float/
+class WebGL_EXTColorBufferHalfFloat : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTColorBufferHalfFloat(napi_env env);
+  virtual ~WebGL_EXTColorBufferHalfFloat() {}
+};
+
 // Provides the 'WEBGL_lose_context' extension:
 // https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/
 class WebGL_LoseContextExtension : public WebGLExtensionBase {
