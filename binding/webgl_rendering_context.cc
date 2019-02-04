@@ -1635,6 +1635,20 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
       return previous_buffer_value;
     }
 
+    case GL_RENDERER: {
+      const GLubyte *str = context->eglContextWrapper_->glGetString(name);
+      if (str) {
+        const char *str_c_str = reinterpret_cast<const char *>(str);
+        napi_value str_value;
+        nstatus = napi_create_string_utf8(env, str_c_str, strlen(str_c_str),
+                                          &str_value);
+        ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+        return str_value;
+      }
+      break;
+    }
+
       // TODO(kreeger): Add more of these
 
     default:
