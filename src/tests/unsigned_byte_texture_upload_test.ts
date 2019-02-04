@@ -5,6 +5,7 @@ import {createTexture2D, ensureFramebufferAttachment, initEnvGL} from './test_ut
 const gl = gles.binding.createWebGLRenderingContext();
 
 console.log('VERSION: ' + gl.getParameter(gl.VERSION));
+console.log('RENDERER: ' + gl.getParameter(gl.RENDERER));
 
 initEnvGL(gl);  // Don't worry about buffers in this demo
 

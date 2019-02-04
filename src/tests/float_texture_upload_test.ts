@@ -9,6 +9,7 @@ gl.getExtension('OES_texture_float');
 gl.getExtension('EXT_color_buffer_float');
 
 console.log('VERSION: ' + gl.getParameter(gl.VERSION));
+console.log('RENDERER: ' + gl.getParameter(gl.RENDERER));
 
 initEnvGL(gl);  // Don't worry about buffers in this demo
 
