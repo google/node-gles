@@ -46,8 +46,13 @@ EGLContextWrapper::EGLContextWrapper(napi_env env,
 
 void EGLContextWrapper::InitEGL(napi_env env,
                                 const GLContextOptions& context_options) {
-  // TODO(kreeger): Figure out how to make this work headless
-  display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  std::vector<EGLAttrib> display_attributes;
+  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
+  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE);
+  display_attributes.push_back(EGL_NONE);
+
+  display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nullptr,
+                                  &display_attributes[0]);
   if (display == EGL_NO_DISPLAY) {
     NAPI_THROW_ERROR(env, "No display");
     return;
