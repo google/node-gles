@@ -8,7 +8,7 @@ console.log('VERSION: ' + gl.getParameter(gl.VERSION));
 console.log('RENDERER: ' + gl.getParameter(gl.RENDERER));
 
 const ext = gl.getExtension('OES_texture_half_float');
-gl.getExtension('EXT_color_buffer_half_float');
+// gl.getExtension('EXT_color_buffer_half_float');  // Should be enabled by OES_texture_half_float...
 
 initEnvGL(gl);  // Don't worry about buffers in this demo
 
