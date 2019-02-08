@@ -54,8 +54,13 @@ void EGLContextWrapper::InitEGL(napi_env env,
   display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nullptr,
                                   &display_attributes[0]);
   if (display == EGL_NO_DISPLAY) {
-    NAPI_THROW_ERROR(env, "No display");
-    return;
+    // TODO(kreeger): This is the default path for Mac OS. Determine why egl has
+    // to be initialized this way on Mac OS.
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (display == EGL_NO_DISPLAY) {
+      NAPI_THROW_ERROR(env, "No display");
+      return;
+    }
   }
 
   EGLint major;
