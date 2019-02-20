@@ -1578,6 +1578,7 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
         env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   } else {
+    fprintf(stderr, "--- EXT: %s\n", extension_name.c_str());
     NAPI_THROW_ERROR(env, "Unsupported extension");
   }
 
