@@ -1988,7 +1988,7 @@ napi_value WebGLRenderingContext::IsShader(napi_env env,
   GLboolean is_shader = context->eglContextWrapper_->glIsShader(shader);
 
   napi_value result_value;
-  nstatus = napi_create_uint32(env, is_shader, &result_value);
+  nstatus = napi_get_boolean(env, is_shader, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
