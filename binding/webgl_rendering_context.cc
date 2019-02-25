@@ -321,7 +321,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // isFramebuffer(framebuffer: WebGLFramebuffer | null): boolean;
 // isProgram(program: WebGLProgram | null): boolean;
 // isRenderbuffer(renderbuffer: WebGLRenderbuffer | null): boolean;
-// isShader(shader: WebGLShader | null): boolean;
+      NAPI_DEFINE_METHOD("isShader", IsShader),
 // isTexture(texture: WebGLTexture | null): boolean;
 // lineWidth(width: number): void;
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
@@ -1972,6 +1972,29 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
   context->CheckForErrors();
 #endif
   return location_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsShader(napi_env env,
+                                           napi_callback_info info) {
+  LOG_CALL("IsShader");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint shader;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &shader);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_shader = context->eglContextWrapper_->glIsShader(shader);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_shader, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
 }
 
 /* static */
