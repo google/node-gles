@@ -2973,7 +2973,7 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
 
   size_t size;
   void *data;
-  // TODO: Needs support for standard js arrays
+  // TODO(kreeger): Needs support for standard js arrays
   nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -3012,7 +3012,7 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
 
   size_t size;
   void *data;
-  // TODO: Needs support for standard js arrays
+  // TODO(kreeger): Needs support for standard js arrays
   nstatus = napi_get_typedarray_info(env, args[1], nullptr, &size, &data,
                                      nullptr, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
