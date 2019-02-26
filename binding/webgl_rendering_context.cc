@@ -224,11 +224,11 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
       NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
       NAPI_DEFINE_METHOD("bindTexture", BindTexture),
-// blendColor(red: number, green: number, blue: number, alpha: number): void;
-// blendEquation(mode: number): void;
-// blendEquationSeparate(modeRGB: number, modeAlpha: number): void;
-// blendFunc(sfactor: number, dfactor: number): void;
-// blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void;
+      NAPI_DEFINE_METHOD("blendColor", BlendColor),
+      NAPI_DEFINE_METHOD("blendEquation", BlendEquation),
+      NAPI_DEFINE_METHOD("blendEquationSeparate", BlendEquationSeparate),
+      NAPI_DEFINE_METHOD("blendFunc", BlendFunc),
+      NAPI_DEFINE_METHOD("blendFuncSeparate", BlendFuncSeparate),
       NAPI_DEFINE_METHOD("bufferData", BufferData),
 // bufferSubData(target: number, offset: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | null): void;
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
@@ -957,6 +957,130 @@ napi_value WebGLRenderingContext::BindRenderbuffer(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBindRenderbuffer(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendColor(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("BlendColor");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  double red;
+  nstatus = napi_get_value_double(env, args[0], &red);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  double green;
+  nstatus = napi_get_value_double(env, args[1], &green);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  double blue;
+  nstatus = napi_get_value_double(env, args[2], &blue);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  double alpha;
+  nstatus = napi_get_value_double(env, args[3], &alpha);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendColor(
+      static_cast<GLclampf>(red), static_cast<GLclampf>(green),
+      static_cast<GLclampf>(blue), static_cast<GLclampf>(alpha));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendEquation(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("BlendEquation");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint mode;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &mode);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendEquation(mode);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendEquationSeparate(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("BlendEquationSeparate");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendEquationSeparate(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendFunc(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("BlendFunc");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendFunc(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendFuncSeparate(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("BlendFuncSeparate");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[4];
+  nstatus = GetContextUint32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendFuncSeparate(args[0], args[1], args[2],
+                                                   args[3]);
 
 #if DEBUG
   context->CheckForErrors();
