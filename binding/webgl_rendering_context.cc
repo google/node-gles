@@ -224,7 +224,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
       NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
       NAPI_DEFINE_METHOD("bindTexture", BindTexture),
-// blendColor(red: number, green: number, blue: number, alpha: number): void;
+      NAPI_DEFINE_METHOD("blendColor", BlendColor),
 // blendEquation(mode: number): void;
 // blendEquationSeparate(modeRGB: number, modeAlpha: number): void;
 // blendFunc(sfactor: number, dfactor: number): void;
@@ -957,6 +957,53 @@ napi_value WebGLRenderingContext::BindRenderbuffer(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBindRenderbuffer(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendColor(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("BlendColor");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  double red;
+  nstatus = napi_get_value_double(env, args[0], &red);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  double green;
+  nstatus = napi_get_value_double(env, args[1], &green);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  double blue;
+  nstatus = napi_get_value_double(env, args[2], &blue);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  double alpha;
+  nstatus = napi_get_value_double(env, args[3], &alpha);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendColor(
+      static_cast<GLclampf>(red), static_cast<GLclampf>(green),
+      static_cast<GLclampf>(blue), static_cast<GLclampf>(alpha));
 
 #if DEBUG
   context->CheckForErrors();
