@@ -86,6 +86,7 @@ class WebGLRenderingContext {
                                            napi_callback_info info);
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
   static napi_value IsShader(napi_env env, napi_callback_info info);
+  static napi_value IsTexture(napi_env env, napi_callback_info info);
   static napi_value LinkProgram(napi_env env, napi_callback_info info);
   static napi_value ReadPixels(napi_env env, napi_callback_info info);
   static napi_value RenderbufferStorage(napi_env env, napi_callback_info info);

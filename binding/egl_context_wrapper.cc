@@ -245,6 +245,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetUniformLocation"));
   glIsShader =
       reinterpret_cast<PFNGLISSHADERPROC>(eglGetProcAddress("glIsShader"));
+  glIsTexture =
+      reinterpret_cast<PFNGLISTEXTUREPROC>(eglGetProcAddress("glIsTexture"));
   glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(
       eglGetProcAddress("glLinkProgram"));
   glReadPixels =

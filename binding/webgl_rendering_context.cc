@@ -322,7 +322,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // isProgram(program: WebGLProgram | null): boolean;
 // isRenderbuffer(renderbuffer: WebGLRenderbuffer | null): boolean;
       NAPI_DEFINE_METHOD("isShader", IsShader),
-// isTexture(texture: WebGLTexture | null): boolean;
+      NAPI_DEFINE_METHOD("isTexture", IsTexture),
 // lineWidth(width: number): void;
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
 // pixelStorei(pname: number, param: number | boolean): void;
@@ -1989,6 +1989,29 @@ napi_value WebGLRenderingContext::IsShader(napi_env env,
 
   napi_value result_value;
   nstatus = napi_get_boolean(env, is_shader, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsTexture(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("IsTexture");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint texture;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &texture);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_texture = context->eglContextWrapper_->glIsTexture(texture);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_texture, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
