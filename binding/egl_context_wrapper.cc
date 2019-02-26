@@ -243,6 +243,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLGETSTRINGPROC>(eglGetProcAddress("glGetString"));
   glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(
       eglGetProcAddress("glGetUniformLocation"));
+  glIsFramebuffer = reinterpret_cast<PFNGLISFRAMEBUFFERPROC>(
+      eglGetProcAddress("glIsFramebuffer"));
   glIsProgram =
       reinterpret_cast<PFNGLISPROGRAMPROC>(eglGetProcAddress("glIsProgram"));
   glIsRenderbuffer = reinterpret_cast<PFNGLISRENDERBUFFERPROC>(

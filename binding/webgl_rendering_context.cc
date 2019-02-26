@@ -318,7 +318,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // isBuffer(buffer: WebGLBuffer | null): boolean;
 // isContextLost(): boolean;
 // isEnabled(cap: number): boolean;
-// isFramebuffer(framebuffer: WebGLFramebuffer | null): boolean;
+      NAPI_DEFINE_METHOD("isFramebuffer", IsFramebuffer),
       NAPI_DEFINE_METHOD("isProgram", IsProgram),
       NAPI_DEFINE_METHOD("isRenderbuffer", IsRenderbuffer),
       NAPI_DEFINE_METHOD("isShader", IsShader),
@@ -1972,6 +1972,30 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
   context->CheckForErrors();
 #endif
   return location_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsFramebuffer(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("IsFramebuffer");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint framebuffer;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &framebuffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_framebuffer =
+      context->eglContextWrapper_->glIsProgram(framebuffer);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_framebuffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
 }
 
 /* static */
