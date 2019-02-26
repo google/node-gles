@@ -220,6 +220,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       // clang-format off
       NAPI_DEFINE_METHOD("attachShader", AttachShader),
 // bindAttribLocation(program: WebGLProgram | null, index: number, name: string): void;
+      NAPI_DEFINE_METHOD("bindAttribLocation", BindAttribLocation),
       NAPI_DEFINE_METHOD("bindBuffer", BindBuffer),
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
       NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
@@ -859,6 +860,25 @@ napi_value WebGLRenderingContext::AttachShader(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glAttachShader(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BindAttribLocation(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("BindBuffer");
+  napi_status nstatus;
+
+  /* WebGLRenderingContext *context = nullptr; */
+  /* uint32_t args[2]; */
+  /* nstatus = GetContextUint32Params(env, info, &context, 2, args); */
+  /* ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr); */
+
+  /* context->eglContextWrapper_->glBindBuffer(args[0], args[1]); */
 
 #if DEBUG
   context->CheckForErrors();

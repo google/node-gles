@@ -167,6 +167,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glActiveTexture"));
   glAttachShader = reinterpret_cast<PFNGLATTACHSHADERPROC>(
       eglGetProcAddress("glAttachShader"));
+  glBindBuffer = reinterpret_cast<PFNGLBINDATTRIBLOCATIONPROC>(
+      eglGetProcAddress("glBindAttribLocation"));
   glBindBuffer =
       reinterpret_cast<PFNGLBINDBUFFERPROC>(eglGetProcAddress("glBindBuffer"));
   glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(

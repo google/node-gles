@@ -88,6 +88,7 @@ class EGLContextWrapper {
   // Function pointers
   PFNGLACTIVETEXTUREPROC glActiveTexture;
   PFNGLATTACHSHADERPROC glAttachShader;
+  PFNGLBINDATTRIBLOCATIONPROC glBindAttribLocation;
   PFNGLBINDBUFFERPROC glBindBuffer;
   PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
   PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
