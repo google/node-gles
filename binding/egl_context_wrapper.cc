@@ -181,7 +181,12 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLBLENDCOLORPROC>(eglGetProcAddress("glBlendColor"));
   glBlendEquation = reinterpret_cast<PFNGLBLENDEQUATIONPROC>(
       eglGetProcAddress("glBlendEquation"));
-  glBlendEquationSeparate = reinterpret_cast<PFNGLBLENDEQUATIONSEPARATEPROC>(eglGetProcAddress("glBlendEquationSeparate"));
+  glBlendEquationSeparate = reinterpret_cast<PFNGLBLENDEQUATIONSEPARATEPROC>(
+      eglGetProcAddress("glBlendEquationSeparate"));
+  glBlendFunc =
+      reinterpret_cast<PFNGLBLENDFUNCPROC>(eglGetProcAddress("glBlendFunc"));
+  glBlendFuncSeparate = reinterpret_cast<PFNGLBLENDFUNCSEPARATEPROC>(
+      eglGetProcAddress("glBlendFuncSeparate"));
   glBufferData =
       reinterpret_cast<PFNGLBUFFERDATAPROC>(eglGetProcAddress("glBufferData"));
   glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(

@@ -227,8 +227,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("blendColor", BlendColor),
       NAPI_DEFINE_METHOD("blendEquation", BlendEquation),
       NAPI_DEFINE_METHOD("blendEquationSeparate", BlendEquationSeparate),
-// blendFunc(sfactor: number, dfactor: number): void;
-// blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void;
+      NAPI_DEFINE_METHOD("blendFunc", BlendFunc),
+      NAPI_DEFINE_METHOD("blendFuncSeparate", BlendFuncSeparate),
       NAPI_DEFINE_METHOD("bufferData", BufferData),
 // bufferSubData(target: number, offset: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | null): void;
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
@@ -1042,6 +1042,45 @@ napi_value WebGLRenderingContext::BlendEquationSeparate(
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBlendEquationSeparate(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendFunc(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("BlendFunc");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendFunc(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BlendFuncSeparate(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("BlendFuncSeparate");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[4];
+  nstatus = GetContextUint32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendFuncSeparate(args[0], args[1], args[2],
+                                                   args[3]);
 
 #if DEBUG
   context->CheckForErrors();
