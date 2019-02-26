@@ -307,7 +307,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getShaderInfoLog", GetShaderInfoLog),
       NAPI_DEFINE_METHOD("getShaderParameter", GetShaderParameter),
 // getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat | null;
-// getShaderSource(shader: WebGLShader | null): string | null;
+      NAPI_DEFINE_METHOD("getShaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
 // getTexParameter(target: number, pname: number): any;
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
