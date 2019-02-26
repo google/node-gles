@@ -185,6 +185,23 @@ inline bool EnsureValueIsArray(napi_env env, napi_value value, const char* file,
   return is_array;
 }
 
+#define ENSURE_VALUE_IS_ARRAY_BUFFER(env, value) \
+  if (!EnsureValueIsArrayBuffer(env, value, __FILE__, __LINE__)) return;
+#define ENSURE_VALUE_IS_ARRAY_BUFFER_RETVAL(env, value, retval) \
+  if (!EnsureValueIsArrayBuffer(env, value, __FILE__, __LINE__)) return retval;
+
+inline bool EnsureValueIsArrayBuffer(napi_env env, napi_value value,
+                                     const char* file,
+                                     const size_t lineNumber) {
+  bool is_array_buffer;
+  ENSURE_NAPI_OK_RETVAL(env, napi_is_arraybuffer(env, value, &is_array_buffer),
+                        false);
+  if (!is_array_buffer) {
+    NapiThrowError(env, "Argument is not an array buffer!", file, lineNumber);
+  }
+  return is_array_buffer;
+}
+
 #define ENSURE_ARGC(env, argc, argc_exp) \
   if (!EnsureArgc(env, argc, argc_exp, __FILE__, __LINE__)) return;
 #define ENSURE_ARGC_RETVAL(env, argc, argc_exp, retval) \
