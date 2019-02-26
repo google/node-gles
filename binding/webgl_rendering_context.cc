@@ -1012,6 +1012,25 @@ napi_value WebGLRenderingContext::BlendColor(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::BlendEquation(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("BlendEquation");
+  napi_status nstatus;
+
+  WebGLRenderingContext* context = nullptr;
+  GLuint mode;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &mode);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBlendEquation(mode);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::BufferData(napi_env env,
                                              napi_callback_info info) {
   LOG_CALL("BufferData");
