@@ -48,6 +48,8 @@ class WebGLRenderingContext {
   static napi_value BindTexture(napi_env env, napi_callback_info info);
   static napi_value BlendColor(napi_env env, napi_callback_info info);
   static napi_value BlendEquation(napi_env env, napi_callback_info info);
+  static napi_value BlendEquationSeparate(napi_env env,
+                                          napi_callback_info info);
   static napi_value BufferData(napi_env env, napi_callback_info info);
   static napi_value CheckFramebufferStatus(napi_env env,
                                            napi_callback_info info);
