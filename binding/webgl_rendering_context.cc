@@ -315,14 +315,14 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getVertexAttrib(index: number, pname: number): any;
 // getVertexuniform1iAttribOffset(index: number, pname: number): number;
 // hint(target: number, mode: number): void;
-// isBuffer(buffer: WebGLBuffer | null): boolean;
+      NAPI_DEFINE_METHOD("isBuffer", IsBuffer),
 // isContextLost(): boolean;
 // isEnabled(cap: number): boolean;
-// isFramebuffer(framebuffer: WebGLFramebuffer | null): boolean;
-// isProgram(program: WebGLProgram | null): boolean;
-// isRenderbuffer(renderbuffer: WebGLRenderbuffer | null): boolean;
+      NAPI_DEFINE_METHOD("isFramebuffer", IsFramebuffer),
+      NAPI_DEFINE_METHOD("isProgram", IsProgram),
+      NAPI_DEFINE_METHOD("isRenderbuffer", IsRenderbuffer),
       NAPI_DEFINE_METHOD("isShader", IsShader),
-// isTexture(texture: WebGLTexture | null): boolean;
+      NAPI_DEFINE_METHOD("isTexture", IsTexture),
 // lineWidth(width: number): void;
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
 // pixelStorei(pname: number, param: number | boolean): void;
@@ -1975,6 +1975,100 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::IsBuffer(napi_env env,
+                                           napi_callback_info info) {
+  LOG_CALL("IsBuffer");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint buffer;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &buffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_buffer = context->eglContextWrapper_->glIsBuffer(buffer);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_buffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsFramebuffer(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("IsFramebuffer");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint framebuffer;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &framebuffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_framebuffer =
+      context->eglContextWrapper_->glIsFramebuffer(framebuffer);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_framebuffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsProgram(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("IsProgram");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint program;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_program = context->eglContextWrapper_->glIsProgram(program);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_program, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsRenderbuffer(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("IsRenderbuffer");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint render_buffer;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &render_buffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_renderbuffer =
+      context->eglContextWrapper_->glIsRenderbuffer(render_buffer);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_renderbuffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::IsShader(napi_env env,
                                            napi_callback_info info) {
   LOG_CALL("IsShader");
@@ -1989,6 +2083,29 @@ napi_value WebGLRenderingContext::IsShader(napi_env env,
 
   napi_value result_value;
   nstatus = napi_get_boolean(env, is_shader, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsTexture(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("IsTexture");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint texture;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &texture);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_texture = context->eglContextWrapper_->glIsTexture(texture);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_texture, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
