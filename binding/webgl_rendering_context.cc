@@ -219,7 +219,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       // WebGL methods:
       // clang-format off
       NAPI_DEFINE_METHOD("attachShader", AttachShader),
-// bindAttribLocation(program: WebGLProgram | null, index: number, name: string): void;
       NAPI_DEFINE_METHOD("bindAttribLocation", BindAttribLocation),
       NAPI_DEFINE_METHOD("bindBuffer", BindBuffer),
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
