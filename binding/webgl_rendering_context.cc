@@ -225,7 +225,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
       NAPI_DEFINE_METHOD("bindTexture", BindTexture),
       NAPI_DEFINE_METHOD("blendColor", BlendColor),
-// blendEquation(mode: number): void;
+      NAPI_DEFINE_METHOD("blendEquation", BlendEquation),
 // blendEquationSeparate(modeRGB: number, modeAlpha: number): void;
 // blendFunc(sfactor: number, dfactor: number): void;
 // blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void;
