@@ -219,7 +219,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       // WebGL methods:
       // clang-format off
       NAPI_DEFINE_METHOD("attachShader", AttachShader),
-// bindAttribLocation(program: WebGLProgram | null, index: number, name: string): void;
+      NAPI_DEFINE_METHOD("bindAttribLocation", BindAttribLocation),
       NAPI_DEFINE_METHOD("bindBuffer", BindBuffer),
       NAPI_DEFINE_METHOD("bindFramebuffer", BindFramebuffer),
       NAPI_DEFINE_METHOD("bindRenderbuffer", BindRenderbuffer),
@@ -859,6 +859,47 @@ napi_value WebGLRenderingContext::AttachShader(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glAttachShader(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::BindAttribLocation(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("BindAttribLocation");
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  GLuint program;
+  nstatus = napi_get_value_uint32(env, args[0], &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[1], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_STRING_RETVAL(env, args[2], nullptr);
+  std::string name;
+  nstatus = GetStringParam(env, args[2], name);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glBindAttribLocation(program, index,
+                                                    name.c_str());
 
 #if DEBUG
   context->CheckForErrors();

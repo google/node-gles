@@ -41,6 +41,7 @@ class WebGLRenderingContext {
   // User facing methods:
   static napi_value ActiveTexture(napi_env env, napi_callback_info info);
   static napi_value AttachShader(napi_env env, napi_callback_info info);
+  static napi_value BindAttribLocation(napi_env env, napi_callback_info info);
   static napi_value BindBuffer(napi_env env, napi_callback_info info);
   static napi_value BindFramebuffer(napi_env env, napi_callback_info info);
   static napi_value BindRenderbuffer(napi_env env, napi_callback_info info);
