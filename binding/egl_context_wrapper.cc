@@ -199,6 +199,8 @@ void EGLContextWrapper::BindProcAddresses() {
   glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(
       eglGetProcAddress("glCheckFramebufferStatus"));
   glClear = reinterpret_cast<PFNGLCLEARPROC>(eglGetProcAddress("glClear"));
+  glClearColor =
+      reinterpret_cast<PFNGLCLEARCOLORPROC>(eglGetProcAddress("glClearColor"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
       eglGetProcAddress("glCompileShader"));
   glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(

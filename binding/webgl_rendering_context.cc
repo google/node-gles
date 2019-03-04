@@ -164,6 +164,41 @@ static napi_status GetContextInt32Params(napi_env env, napi_callback_info info,
   return napi_ok;
 }
 
+static napi_status GetContextDoubleParams(napi_env env, napi_callback_info info,
+                                          WebGLRenderingContext **context,
+                                          size_t param_length, double *params) {
+  napi_status nstatus;
+
+  size_t argc = param_length;
+  napi_value args[param_length];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
+
+  nstatus = UnwrapContext(env, js_this, context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  for (size_t i = 0; i < param_length; ++i) {
+    // Null-params get set to 0 in GL world.
+    napi_valuetype value_type;
+    nstatus = napi_typeof(env, args[i], &value_type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+    if (value_type == napi_null) {
+      params[i] = 0;
+    } else if (value_type == napi_number) {
+      nstatus = napi_get_value_double(env, args[i], &params[i]);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+    } else {
+      ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nstatus);
+    }
+  }
+
+  return napi_ok;
+}
+
 static napi_status GetStringParam(napi_env env, napi_value string_value,
                                   std::string &string) {
   ENSURE_VALUE_IS_STRING_RETVAL(env, string_value, napi_invalid_arg);
@@ -273,7 +308,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bufferSubData", BufferSubData),
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
       NAPI_DEFINE_METHOD("clear", Clear),
-// clearColor(red: number, green: number, blue: number, alpha: number): void;
+      NAPI_DEFINE_METHOD("clearColor", ClearColor),
 // clearDepth(depth: number): void;
 // clearStencil(s: number): void;
 // colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
@@ -1005,40 +1040,14 @@ napi_value WebGLRenderingContext::BlendColor(napi_env env,
   LOG_CALL("BlendColor");
   napi_status nstatus;
 
-  size_t argc = 4;
-  napi_value args[4];
-  napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
-
+  double values[4];
   WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  double red;
-  nstatus = napi_get_value_double(env, args[0], &red);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
-  double green;
-  nstatus = napi_get_value_double(env, args[1], &green);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  double blue;
-  nstatus = napi_get_value_double(env, args[2], &blue);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
-  double alpha;
-  nstatus = napi_get_value_double(env, args[3], &alpha);
+  nstatus = GetContextDoubleParams(env, info, &context, 4, values);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBlendColor(
-      static_cast<GLclampf>(red), static_cast<GLclampf>(green),
-      static_cast<GLclampf>(blue), static_cast<GLclampf>(alpha));
+      static_cast<GLclampf>(values[0]), static_cast<GLclampf>(values[1]),
+      static_cast<GLclampf>(values[2]), static_cast<GLclampf>(values[3]));
 
 #if DEBUG
   context->CheckForErrors();
@@ -1257,6 +1266,27 @@ napi_value WebGLRenderingContext::Clear(napi_env env, napi_callback_info info) {
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glClear(mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearColor(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("ClearColor");
+
+  napi_status nstatus;
+
+  double values[4];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextDoubleParams(env, info, &context, 4, values);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearColor(values[0], values[1], values[2],
+                                            values[3]);
 
 #if DEBUG
   context->CheckForErrors();
