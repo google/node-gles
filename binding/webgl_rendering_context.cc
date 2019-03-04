@@ -188,6 +188,8 @@ static napi_status GetStringParam(napi_env env, napi_value string_value,
 // accessing underlying datastores for all JS-Array-like objects.
 static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
                                       void **data, size_t *length) {
+  ENSURE_VALUE_IS_ARRAY_LIKE_RETVAL(env, array_like_value, napi_invalid_arg);
+
   bool is_typed_array = false;
   napi_status nstatus =
       napi_is_typedarray(env, array_like_value, &is_typed_array);
@@ -1180,7 +1182,6 @@ napi_value WebGLRenderingContext::BufferSubData(napi_env env,
 
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
-  ENSURE_VALUE_IS_ARRAY_BUFFER_RETVAL(env, args[2], nullptr);
 
   GLenum target;
   nstatus = napi_get_value_uint32(env, args[0], &target);

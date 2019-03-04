@@ -170,7 +170,31 @@ inline bool EnsureValueIsBoolean(napi_env env, napi_value value,
   return is_boolean;
 }
 
-// TODO(kreeger): Add "ValueIsArrayLike!"
+#define ENSURE_VALUE_IS_ARRAY_LIKE(env, value) \
+  if (!EnsureValueIsArrayLike(env, value, __FILE__, __LINE__)) return;
+#define ENSURE_VALUE_IS_ARRAY_LIKE_RETVAL(env, value, retval) \
+  if (!EnsureValueIsArrayLike(env, value, __FILE__, __LINE__)) return retval;
+
+inline bool EnsureValueIsArrayLike(napi_env env, napi_value value,
+                                   const char* file, const size_t line_number) {
+  napi_status nstatus;
+
+  bool is_array;
+  nstatus = napi_is_array(env, value, &is_array);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, false);
+  if (is_array) {
+    return true;
+  }
+
+  bool is_typedarray;
+  nstatus = napi_is_typedarray(env, value, &is_typedarray);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, false);
+  if (is_typedarray) {
+    return true;
+  }
+
+  return false;
+}
 
 #define ENSURE_VALUE_IS_ARRAY(env, value) \
   if (!EnsureValueIsArray(env, value, __FILE__, __LINE__)) return;
@@ -185,23 +209,6 @@ inline bool EnsureValueIsArray(napi_env env, napi_value value, const char* file,
     NapiThrowError(env, "Argument is not an array!", file, lineNumber);
   }
   return is_array;
-}
-
-#define ENSURE_VALUE_IS_ARRAY_BUFFER(env, value) \
-  if (!EnsureValueIsArrayBuffer(env, value, __FILE__, __LINE__)) return;
-#define ENSURE_VALUE_IS_ARRAY_BUFFER_RETVAL(env, value, retval) \
-  if (!EnsureValueIsArrayBuffer(env, value, __FILE__, __LINE__)) return retval;
-
-inline bool EnsureValueIsArrayBuffer(napi_env env, napi_value value,
-                                     const char* file,
-                                     const size_t lineNumber) {
-  bool is_array_buffer;
-  ENSURE_NAPI_OK_RETVAL(env, napi_is_arraybuffer(env, value, &is_array_buffer),
-                        false);
-  if (!is_array_buffer) {
-    NapiThrowError(env, "Argument is not an array buffer!", file, lineNumber);
-  }
-  return is_array_buffer;
 }
 
 #define ENSURE_ARGC(env, argc, argc_exp) \
