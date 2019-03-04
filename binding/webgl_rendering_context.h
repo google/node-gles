@@ -41,11 +41,19 @@ class WebGLRenderingContext {
   // User facing methods:
   static napi_value ActiveTexture(napi_env env, napi_callback_info info);
   static napi_value AttachShader(napi_env env, napi_callback_info info);
+  static napi_value BindAttribLocation(napi_env env, napi_callback_info info);
   static napi_value BindBuffer(napi_env env, napi_callback_info info);
   static napi_value BindFramebuffer(napi_env env, napi_callback_info info);
   static napi_value BindRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value BindTexture(napi_env env, napi_callback_info info);
+  static napi_value BlendColor(napi_env env, napi_callback_info info);
+  static napi_value BlendEquation(napi_env env, napi_callback_info info);
+  static napi_value BlendEquationSeparate(napi_env env,
+                                          napi_callback_info info);
+  static napi_value BlendFunc(napi_env env, napi_callback_info info);
+  static napi_value BlendFuncSeparate(napi_env env, napi_callback_info info);
   static napi_value BufferData(napi_env env, napi_callback_info info);
+  static napi_value BufferSubData(napi_env env, napi_callback_info info);
   static napi_value CheckFramebufferStatus(napi_env env,
                                            napi_callback_info info);
   static napi_value CompileShader(napi_env env, napi_callback_info info);
@@ -85,6 +93,12 @@ class WebGLRenderingContext {
   static napi_value GetSupportedExtensions(napi_env env,
                                            napi_callback_info info);
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
+  static napi_value IsBuffer(napi_env env, napi_callback_info info);
+  static napi_value IsFramebuffer(napi_env env, napi_callback_info info);
+  static napi_value IsProgram(napi_env env, napi_callback_info info);
+  static napi_value IsRenderbuffer(napi_env env, napi_callback_info info);
+  static napi_value IsShader(napi_env env, napi_callback_info info);
+  static napi_value IsTexture(napi_env env, napi_callback_info info);
   static napi_value LinkProgram(napi_env env, napi_callback_info info);
   static napi_value ReadPixels(napi_env env, napi_callback_info info);
   static napi_value RenderbufferStorage(napi_env env, napi_callback_info info);
@@ -97,6 +111,9 @@ class WebGLRenderingContext {
   static napi_value Uniform1f(napi_env env, napi_callback_info info);
   static napi_value Uniform1fv(napi_env env, napi_callback_info info);
   static napi_value Uniform2i(napi_env env, napi_callback_info info);
+  static napi_value Uniform2f(napi_env env, napi_callback_info info);
+  static napi_value Uniform2iv(napi_env env, napi_callback_info info);
+  static napi_value Uniform3iv(napi_env env, napi_callback_info info);
   static napi_value Uniform4fv(napi_env env, napi_callback_info info);
   static napi_value Uniform4i(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);

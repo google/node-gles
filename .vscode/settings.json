@@ -25,7 +25,10 @@
     "string_view": "cpp",
     "utility": "cpp",
     "xstring": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "istream": "cpp",
+    "optional": "cpp",
+    "ostream": "cpp"
   },
   "search.exclude": {
     "**/node_modules": true,

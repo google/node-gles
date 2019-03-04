@@ -170,6 +170,32 @@ inline bool EnsureValueIsBoolean(napi_env env, napi_value value,
   return is_boolean;
 }
 
+#define ENSURE_VALUE_IS_ARRAY_LIKE(env, value) \
+  if (!EnsureValueIsArrayLike(env, value, __FILE__, __LINE__)) return;
+#define ENSURE_VALUE_IS_ARRAY_LIKE_RETVAL(env, value, retval) \
+  if (!EnsureValueIsArrayLike(env, value, __FILE__, __LINE__)) return retval;
+
+inline bool EnsureValueIsArrayLike(napi_env env, napi_value value,
+                                   const char* file, const size_t line_number) {
+  napi_status nstatus;
+
+  bool is_array;
+  nstatus = napi_is_array(env, value, &is_array);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, false);
+  if (is_array) {
+    return true;
+  }
+
+  bool is_typedarray;
+  nstatus = napi_is_typedarray(env, value, &is_typedarray);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, false);
+  if (is_typedarray) {
+    return true;
+  }
+
+  return false;
+}
+
 #define ENSURE_VALUE_IS_ARRAY(env, value) \
   if (!EnsureValueIsArray(env, value, __FILE__, __LINE__)) return;
 #define ENSURE_VALUE_IS_ARRAY_RETVAL(env, value, retval) \
