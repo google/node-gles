@@ -34,13 +34,13 @@ EGLContextWrapper::EGLContextWrapper(napi_env env,
   RefreshGLExtensions();
 
 #if DEBUG
-  std::cerr << "** GL_EXTENSIONS:" << std::endl;
-  gl_extensions->LogExtensions();
-  std::cerr << std::endl;
+  /* std::cerr << "** GL_EXTENSIONS:" << std::endl; */
+  /* gl_extensions->LogExtensions(); */
+  /* std::cerr << std::endl; */
 
-  std::cerr << "** REQUESTABLE_EXTENSIONS:" << std::endl;
-  angle_requestable_extensions->LogExtensions();
-  std::cerr << std::endl;
+  /* std::cerr << "** REQUESTABLE_EXTENSIONS:" << std::endl; */
+  /* angle_requestable_extensions->LogExtensions(); */
+  /* std::cerr << std::endl; */
 #endif
 }
 
@@ -51,7 +51,8 @@ void EGLContextWrapper::InitEGL(napi_env env,
   // TODO(kreeger): Determine if the driver can be set to
   // `EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE` for older devices running on Mesa
   // (e.g. Raspberry Pi)
-  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+  /* display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE); */
+  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE);
   display_attributes.push_back(EGL_NONE);
 
   display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nullptr,
@@ -76,9 +77,9 @@ void EGLContextWrapper::InitEGL(napi_env env,
   egl_extensions = std::unique_ptr<GLExtensionsWrapper>(
       new GLExtensionsWrapper(eglQueryString(display, EGL_EXTENSIONS)));
 #if DEBUG
-  std::cerr << "** EGL_EXTENSIONS:" << std::endl;
-  egl_extensions->LogExtensions();
-  std::cerr << std::endl;
+  /* std::cerr << "** EGL_EXTENSIONS:" << std::endl; */
+  /* egl_extensions->LogExtensions(); */
+  /* std::cerr << std::endl; */
 #endif
 
   EGLint attrib_list[] = {EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
