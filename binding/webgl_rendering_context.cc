@@ -272,7 +272,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bufferData", BufferData),
       NAPI_DEFINE_METHOD("bufferSubData", BufferSubData),
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
-// clear(mask: number): void;
+      NAPI_DEFINE_METHOD("clear", Clear),
 // clearColor(red: number, green: number, blue: number, alpha: number): void;
 // clearDepth(depth: number): void;
 // clearStencil(s: number): void;
@@ -1245,6 +1245,23 @@ napi_value WebGLRenderingContext::CheckFramebufferStatus(
   context->CheckForErrors();
 #endif
   return status_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Clear(napi_env env, napi_callback_info info) {
+  LOG_CALL("Clear");
+
+  WebGLRenderingContext *context = nullptr;
+  GLbitfield mask;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClear(mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
 }
 
 /* static */
