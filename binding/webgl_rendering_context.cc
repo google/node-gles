@@ -372,13 +372,9 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // stencilMaskSeparate(face: number, mask: number): void;
 // stencilOp(fail: number, zfail: number, zpass: number): void;
 // stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
-// texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels: ArrayBufferView | null): void;
-// texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels: ImageBitmap | ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
 // texParameterf(target: number, pname: number, param: number): void;
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
-// texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView | null): void;
-// texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, format: number, type: number, pixels: ImageBitmap | ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
       NAPI_DEFINE_METHOD("texSubImage2D", TexSubImage2D),
 // uniform1fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform1f", Uniform1f),
@@ -394,7 +390,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // uniform3fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
 // uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
 // uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
-// uniform4fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
 // uniform4iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
