@@ -189,6 +189,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glBlendFuncSeparate"));
   glBufferData =
       reinterpret_cast<PFNGLBUFFERDATAPROC>(eglGetProcAddress("glBufferData"));
+  glBufferSubData = reinterpret_cast<PFNGLBUFFERSUBDATAPROC>(
+      eglGetProcAddress("glBufferSubData"));
   glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(
       eglGetProcAddress("glCheckFramebufferStatus"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
@@ -289,8 +291,14 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUNIFORM1FPROC>(eglGetProcAddress("glUniform1f"));
   glUniform1fv =
       reinterpret_cast<PFNGLUNIFORM1FVPROC>(eglGetProcAddress("glUniform1fv"));
+  glUniform2f =
+      reinterpret_cast<PFNGLUNIFORM2FPROC>(eglGetProcAddress("glUniform2f"));
   glUniform2i =
       reinterpret_cast<PFNGLUNIFORM2IPROC>(eglGetProcAddress("glUniform2i"));
+  glUniform2iv =
+      reinterpret_cast<PFNGLUNIFORM2IVPROC>(eglGetProcAddress("glUniform2iv"));
+  glUniform3iv =
+      reinterpret_cast<PFNGLUNIFORM3IVPROC>(eglGetProcAddress("glUniform3iv"));
   glUniform4fv =
       reinterpret_cast<PFNGLUNIFORM4FVPROC>(eglGetProcAddress("glUniform4fv"));
   glUniform4i =
