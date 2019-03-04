@@ -170,6 +170,8 @@ inline bool EnsureValueIsBoolean(napi_env env, napi_value value,
   return is_boolean;
 }
 
+// TODO(kreeger): Add "ValueIsArrayLike!"
+
 #define ENSURE_VALUE_IS_ARRAY(env, value) \
   if (!EnsureValueIsArray(env, value, __FILE__, __LINE__)) return;
 #define ENSURE_VALUE_IS_ARRAY_RETVAL(env, value, retval) \
