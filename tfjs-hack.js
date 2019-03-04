@@ -26,8 +26,8 @@ console.log(gl.getParameter(gl.VERSION));
 console.log(gl.getParameter(gl.RENDERER));
 
 // End hack
-let a = tf.tensor2d([1, 2, 3, 4], [2, 2], 'int32');
-let b = tf.tensor2d([5, 6, 7, 8], [2, 2], 'int32');
+let a = tf.tensor2d([1, 2, 3, 4], [2, 2], 'float32');
+let b = tf.tensor2d([5, 6, 7, 8], [2, 2], 'float32');
 let c = a.matMul(b);
 console.log('c (int32): ', c.dataSync());
 
