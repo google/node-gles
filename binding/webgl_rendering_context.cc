@@ -195,11 +195,16 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
       napi_is_typedarray(env, array_like_value, &is_typed_array);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
   if (is_typed_array) {
-    // size_t byte_length = 0;
-    // nstatus = napi_get_arraybuffer_info(env, arraybuffer_value, nullptr,
-    //                                     &byte_length);
-    return napi_get_typedarray_info(env, array_like_value, nullptr, length,
-                                    data, nullptr, nullptr);
+    napi_value arraybuffer_value;
+    nstatus = napi_get_typedarray_info(env, array_like_value, nullptr, nullptr,
+                                       data, &arraybuffer_value, nullptr);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+    nstatus =
+        napi_get_arraybuffer_info(env, arraybuffer_value, nullptr, length);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+    return napi_ok;
   }
 
   bool is_array = false;
