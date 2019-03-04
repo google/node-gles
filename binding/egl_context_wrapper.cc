@@ -51,8 +51,10 @@ void EGLContextWrapper::InitEGL(napi_env env,
   // TODO(kreeger): Determine if the driver can be set to
   // `EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE` for older devices running on Mesa
   // (e.g. Raspberry Pi)
-  /* display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE); */
-  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE);
+
+  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+  /* display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE); */
+
   display_attributes.push_back(EGL_NONE);
 
   display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nullptr,
