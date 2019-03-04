@@ -48,10 +48,15 @@ void EGLContextWrapper::InitEGL(napi_env env,
                                 const GLContextOptions& context_options) {
   std::vector<EGLAttrib> display_attributes;
   display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
-  // TODO(kreeger): Determine if the driver can be set to
-  // `EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE` for older devices running on Mesa
-  // (e.g. Raspberry Pi)
+  // Most NVIDIA drivers will not work properly with
+  // EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE, only enable this option on ARM
+  // devices for now:
+#if defined(__arm__)
+  display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE);
+#else
   display_attributes.push_back(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+#endif
+
   display_attributes.push_back(EGL_NONE);
 
   display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, nullptr,
