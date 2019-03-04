@@ -58,6 +58,7 @@ class WebGLRenderingContext {
                                            napi_callback_info info);
   static napi_value Clear(napi_env env, napi_callback_info info);
   static napi_value ClearColor(napi_env env, napi_callback_info info);
+  static napi_value ClearDepth(napi_env env, napi_callback_info info);
   static napi_value CompileShader(napi_env env, napi_callback_info info);
   static napi_value CreateBuffer(napi_env env, napi_callback_info info);
   static napi_value CreateFramebuffer(napi_env env, napi_callback_info info);

@@ -201,6 +201,8 @@ void EGLContextWrapper::BindProcAddresses() {
   glClear = reinterpret_cast<PFNGLCLEARPROC>(eglGetProcAddress("glClear"));
   glClearColor =
       reinterpret_cast<PFNGLCLEARCOLORPROC>(eglGetProcAddress("glClearColor"));
+  glClearDepthf = reinterpret_cast<PFNGLCLEARDEPTHFPROC>(
+      eglGetProcAddress("glClearDepthf"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
       eglGetProcAddress("glCompileShader"));
   glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(

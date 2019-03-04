@@ -309,7 +309,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
       NAPI_DEFINE_METHOD("clear", Clear),
       NAPI_DEFINE_METHOD("clearColor", ClearColor),
-// clearDepth(depth: number): void;
+      NAPI_DEFINE_METHOD("clearDepth", ClearDepth),
 // clearStencil(s: number): void;
 // colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
@@ -1287,6 +1287,26 @@ napi_value WebGLRenderingContext::ClearColor(napi_env env,
 
   context->eglContextWrapper_->glClearColor(values[0], values[1], values[2],
                                             values[3]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearDepth(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("ClearDepth");
+
+  napi_status nstatus;
+
+  double depth;
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextDoubleParams(env, info, &context, 1, &depth);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearDepthf(static_cast<GLclampf>(depth));
 
 #if DEBUG
   context->CheckForErrors();
