@@ -311,7 +311,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("clearColor", ClearColor),
       NAPI_DEFINE_METHOD("clearDepth", ClearDepth),
       NAPI_DEFINE_METHOD("clearStencil", ClearStencil),
-// colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
+      NAPI_DEFINE_METHOD("colorMask", ColorMask),
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
 // compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
 // compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
@@ -1327,6 +1327,50 @@ napi_value WebGLRenderingContext::ClearStencil(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glClearStencil(s);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ColorMask(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("ColorMask");
+
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool red;
+  nstatus = napi_get_value_bool(env, args[0], &red);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool green;
+  nstatus = napi_get_value_bool(env, args[1], &green);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool blue;
+  nstatus = napi_get_value_bool(env, args[2], &blue);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool alpha;
+  nstatus = napi_get_value_bool(env, args[3], &alpha);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glColorMask(
+      static_cast<GLboolean>(red), static_cast<GLboolean>(green),
+      static_cast<GLboolean>(blue), static_cast<GLboolean>(alpha));
 
 #if DEBUG
   context->CheckForErrors();
