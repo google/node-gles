@@ -56,6 +56,11 @@ class WebGLRenderingContext {
   static napi_value BufferSubData(napi_env env, napi_callback_info info);
   static napi_value CheckFramebufferStatus(napi_env env,
                                            napi_callback_info info);
+  static napi_value Clear(napi_env env, napi_callback_info info);
+  static napi_value ClearColor(napi_env env, napi_callback_info info);
+  static napi_value ClearDepth(napi_env env, napi_callback_info info);
+  static napi_value ClearStencil(napi_env env, napi_callback_info info);
+  static napi_value ColorMask(napi_env env, napi_callback_info info);
   static napi_value CompileShader(napi_env env, napi_callback_info info);
   static napi_value CreateBuffer(napi_env env, napi_callback_info info);
   static napi_value CreateFramebuffer(napi_env env, napi_callback_info info);
@@ -67,8 +72,11 @@ class WebGLRenderingContext {
   static napi_value DeleteBuffer(napi_env env, napi_callback_info info);
   static napi_value DeleteFramebuffer(napi_env env, napi_callback_info info);
   static napi_value DeleteProgram(napi_env env, napi_callback_info info);
+  static napi_value DeleteRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value DeleteShader(napi_env env, napi_callback_info info);
   static napi_value DeleteTexture(napi_env env, napi_callback_info info);
+  static napi_value DepthFunc(napi_env env, napi_callback_info info);
+  static napi_value DepthMask(napi_env env, napi_callback_info info);
   static napi_value Disable(napi_env env, napi_callback_info info);
   static napi_value DisableVertexAttribArray(napi_env env,
                                              napi_callback_info info);

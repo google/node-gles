@@ -90,6 +90,33 @@ static napi_status UnwrapContext(napi_env env, napi_value js_this,
   return napi_unwrap(env, js_this, reinterpret_cast<void **>(context));
 }
 
+// TODO(cleanup and refactor) all of these helpers!
+static napi_status GetContextBoolParams(napi_env env, napi_callback_info info,
+                                        WebGLRenderingContext **context,
+                                        size_t param_length, bool *params) {
+  napi_status nstatus;
+
+  size_t argc = param_length;
+  napi_value args[param_length];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
+
+  nstatus = UnwrapContext(env, js_this, context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  for (size_t i = 0; i < param_length; ++i) {
+    ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[i], napi_invalid_arg);
+
+    nstatus = napi_get_value_bool(env, args[i], &params[i]);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+  }
+
+  return napi_ok;
+}
+
 // Returns wrapped context pointer and uint32_t params.
 static napi_status GetContextUint32Params(napi_env env, napi_callback_info info,
                                           WebGLRenderingContext **context,
@@ -127,7 +154,6 @@ static napi_status GetContextUint32Params(napi_env env, napi_callback_info info,
   return napi_ok;
 }
 
-// TODO(kreeger): Cleanup and refactor with the unsigned version.
 // Returns wrapped context pointer and uint32_t params.
 static napi_status GetContextInt32Params(napi_env env, napi_callback_info info,
                                          WebGLRenderingContext **context,
@@ -155,6 +181,41 @@ static napi_status GetContextInt32Params(napi_env env, napi_callback_info info,
       params[i] = 0;
     } else if (value_type == napi_number) {
       nstatus = napi_get_value_int32(env, args[i], &params[i]);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+    } else {
+      ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nstatus);
+    }
+  }
+
+  return napi_ok;
+}
+
+static napi_status GetContextDoubleParams(napi_env env, napi_callback_info info,
+                                          WebGLRenderingContext **context,
+                                          size_t param_length, double *params) {
+  napi_status nstatus;
+
+  size_t argc = param_length;
+  napi_value args[param_length];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
+
+  nstatus = UnwrapContext(env, js_this, context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  for (size_t i = 0; i < param_length; ++i) {
+    // Null-params get set to 0 in GL world.
+    napi_valuetype value_type;
+    nstatus = napi_typeof(env, args[i], &value_type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+    if (value_type == napi_null) {
+      params[i] = 0;
+    } else if (value_type == napi_number) {
+      nstatus = napi_get_value_double(env, args[i], &params[i]);
       ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
     } else {
       ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nstatus);
@@ -272,11 +333,11 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("bufferData", BufferData),
       NAPI_DEFINE_METHOD("bufferSubData", BufferSubData),
       NAPI_DEFINE_METHOD("checkFramebufferStatus", CheckFramebufferStatus),
-// clear(mask: number): void;
-// clearColor(red: number, green: number, blue: number, alpha: number): void;
-// clearDepth(depth: number): void;
-// clearStencil(s: number): void;
-// colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
+      NAPI_DEFINE_METHOD("clear", Clear),
+      NAPI_DEFINE_METHOD("clearColor", ClearColor),
+      NAPI_DEFINE_METHOD("clearDepth", ClearDepth),
+      NAPI_DEFINE_METHOD("clearStencil", ClearStencil),
+      NAPI_DEFINE_METHOD("colorMask", ColorMask),
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
 // compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
 // compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
@@ -292,11 +353,11 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteBuffer", DeleteBuffer),
       NAPI_DEFINE_METHOD("deleteFramebuffer", DeleteFramebuffer),
       NAPI_DEFINE_METHOD("deleteProgram", DeleteProgram),
-// deleteRenderbuffker(renderbuffer: WebGLRenderbuffer | null): void;
+      NAPI_DEFINE_METHOD("deleteRenderbuffer", DeleteRenderbuffer),
       NAPI_DEFINE_METHOD("deleteShader", DeleteShader),
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
-// depthFunc(func: number): void;
-// depthMask(flag: boolean): void;
+      NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
+      NAPI_DEFINE_METHOD("depthMask", DepthMask),
 // depthRange(zNear: number, zFar: number): void;
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
       NAPI_DEFINE_METHOD("disable", Disable),
@@ -1005,40 +1066,14 @@ napi_value WebGLRenderingContext::BlendColor(napi_env env,
   LOG_CALL("BlendColor");
   napi_status nstatus;
 
-  size_t argc = 4;
-  napi_value args[4];
-  napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
-
+  double values[4];
   WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  double red;
-  nstatus = napi_get_value_double(env, args[0], &red);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
-  double green;
-  nstatus = napi_get_value_double(env, args[1], &green);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  double blue;
-  nstatus = napi_get_value_double(env, args[2], &blue);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
-  double alpha;
-  nstatus = napi_get_value_double(env, args[3], &alpha);
+  nstatus = GetContextDoubleParams(env, info, &context, 4, values);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBlendColor(
-      static_cast<GLclampf>(red), static_cast<GLclampf>(green),
-      static_cast<GLclampf>(blue), static_cast<GLclampf>(alpha));
+      static_cast<GLclampf>(values[0]), static_cast<GLclampf>(values[1]),
+      static_cast<GLclampf>(values[2]), static_cast<GLclampf>(values[3]));
 
 #if DEBUG
   context->CheckForErrors();
@@ -1248,6 +1283,106 @@ napi_value WebGLRenderingContext::CheckFramebufferStatus(
 }
 
 /* static */
+napi_value WebGLRenderingContext::Clear(napi_env env, napi_callback_info info) {
+  LOG_CALL("Clear");
+
+  WebGLRenderingContext *context = nullptr;
+  GLbitfield mask;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClear(mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearColor(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("ClearColor");
+
+  napi_status nstatus;
+
+  double values[4];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextDoubleParams(env, info, &context, 4, values);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearColor(values[0], values[1], values[2],
+                                            values[3]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearDepth(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("ClearDepth");
+
+  napi_status nstatus;
+
+  double depth;
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextDoubleParams(env, info, &context, 1, &depth);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearDepthf(static_cast<GLclampf>(depth));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearStencil(napi_env env,
+                                               napi_callback_info info) {
+  LOG_CALL("ClearStencil");
+
+  napi_status nstatus;
+
+  GLint s;
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextInt32Params(env, info, &context, 1, &s);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearStencil(s);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ColorMask(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("ColorMask");
+
+  napi_status nstatus;
+
+  bool args[4];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextBoolParams(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glColorMask(
+      static_cast<GLboolean>(args[0]), static_cast<GLboolean>(args[1]),
+      static_cast<GLboolean>(args[2]), static_cast<GLboolean>(args[3]));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::CompileShader(napi_env env,
                                                 napi_callback_info info) {
   LOG_CALL("CompileShader");
@@ -1451,27 +1586,6 @@ napi_value WebGLRenderingContext::DeleteBuffer(napi_env env,
 }
 
 /* static */
-napi_value WebGLRenderingContext::DeleteProgram(napi_env env,
-                                                napi_callback_info info) {
-  LOG_CALL("DeleteProgram");
-
-  WebGLRenderingContext *context = nullptr;
-  GLuint program;
-  napi_status nstatus =
-      GetContextUint32Params(env, info, &context, 1, &program);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  context->eglContextWrapper_->glDeleteProgram(program);
-
-  // TODO(kreeger): Keep track of global objects.
-  context->alloc_count_--;
-#if DEBUG
-  context->CheckForErrors();
-#endif
-  return nullptr;
-}
-
-/* static */
 napi_value WebGLRenderingContext::DeleteFramebuffer(napi_env env,
                                                     napi_callback_info info) {
   LOG_CALL("DeleteFramebuffer");
@@ -1493,9 +1607,51 @@ napi_value WebGLRenderingContext::DeleteFramebuffer(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::DeleteProgram(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("DeleteProgram");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint program;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDeleteProgram(program);
+
+  // TODO(kreeger): Keep track of global objects.
+  context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DeleteRenderbuffer(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("DeleteRenderbuffer");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint renderbuffer;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &renderbuffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDeleteRenderbuffers(1, &renderbuffer);
+
+  // TODO(kreeger): Keep track of global objects.
+  context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::DeleteShader(napi_env env,
                                                napi_callback_info info) {
-  LOG_CALL("DeleteTexture");
+  LOG_CALL("DeleteShader");
 
   WebGLRenderingContext *context = nullptr;
   GLuint shader;
@@ -1527,6 +1683,42 @@ napi_value WebGLRenderingContext::DeleteTexture(napi_env env,
 
   // TODO(kreeger): Keep track of global objects.
   context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DepthFunc(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("DepthFunc");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum func;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthFunc(func);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DepthMask(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("DepthMask");
+
+  WebGLRenderingContext *context = nullptr;
+  bool flag;
+  napi_status nstatus = GetContextBoolParams(env, info, &context, 1, &flag);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthMask(static_cast<GLboolean>(flag));
+
 #if DEBUG
   context->CheckForErrors();
 #endif

@@ -198,6 +198,15 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glBufferSubData"));
   glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(
       eglGetProcAddress("glCheckFramebufferStatus"));
+  glClear = reinterpret_cast<PFNGLCLEARPROC>(eglGetProcAddress("glClear"));
+  glClearColor =
+      reinterpret_cast<PFNGLCLEARCOLORPROC>(eglGetProcAddress("glClearColor"));
+  glClearDepthf = reinterpret_cast<PFNGLCLEARDEPTHFPROC>(
+      eglGetProcAddress("glClearDepthf"));
+  glClearStencil = reinterpret_cast<PFNGLCLEARSTENCILPROC>(
+      eglGetProcAddress("glClearStencil"));
+  glColorMask =
+      reinterpret_cast<PFNGLCOLORMASKPROC>(eglGetProcAddress("glColorMask"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
       eglGetProcAddress("glCompileShader"));
   glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(
@@ -210,12 +219,18 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glDeleteBuffers"));
   glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(
       eglGetProcAddress("glDeleteFramebuffers"));
+  glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(
+      eglGetProcAddress("glDeleteRenderbuffers"));
   glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(
       eglGetProcAddress("glDeleteProgram"));
   glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(
       eglGetProcAddress("glDeleteShader"));
   glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(
       eglGetProcAddress("glDeleteTextures"));
+  glDepthFunc =
+      reinterpret_cast<PFNGLDEPTHFUNCPROC>(eglGetProcAddress("glDepthFunc"));
+  glDepthMask =
+      reinterpret_cast<PFNGLDEPTHMASKPROC>(eglGetProcAddress("glDepthMask"));
   glDrawArrays =
       reinterpret_cast<PFNGLDRAWARRAYSPROC>(eglGetProcAddress("glDrawArrays"));
   glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(
