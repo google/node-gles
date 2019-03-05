@@ -358,7 +358,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
       NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
       NAPI_DEFINE_METHOD("depthMask", DepthMask),
-// depthRange(zNear: number, zFar: number): void;
+      NAPI_DEFINE_METHOD("depthRange", DepthRange),
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
       NAPI_DEFINE_METHOD("disable", Disable),
       NAPI_DEFINE_METHOD("disableVertexAttribArray", DisableVertexAttribArray),
@@ -1718,6 +1718,25 @@ napi_value WebGLRenderingContext::DepthMask(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glDepthMask(static_cast<GLboolean>(flag));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DepthRange(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("DepthRange");
+
+  WebGLRenderingContext *context = nullptr;
+  double args[2];
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthRangef(static_cast<GLfloat>(args[0]),
+                                             static_cast<GLfloat>(args[1]));
 
 #if DEBUG
   context->CheckForErrors();
