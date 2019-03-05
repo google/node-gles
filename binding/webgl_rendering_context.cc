@@ -327,7 +327,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteBuffer", DeleteBuffer),
       NAPI_DEFINE_METHOD("deleteFramebuffer", DeleteFramebuffer),
       NAPI_DEFINE_METHOD("deleteProgram", DeleteProgram),
-// deleteRenderbuffker(renderbuffer: WebGLRenderbuffer | null): void;
+      NAPI_DEFINE_METHOD("deleteRenderbuffer", DeleteRenderbuffer),
       NAPI_DEFINE_METHOD("deleteShader", DeleteShader),
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
 // depthFunc(func: number): void;
@@ -1582,6 +1582,27 @@ napi_value WebGLRenderingContext::DeleteBuffer(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::DeleteFramebuffer(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("DeleteFramebuffer");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint frame_buffer;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &frame_buffer);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDeleteFramebuffers(1, &frame_buffer);
+
+  // TODO(kreeger): Keep track of global objects.
+  context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::DeleteProgram(napi_env env,
                                                 napi_callback_info info) {
   LOG_CALL("DeleteProgram");
@@ -1603,17 +1624,17 @@ napi_value WebGLRenderingContext::DeleteProgram(napi_env env,
 }
 
 /* static */
-napi_value WebGLRenderingContext::DeleteFramebuffer(napi_env env,
-                                                    napi_callback_info info) {
-  LOG_CALL("DeleteFramebuffer");
+napi_value WebGLRenderingContext::DeleteRenderbuffer(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("DeleteRenderbuffer");
 
   WebGLRenderingContext *context = nullptr;
-  GLuint frame_buffer;
+  GLuint renderbuffer;
   napi_status nstatus =
-      GetContextUint32Params(env, info, &context, 1, &frame_buffer);
+      GetContextUint32Params(env, info, &context, 1, &renderbuffer);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glDeleteFramebuffers(1, &frame_buffer);
+  context->eglContextWrapper_->glDeleteRenderbuffers(renderbuffer);
 
   // TODO(kreeger): Keep track of global objects.
   context->alloc_count_--;

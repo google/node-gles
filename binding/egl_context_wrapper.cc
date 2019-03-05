@@ -219,6 +219,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glDeleteBuffers"));
   glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(
       eglGetProcAddress("glDeleteFramebuffers"));
+  glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(
+      eglGetProcAddress("glDeleteRenderbuffers"));
   glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(
       eglGetProcAddress("glDeleteProgram"));
   glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(
