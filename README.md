@@ -17,7 +17,7 @@ Future plans include surfacing an API for running [Compute Shaders](https://www.
 
 ## Creating a WebGL context
 
-To create a new `WebGLRenderingContext` or `WebGL2RenderingContext` - simply include the package and call the following method:
+To create a new `WebGLRenderingContext` or `WebGL2RenderingContext` - simply include the package and call `createWebGLRenderingContext()`:
 
 ```js
 const nodeGles = require('node-gles');
