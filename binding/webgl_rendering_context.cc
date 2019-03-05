@@ -330,7 +330,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteRenderbuffer", DeleteRenderbuffer),
       NAPI_DEFINE_METHOD("deleteShader", DeleteShader),
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
-// depthFunc(func: number): void;
+      NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
 // depthMask(flag: boolean): void;
 // depthRange(zNear: number, zFar: number): void;
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
@@ -1634,7 +1634,7 @@ napi_value WebGLRenderingContext::DeleteRenderbuffer(napi_env env,
       GetContextUint32Params(env, info, &context, 1, &renderbuffer);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glDeleteRenderbuffers(renderbuffer);
+  context->eglContextWrapper_->glDeleteRenderbuffers(1, &renderbuffer);
 
   // TODO(kreeger): Keep track of global objects.
   context->alloc_count_--;
@@ -1647,7 +1647,7 @@ napi_value WebGLRenderingContext::DeleteRenderbuffer(napi_env env,
 /* static */
 napi_value WebGLRenderingContext::DeleteShader(napi_env env,
                                                napi_callback_info info) {
-  LOG_CALL("DeleteTexture");
+  LOG_CALL("DeleteShader");
 
   WebGLRenderingContext *context = nullptr;
   GLuint shader;
@@ -1679,6 +1679,24 @@ napi_value WebGLRenderingContext::DeleteTexture(napi_env env,
 
   // TODO(kreeger): Keep track of global objects.
   context->alloc_count_--;
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DepthFunc(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("DepthFunc");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum func;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthFunc(func);
+
 #if DEBUG
   context->CheckForErrors();
 #endif
