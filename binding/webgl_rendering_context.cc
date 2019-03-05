@@ -90,6 +90,33 @@ static napi_status UnwrapContext(napi_env env, napi_value js_this,
   return napi_unwrap(env, js_this, reinterpret_cast<void **>(context));
 }
 
+// TODO(cleanup and refactor) all of these helpers!
+static napi_status GetContextBoolParams(napi_env env, napi_callback_info info,
+                                        WebGLRenderingContext **context,
+                                        size_t param_length, bool *params) {
+  napi_status nstatus;
+
+  size_t argc = param_length;
+  napi_value args[param_length];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
+
+  nstatus = UnwrapContext(env, js_this, context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  for (size_t i = 0; i < param_length; ++i) {
+    ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[i], napi_invalid_arg);
+
+    nstatus = napi_get_value_bool(env, args[i], params[i]);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+  }
+
+  return napi_ok;
+}
+
 // Returns wrapped context pointer and uint32_t params.
 static napi_status GetContextUint32Params(napi_env env, napi_callback_info info,
                                           WebGLRenderingContext **context,
@@ -1348,29 +1375,14 @@ napi_value WebGLRenderingContext::ColorMask(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
 
+  bool args[4];
   WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  bool red;
-  nstatus = napi_get_value_bool(env, args[0], &red);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  bool green;
-  nstatus = napi_get_value_bool(env, args[1], &green);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  bool blue;
-  nstatus = napi_get_value_bool(env, args[2], &blue);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  bool alpha;
-  nstatus = napi_get_value_bool(env, args[3], &alpha);
+  nstatus = GetContextDoubleParams(env, info, &context, 3, args);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glColorMask(
-      static_cast<GLboolean>(red), static_cast<GLboolean>(green),
-      static_cast<GLboolean>(blue), static_cast<GLboolean>(alpha));
+      static_cast<GLboolean>(args[0]), static_cast<GLboolean>(args[1]),
+      static_cast<GLboolean>(args[2]), static_cast<GLboolean>(args[3]));
 
 #if DEBUG
   context->CheckForErrors();
