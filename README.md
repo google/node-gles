@@ -24,9 +24,7 @@ const nodeGles = require('node-gles');
 
 const gl = nodeGles.createWebGLRenderingContext();
 
-...
-
-// Use `gl` for regular WebGL calls:
+// Now, use `gl` for regular WebGL calls:
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, texture);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
