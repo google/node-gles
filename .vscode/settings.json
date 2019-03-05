@@ -28,7 +28,8 @@
     "string": "cpp",
     "istream": "cpp",
     "optional": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "*.inc": "cpp"
   },
   "search.exclude": {
     "**/node_modules": true,
