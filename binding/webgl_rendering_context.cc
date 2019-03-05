@@ -110,7 +110,7 @@ static napi_status GetContextBoolParams(napi_env env, napi_callback_info info,
   for (size_t i = 0; i < param_length; ++i) {
     ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[i], napi_invalid_arg);
 
-    nstatus = napi_get_value_bool(env, args[i], params[i]);
+    nstatus = napi_get_value_bool(env, args[i], &params[i]);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
   }
 
@@ -154,7 +154,6 @@ static napi_status GetContextUint32Params(napi_env env, napi_callback_info info,
   return napi_ok;
 }
 
-// TODO(kreeger): Cleanup and refactor with the unsigned version.
 // Returns wrapped context pointer and uint32_t params.
 static napi_status GetContextInt32Params(napi_env env, napi_callback_info info,
                                          WebGLRenderingContext **context,
@@ -358,6 +357,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteShader", DeleteShader),
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
       NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
+      NAPI_DEFINE_METHOD("depthMask", DepthMask),
 // depthMask(flag: boolean): void;
 // depthRange(zNear: number, zFar: number): void;
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
@@ -1368,16 +1368,9 @@ napi_value WebGLRenderingContext::ColorMask(napi_env env,
 
   napi_status nstatus;
 
-  size_t argc = 4;
-  napi_value args[4];
-  napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
-
   bool args[4];
   WebGLRenderingContext *context = nullptr;
-  nstatus = GetContextDoubleParams(env, info, &context, 3, args);
+  nstatus = GetContextBoolParams(env, info, &context, 4, args);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glColorMask(
@@ -1708,6 +1701,24 @@ napi_value WebGLRenderingContext::DepthFunc(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glDepthFunc(func);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DepthMask(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("DepthMask");
+
+  WebGLRenderingContext *context = nullptr;
+  bool flag;
+  napi_status nstatus = GetContextBoolParams(env, info, &context, 1, &flag);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthMask(static_cast<GLboolean>(flag));
 
 #if DEBUG
   context->CheckForErrors();
