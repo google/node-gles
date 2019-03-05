@@ -310,7 +310,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("clear", Clear),
       NAPI_DEFINE_METHOD("clearColor", ClearColor),
       NAPI_DEFINE_METHOD("clearDepth", ClearDepth),
-// clearStencil(s: number): void;
+      NAPI_DEFINE_METHOD("clearStencil", ClearStencil),
 // colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
 // compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
@@ -1307,6 +1307,26 @@ napi_value WebGLRenderingContext::ClearDepth(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glClearDepthf(static_cast<GLclampf>(depth));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClearStencil(napi_env env,
+                                               napi_callback_info info) {
+  LOG_CALL("ClearStencil");
+
+  napi_status nstatus;
+
+  GLint s;
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextInt32Params(env, info, &context, 1, &s);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glClearStencil(s);
 
 #if DEBUG
   context->CheckForErrors();
