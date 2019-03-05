@@ -358,7 +358,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
       NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
       NAPI_DEFINE_METHOD("depthMask", DepthMask),
-// depthMask(flag: boolean): void;
 // depthRange(zNear: number, zFar: number): void;
 // detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
       NAPI_DEFINE_METHOD("disable", Disable),
