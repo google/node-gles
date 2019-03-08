@@ -143,6 +143,7 @@ class WebGLRenderingContext {
   static napi_value Uniform2fv(napi_env env, napi_callback_info info);
   static napi_value Uniform2iv(napi_env env, napi_callback_info info);
   static napi_value Uniform3iv(napi_env env, napi_callback_info info);
+  static napi_value Uniform3f(napi_env env, napi_callback_info info);
   static napi_value Uniform4fv(napi_env env, napi_callback_info info);
   static napi_value Uniform4i(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);

@@ -451,7 +451,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform2i", Uniform2i),
       NAPI_DEFINE_METHOD("uniform2iv", Uniform2iv),
       NAPI_DEFINE_METHOD("uniform3iv", Uniform3iv),
-// uniform3f(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
+      NAPI_DEFINE_METHOD("uniform3f", Uniform3f),
 // uniform3fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
 // uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
 // uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
@@ -3673,6 +3673,54 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
 
   context->eglContextWrapper_->glUniform3iv(location, 1,
                                             reinterpret_cast<GLint *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform3f(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform3f");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[0], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[0], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[0], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform3f(location, static_cast<GLfloat>(v0),
+                                           static_cast<GLfloat>(v1),
+                                           static_cast<GLfloat>(v2));
 
 #if DEBUG
   context->CheckForErrors();
