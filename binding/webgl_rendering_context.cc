@@ -442,12 +442,11 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
       NAPI_DEFINE_METHOD("texParameterf", TexParameterf),
       NAPI_DEFINE_METHOD("texSubImage2D", TexSubImage2D),
-// uniform1fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform1f", Uniform1f),
       NAPI_DEFINE_METHOD("uniform1fv", Uniform1fv),
       NAPI_DEFINE_METHOD("uniform1i", Uniform1i),
+      NAPI_DEFINE_METHOD("uniform1iv", Uniform1iv),
       NAPI_DEFINE_METHOD("uniform2f", Uniform2f),
-// uniform1iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
 // uniform2fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform2i", Uniform2i),
       NAPI_DEFINE_METHOD("uniform2iv", Uniform2iv),
@@ -3394,6 +3393,43 @@ napi_value WebGLRenderingContext::Uniform1i(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform1i(location, v0);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform1iv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform1iv(
+      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
 
 #if DEBUG
   context->CheckForErrors();

@@ -135,6 +135,7 @@ class WebGLRenderingContext {
   static napi_value TexParameterf(napi_env env, napi_callback_info info);
   static napi_value TexSubImage2D(napi_env env, napi_callback_info info);
   static napi_value Uniform1i(napi_env env, napi_callback_info info);
+  static napi_value Uniform1iv(napi_env env, napi_callback_info info);
   static napi_value Uniform1f(napi_env env, napi_callback_info info);
   static napi_value Uniform1fv(napi_env env, napi_callback_info info);
   static napi_value Uniform2i(napi_env env, napi_callback_info info);
