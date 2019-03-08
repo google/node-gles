@@ -416,8 +416,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getVertexuniform1iAttribOffset(index: number, pname: number): number;
       NAPI_DEFINE_METHOD("hint", Hint),
       NAPI_DEFINE_METHOD("isBuffer", IsBuffer),
-// isContextLost(): boolean;
-// isEnabled(cap: number): boolean;
+      NAPI_DEFINE_METHOD("isContextLost", IsContextLost),
+      NAPI_DEFINE_METHOD("isEnabled", IsEnabled),
       NAPI_DEFINE_METHOD("isFramebuffer", IsFramebuffer),
       NAPI_DEFINE_METHOD("isProgram", IsProgram),
       NAPI_DEFINE_METHOD("isRenderbuffer", IsRenderbuffer),
@@ -2486,6 +2486,43 @@ napi_value WebGLRenderingContext::IsBuffer(napi_env env,
 
   napi_value result_value;
   nstatus = napi_get_boolean(env, is_buffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsContextLost(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("IsContextLost");
+  napi_status nstatus;
+
+  // Headless bindings never lose context:
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, true, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsEnabled(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("IsEnabled");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum cap;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &cap);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_enabled = context->eglContextWrapper_->glIsEnabled(cap);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_enabled, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
