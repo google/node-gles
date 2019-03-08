@@ -414,7 +414,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
 // getVertexAttrib(index: number, pname: number): any;
 // getVertexuniform1iAttribOffset(index: number, pname: number): number;
-// hint(target: number, mode: number): void;
+      NAPI_DEFINE_METHOD("hint", Hint),
       NAPI_DEFINE_METHOD("isBuffer", IsBuffer),
 // isContextLost(): boolean;
 // isEnabled(cap: number): boolean;
@@ -2451,6 +2451,24 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
   context->CheckForErrors();
 #endif
   return location_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Hint(napi_env env, napi_callback_info info) {
+  LOG_CALL("Hint");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glHint(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
 }
 
 /* static */

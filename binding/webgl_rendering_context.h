@@ -106,6 +106,7 @@ class WebGLRenderingContext {
   static napi_value GetSupportedExtensions(napi_env env,
                                            napi_callback_info info);
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
+  static napi_value Hint(napi_env env, napi_callback_info info);
   static napi_value IsBuffer(napi_env env, napi_callback_info info);
   static napi_value IsFramebuffer(napi_env env, napi_callback_info info);
   static napi_value IsProgram(napi_env env, napi_callback_info info);
