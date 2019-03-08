@@ -358,8 +358,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("deleteTexture", DeleteTexture),
       NAPI_DEFINE_METHOD("depthFunc", DepthFunc),
       NAPI_DEFINE_METHOD("depthMask", DepthMask),
-// depthRange(zNear: number, zFar: number): void;
-// detachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
+      NAPI_DEFINE_METHOD("depthRange", DepthRange),
+      NAPI_DEFINE_METHOD("detachShader", DetachShader),
       NAPI_DEFINE_METHOD("disable", Disable),
       NAPI_DEFINE_METHOD("disableVertexAttribArray", DisableVertexAttribArray),
       NAPI_DEFINE_METHOD("drawArrays", DrawArrays),
@@ -370,9 +370,9 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("flush", Flush),
       NAPI_DEFINE_METHOD("framebufferRenderbuffer", FramebufferRenderbuffer),
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
-// frontFace(mode: number): void;
-// generateMipmap(target: number): void;
-// getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
+      NAPI_DEFINE_METHOD("frontFace", FrontFace),
+      NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
+// getActiveAttrib(program: WebGLProgram | null, index: Number): WebGLActiveInfo | null;
 // getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
 // getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
@@ -414,30 +414,30 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
 // getVertexAttrib(index: number, pname: number): any;
 // getVertexuniform1iAttribOffset(index: number, pname: number): number;
-// hint(target: number, mode: number): void;
+      NAPI_DEFINE_METHOD("hint", Hint),
       NAPI_DEFINE_METHOD("isBuffer", IsBuffer),
-// isContextLost(): boolean;
-// isEnabled(cap: number): boolean;
+      NAPI_DEFINE_METHOD("isContextLost", IsContextLost),
+      NAPI_DEFINE_METHOD("isEnabled", IsEnabled),
       NAPI_DEFINE_METHOD("isFramebuffer", IsFramebuffer),
       NAPI_DEFINE_METHOD("isProgram", IsProgram),
       NAPI_DEFINE_METHOD("isRenderbuffer", IsRenderbuffer),
       NAPI_DEFINE_METHOD("isShader", IsShader),
       NAPI_DEFINE_METHOD("isTexture", IsTexture),
-// lineWidth(width: number): void;
+      NAPI_DEFINE_METHOD("lineWidth", LineWidth),
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
-// pixelStorei(pname: number, param: number | boolean): void;
-// polygonOffset(factor: number, units: number): void;
+      NAPI_DEFINE_METHOD("pixelStorei", PixelStorei),
+      NAPI_DEFINE_METHOD("polygonOffset", PolygonOffset),
       NAPI_DEFINE_METHOD("readPixels", ReadPixels),
       NAPI_DEFINE_METHOD("renderbufferStorage", RenderbufferStorage),
-// sampleCoverage(value: number, invert: boolean): void;
+      NAPI_DEFINE_METHOD("sampleCoverage", SampleCoverage),
       NAPI_DEFINE_METHOD("scissor", Scissor),
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
-// stencilFunc(func: number, ref: number, mask: number): void;
-// stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
-// stencilMask(mask: number): void;
-// stencilMaskSeparate(face: number, mask: number): void;
-// stencilOp(fail: number, zfail: number, zpass: number): void;
-// stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
+      NAPI_DEFINE_METHOD("stencilFunc", StencilFunc),
+      NAPI_DEFINE_METHOD("stencilFuncSeparate", StencilFuncSeparate),
+      NAPI_DEFINE_METHOD("stencilMask", StencilMask),
+      NAPI_DEFINE_METHOD("stencilMaskSeparate", StencilMaskSeparate),
+      NAPI_DEFINE_METHOD("stencilOp", StencilOp),
+      NAPI_DEFINE_METHOD("stencilOpSeparate", StencilOpSeparate),
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
 // texParameterf(target: number, pname: number, param: number): void;
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
@@ -463,7 +463,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // uniformMatrix3fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix4fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("useProgram", UseProgram),
-// validateProgram(program: WebGLProgram | null): void;
+      NAPI_DEFINE_METHOD("validateProgram", ValidateProgram),
 // vertexAttrib1f(indx: number, x: number): void;
 // vertexAttrib1fv(indx: number, values: Float32Array | number[]): void;
 // vertexAttrib2f(indx: number, x: number, y: number): void;
@@ -1726,6 +1726,43 @@ napi_value WebGLRenderingContext::DepthMask(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::DepthRange(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("DepthRange");
+
+  WebGLRenderingContext *context = nullptr;
+  double args[2];
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDepthRangef(static_cast<GLfloat>(args[0]),
+                                             static_cast<GLfloat>(args[1]));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::DetachShader(napi_env env,
+                                               napi_callback_info info) {
+  LOG_CALL("DetachShader");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint args[2];
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glDetachShader(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::Disable(napi_env env,
                                           napi_callback_info info) {
   LOG_CALL("Disable");
@@ -2068,6 +2105,22 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Flush(napi_env env, napi_callback_info info) {
+  LOG_CALL("Flush");
+
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContext(env, info, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glFlush();
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::FramebufferRenderbuffer(
     napi_env env, napi_callback_info info) {
   LOG_CALL("FramebufferRenderbuffer");
@@ -2141,14 +2194,34 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
 }
 
 /* static */
-napi_value WebGLRenderingContext::Flush(napi_env env, napi_callback_info info) {
-  LOG_CALL("Flush");
+napi_value WebGLRenderingContext::FrontFace(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("FrontFace");
 
   WebGLRenderingContext *context = nullptr;
-  napi_status nstatus = GetContext(env, info, &context);
+  GLenum mode;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mode);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glFlush();
+  context->eglContextWrapper_->glFrontFace(mode);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("GenerateMipmap");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum target;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glGenerateMipmap(target);
 
 #if DEBUG
   context->CheckForErrors();
@@ -2381,6 +2454,24 @@ napi_value WebGLRenderingContext::GetUniformLocation(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Hint(napi_env env, napi_callback_info info) {
+  LOG_CALL("Hint");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glHint(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::IsBuffer(napi_env env,
                                            napi_callback_info info) {
   LOG_CALL("IsBuffer");
@@ -2395,6 +2486,43 @@ napi_value WebGLRenderingContext::IsBuffer(napi_env env,
 
   napi_value result_value;
   nstatus = napi_get_boolean(env, is_buffer, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsContextLost(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("IsContextLost");
+  napi_status nstatus;
+
+  // Headless bindings never lose context:
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, true, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::IsEnabled(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("IsEnabled");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum cap;
+  nstatus = GetContextUint32Params(env, info, &context, 1, &cap);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLboolean is_enabled = context->eglContextWrapper_->glIsEnabled(cap);
+
+  napi_value result_value;
+  nstatus = napi_get_boolean(env, is_enabled, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -2521,6 +2649,24 @@ napi_value WebGLRenderingContext::IsTexture(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::LineWidth(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("LineWidth");
+
+  WebGLRenderingContext *context = nullptr;
+  double width;
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 1, &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glLineWidth(static_cast<GLfloat>(width));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::LinkProgram(napi_env env,
                                               napi_callback_info info) {
   LOG_CALL("LinkProgram");
@@ -2532,6 +2678,61 @@ napi_value WebGLRenderingContext::LinkProgram(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glLinkProgram(program);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::PixelStorei(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("PixelStorei");
+
+  napi_status nstatus;
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum pname;
+  nstatus = napi_get_value_uint32(env, args[0], &pname);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint param;
+  nstatus = napi_get_value_int32(env, args[1], &param);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glPixelStorei(pname, param);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::PolygonOffset(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("PolygonOffset");
+
+  WebGLRenderingContext *context = nullptr;
+  double args[2];
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glPolygonOffset(static_cast<GLfloat>(args[0]),
+                                               static_cast<GLfloat>(args[1]));
 
 #if DEBUG
   context->CheckForErrors();
@@ -2642,6 +2843,43 @@ napi_value WebGLRenderingContext::RenderbufferStorage(napi_env env,
 
   context->eglContextWrapper_->glRenderbufferStorage(target, internal_format,
                                                      width, height);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::SampleCoverage(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("Scissor");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+
+  double value;
+  nstatus = napi_get_value_double(env, args[0], &value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool invert;
+  nstatus = napi_get_value_bool(env, args[1], &invert);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glSampleCoverage(static_cast<GLclampf>(value),
+                                                static_cast<GLboolean>(invert));
 
 #if DEBUG
   context->CheckForErrors();
@@ -2807,6 +3045,166 @@ napi_value WebGLRenderingContext::ShaderSource(napi_env env,
   GLint length = source.size();
   const char *codes[] = {source.c_str()};
   context->eglContextWrapper_->glShaderSource(shader, 1, codes, &length);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilFunc(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("StencilFunc");
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLenum func;
+  nstatus = napi_get_value_uint32(env, args[0], &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint ref;
+  nstatus = napi_get_value_int32(env, args[1], &ref);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLuint mask;
+  nstatus = napi_get_value_uint32(env, args[2], &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilFunc(func, ref, mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilFuncSeparate(napi_env env,
+                                                      napi_callback_info info) {
+  LOG_CALL("StencilFuncSeparate");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  GLenum face;
+  nstatus = napi_get_value_uint32(env, args[0], &face);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum func;
+  nstatus = napi_get_value_uint32(env, args[1], &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint ref;
+  nstatus = napi_get_value_int32(env, args[2], &ref);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLuint mask;
+  nstatus = napi_get_value_uint32(env, args[3], &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilFuncSeparate(face, func, ref, mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilMask(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("StencilMask");
+  GLuint mask;
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilMask(mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilMaskSeparate(napi_env env,
+                                                      napi_callback_info info) {
+  LOG_CALL("StencilMaskSeparate");
+
+  uint32_t args[2];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilMaskSeparate(
+      static_cast<GLenum>(args[0]), static_cast<GLuint>(args[1]));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilOp(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("StencilOp");
+
+  GLenum args[3];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 3, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilOp(args[0], args[1], args[2]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilOpSeparate(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("StencilOpSeparate");
+
+  GLenum args[4];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilOpSeparate(args[0], args[1], args[2],
+                                                   args[3]);
 
 #if DEBUG
   context->CheckForErrors();
@@ -3235,6 +3633,25 @@ napi_value WebGLRenderingContext::UseProgram(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUseProgram(program);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ValidateProgram(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("ValidateProgram");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint program;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glValidateProgram(program);
 
 #if DEBUG
   context->CheckForErrors();

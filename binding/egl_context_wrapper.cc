@@ -231,10 +231,14 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLDEPTHFUNCPROC>(eglGetProcAddress("glDepthFunc"));
   glDepthMask =
       reinterpret_cast<PFNGLDEPTHMASKPROC>(eglGetProcAddress("glDepthMask"));
+  glDepthRangef = reinterpret_cast<PFNGLDEPTHRANGEFPROC>(
+      eglGetProcAddress("glDepthRangef"));
   glDrawArrays =
       reinterpret_cast<PFNGLDRAWARRAYSPROC>(eglGetProcAddress("glDrawArrays"));
   glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(
       eglGetProcAddress("glDrawElements"));
+  glDetachShader = reinterpret_cast<PFNGLDETACHSHADERPROC>(
+      eglGetProcAddress("glDetachShader"));
   glDisable =
       reinterpret_cast<PFNGLDISABLEPROC>(eglGetProcAddress("glDisable"));
   glDisableVertexAttribArray =
@@ -251,6 +255,10 @@ void EGLContextWrapper::BindProcAddresses() {
           eglGetProcAddress("glFramebufferRenderbuffer"));
   glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(
       eglGetProcAddress("glFramebufferTexture2D"));
+  glFrontFace =
+      reinterpret_cast<PFNGLFRONTFACEPROC>(eglGetProcAddress("glFrontFace"));
+  glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(
+      eglGetProcAddress("glGenerateMipmap"));
   glGenBuffers =
       reinterpret_cast<PFNGLGENBUFFERSPROC>(eglGetProcAddress("glGenBuffers"));
   glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(
@@ -277,8 +285,11 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLGETSTRINGPROC>(eglGetProcAddress("glGetString"));
   glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(
       eglGetProcAddress("glGetUniformLocation"));
+  glHint = reinterpret_cast<PFNGLHINTPROC>(eglGetProcAddress("glHint"));
   glIsBuffer =
       reinterpret_cast<PFNGLISBUFFERPROC>(eglGetProcAddress("glIsBuffer"));
+  glIsEnabled =
+      reinterpret_cast<PFNGLISENABLEDPROC>(eglGetProcAddress("glIsEnabled"));
   glIsFramebuffer = reinterpret_cast<PFNGLISFRAMEBUFFERPROC>(
       eglGetProcAddress("glIsFramebuffer"));
   glIsProgram =
@@ -289,16 +300,36 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLISSHADERPROC>(eglGetProcAddress("glIsShader"));
   glIsTexture =
       reinterpret_cast<PFNGLISTEXTUREPROC>(eglGetProcAddress("glIsTexture"));
+  glLineWidth =
+      reinterpret_cast<PFNGLLINEWIDTHPROC>(eglGetProcAddress("glLineWidth"));
   glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(
       eglGetProcAddress("glLinkProgram"));
+  glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(
+      eglGetProcAddress("glPixelStorei"));
+  glPolygonOffset = reinterpret_cast<PFNGLPOLYGONOFFSETPROC>(
+      eglGetProcAddress("glPolygonOffset"));
   glReadPixels =
       reinterpret_cast<PFNGLREADPIXELSPROC>(eglGetProcAddress("glReadPixels"));
   glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(
       eglGetProcAddress("glRenderbufferStorage"));
+  glSampleCoverage = reinterpret_cast<PFNGLSAMPLECOVERAGEPROC>(
+      eglGetProcAddress("glSampleCoverage"));
   glScissor =
       reinterpret_cast<PFNGLSCISSORPROC>(eglGetProcAddress("glScissor"));
   glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(
       eglGetProcAddress("glShaderSource"));
+  glStencilMask = reinterpret_cast<PFNGLSTENCILMASKPROC>(
+      eglGetProcAddress("glStencilMask"));
+  glStencilMaskSeparate = reinterpret_cast<PFNGLSTENCILMASKSEPARATEPROC>(
+      eglGetProcAddress("glStencilMaskSeparate"));
+  glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(
+      eglGetProcAddress("glStencilFunc"));
+  glStencilFuncSeparate = reinterpret_cast<PFNGLSTENCILFUNCSEPARATEPROC>(
+      eglGetProcAddress("glStencilFuncSeparate"));
+  glStencilOp =
+      reinterpret_cast<PFNGLSTENCILOPPROC>(eglGetProcAddress("glStencilOp"));
+  glStencilOpSeparate = reinterpret_cast<PFNGLSTENCILOPSEPARATEPROC>(
+      eglGetProcAddress("glStencilOpSeparate"));
   glTexImage2D =
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(
@@ -325,6 +356,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUNIFORM4IPROC>(eglGetProcAddress("glUniform4i"));
   glUseProgram =
       reinterpret_cast<PFNGLUSEPROGRAMPROC>(eglGetProcAddress("glUseProgram"));
+  glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(
+      eglGetProcAddress("glValidateProgram"));
   glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(
       eglGetProcAddress("glVertexAttribPointer"));
   glViewport =
