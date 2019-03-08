@@ -429,7 +429,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("polygonOffset", PolygonOffset),
       NAPI_DEFINE_METHOD("readPixels", ReadPixels),
       NAPI_DEFINE_METHOD("renderbufferStorage", RenderbufferStorage),
-// sampleCoverage(value: number, invert: boolean): void;
+      NAPI_DEFINE_METHOD("sampleCoverage", SampleCoverage),
       NAPI_DEFINE_METHOD("scissor", Scissor),
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
 // stencilFunc(func: number, ref: number, mask: number): void;
@@ -2788,6 +2788,43 @@ napi_value WebGLRenderingContext::RenderbufferStorage(napi_env env,
 
   context->eglContextWrapper_->glRenderbufferStorage(target, internal_format,
                                                      width, height);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::SampleCoverage(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("Scissor");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+
+  double value;
+  nstatus = napi_get_value_double(env, args[0], &value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool invert;
+  nstatus = napi_get_value_bool(env, args[1], &invert);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glSampleCoverage(static_cast<GLclampf>(value),
+                                                static_cast<GLboolean>(invert));
 
 #if DEBUG
   context->CheckForErrors();

@@ -309,6 +309,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLREADPIXELSPROC>(eglGetProcAddress("glReadPixels"));
   glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(
       eglGetProcAddress("glRenderbufferStorage"));
+  glSampleCoverage = reinterpret_cast<PFNGLSAMPLECOVERAGEPROC>(
+      eglGetProcAddress("glSampleCoverage"));
   glScissor =
       reinterpret_cast<PFNGLSCISSORPROC>(eglGetProcAddress("glScissor"));
   glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(
