@@ -354,6 +354,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUNIFORM4IPROC>(eglGetProcAddress("glUniform4i"));
   glUseProgram =
       reinterpret_cast<PFNGLUSEPROGRAMPROC>(eglGetProcAddress("glUseProgram"));
+  glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(
+      eglGetProcAddress("glValidateProgram"));
   glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(
       eglGetProcAddress("glVertexAttribPointer"));
   glViewport =

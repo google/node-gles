@@ -463,7 +463,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // uniformMatrix3fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix4fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("useProgram", UseProgram),
-// validateProgram(program: WebGLProgram | null): void;
+      NAPI_DEFINE_METHOD("validateProgram", ValidateProgram),
 // vertexAttrib1f(indx: number, x: number): void;
 // vertexAttrib1fv(indx: number, values: Float32Array | number[]): void;
 // vertexAttrib2f(indx: number, x: number, y: number): void;
@@ -3596,6 +3596,25 @@ napi_value WebGLRenderingContext::UseProgram(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUseProgram(program);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ValidateProgram(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("ValidateProgram");
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint program;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glValidateProgram(program);
 
 #if DEBUG
   context->CheckForErrors();
