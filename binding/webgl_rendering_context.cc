@@ -426,7 +426,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("lineWidth", LineWidth),
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
       NAPI_DEFINE_METHOD("pixelStorei", PixelStorei),
-// polygonOffset(factor: number, units: number): void;
+      NAPI_DEFINE_METHOD("polygonOffset", PolygonOffset),
       NAPI_DEFINE_METHOD("readPixels", ReadPixels),
       NAPI_DEFINE_METHOD("renderbufferStorage", RenderbufferStorage),
 // sampleCoverage(value: number, invert: boolean): void;
@@ -2659,6 +2659,25 @@ napi_value WebGLRenderingContext::PixelStorei(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glPixelStorei(pname, param);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::PolygonOffset(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("PolygonOffset");
+
+  WebGLRenderingContext *context = nullptr;
+  double args[2];
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glPolygonOffset(static_cast<GLfloat>(args[0]),
+                                               static_cast<GLfloat>(args[1]));
 
 #if DEBUG
   context->CheckForErrors();

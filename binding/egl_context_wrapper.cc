@@ -303,6 +303,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glLinkProgram"));
   glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(
       eglGetProcAddress("glPixelStorei"));
+  glPolygonOffset = reinterpret_cast<PFNGLPOLYGONOFFSETPROC>(
+      eglGetProcAddress("glPolygonOffset"));
   glReadPixels =
       reinterpret_cast<PFNGLREADPIXELSPROC>(eglGetProcAddress("glReadPixels"));
   glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(
