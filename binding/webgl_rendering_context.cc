@@ -439,39 +439,38 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("stencilOp", StencilOp),
       NAPI_DEFINE_METHOD("stencilOpSeparate", StencilOpSeparate),
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
-// texParameterf(target: number, pname: number, param: number): void;
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
+      NAPI_DEFINE_METHOD("texParameterf", TexParameterf),
       NAPI_DEFINE_METHOD("texSubImage2D", TexSubImage2D),
-// uniform1fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform1f", Uniform1f),
       NAPI_DEFINE_METHOD("uniform1fv", Uniform1fv),
       NAPI_DEFINE_METHOD("uniform1i", Uniform1i),
+      NAPI_DEFINE_METHOD("uniform1iv", Uniform1iv),
       NAPI_DEFINE_METHOD("uniform2f", Uniform2f),
-// uniform1iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
-// uniform2fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniform2fv", Uniform2fv),
       NAPI_DEFINE_METHOD("uniform2i", Uniform2i),
       NAPI_DEFINE_METHOD("uniform2iv", Uniform2iv),
+      NAPI_DEFINE_METHOD("uniform3i", Uniform3i),
       NAPI_DEFINE_METHOD("uniform3iv", Uniform3iv),
-// uniform3f(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
-// uniform3fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
-// uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
-// uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
+      NAPI_DEFINE_METHOD("uniform3f", Uniform3f),
+      NAPI_DEFINE_METHOD("uniform3fv", Uniform3fv),
+      NAPI_DEFINE_METHOD("uniform4f", Uniform4f),
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
-// uniform4iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniform4iv", Uniform4iv),
 // uniformMatrix2fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix3fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix4fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("useProgram", UseProgram),
       NAPI_DEFINE_METHOD("validateProgram", ValidateProgram),
-// vertexAttrib1f(indx: number, x: number): void;
-// vertexAttrib1fv(indx: number, values: Float32Array | number[]): void;
-// vertexAttrib2f(indx: number, x: number, y: number): void;
-// vertexAttrib2fv(indx: number, values: Float32Array | number[]): void;
-// vertexAttrib3f(indx: number, x: number, y: number, z: number): void;
-// vertexAttrib3fv(indx: number, values: Float32Array | number[]): void;
-// vertexAttrib4f(indx: number, x: number, y: number, z: number, w: number): void;
-// vertexAttrib4fv(indx: number, values: Float32Array | number[]): void;
+      NAPI_DEFINE_METHOD("vertexAttrib1f", VertexAttrib1f),
+      NAPI_DEFINE_METHOD("vertexAttrib1fv", VertexAttrib1fv),
+      NAPI_DEFINE_METHOD("vertexAttrib2f", VertexAttrib2f),
+      NAPI_DEFINE_METHOD("vertexAttrib2fv", VertexAttrib2fv),
+      NAPI_DEFINE_METHOD("vertexAttrib3f", VertexAttrib3f),
+      NAPI_DEFINE_METHOD("vertexAttrib3fv", VertexAttrib3fv),
+      NAPI_DEFINE_METHOD("vertexAttrib4f", VertexAttrib4f),
+      NAPI_DEFINE_METHOD("vertexAttrib4fv", VertexAttrib4fv),
       NAPI_DEFINE_METHOD("vertexAttribPointer", VertexAttribPointer),
       NAPI_DEFINE_METHOD("viewport", Viewport),
       // clang-format on
@@ -3253,6 +3252,48 @@ napi_value WebGLRenderingContext::TexParameteri(napi_env env,
   return nullptr;
 }
 
+/* static */
+napi_value WebGLRenderingContext::TexParameterf(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("TexParameterf");
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum pname;
+  nstatus = napi_get_value_uint32(env, args[1], &pname);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double param;
+  nstatus = napi_get_value_double(env, args[2], &param);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glTexParameterf(target, pname,
+                                               static_cast<GLfloat>(param));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
 napi_value WebGLRenderingContext::TexSubImage2D(napi_env env,
                                                 napi_callback_info info) {
   LOG_CALL("TexSubImage2D");
@@ -3352,6 +3393,43 @@ napi_value WebGLRenderingContext::Uniform1i(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform1i(location, v0);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform1iv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform1iv(
+      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -3475,6 +3553,43 @@ napi_value WebGLRenderingContext::Uniform2f(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Uniform2fv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform2fv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform2fv(
+      location, static_cast<GLsizei>(length), static_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::Uniform2i(napi_env env,
                                             napi_callback_info info) {
   LOG_CALL("Uniform2i");
@@ -3530,6 +3645,24 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Uniform3i(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform3i");
+
+  GLint args[4];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextInt32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform3i(args[0], args[1], args[2], args[3]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
                                              napi_callback_info info) {
   LOG_CALL("Uniform3iv");
@@ -3566,6 +3699,92 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Uniform3f(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform3f");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[0], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[0], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[0], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform3f(location, static_cast<GLfloat>(v0),
+                                           static_cast<GLfloat>(v1),
+                                           static_cast<GLfloat>(v2));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform3fv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform3fv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform3fv(location,
+                                            static_cast<GLsizei>(length),
+                                            reinterpret_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
                                              napi_callback_info info) {
   LOG_CALL("Uniform4fv");
@@ -3584,15 +3803,17 @@ napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform4fv(location, 1,
+  context->eglContextWrapper_->glUniform4fv(location,
+                                            static_cast<GLsizei>(length),
                                             reinterpret_cast<GLfloat *>(data));
 
 #if DEBUG
@@ -3614,6 +3835,88 @@ napi_value WebGLRenderingContext::Uniform4i(napi_env env,
 
   context->eglContextWrapper_->glUniform4i(args[0], args[1], args[2], args[3],
                                            args[4]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform4iv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform4iv(
+      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform4f(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform4f");
+  napi_status nstatus;
+
+  size_t argc = 5;
+  napi_value args[5];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 5, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[2], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[3], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v3;
+  nstatus = napi_get_value_double(env, args[4], &v3);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform4f(
+      location, static_cast<GLfloat>(v0), static_cast<GLfloat>(v1),
+      static_cast<GLfloat>(v2), static_cast<GLfloat>(v3));
 
 #if DEBUG
   context->CheckForErrors();
@@ -3652,6 +3955,323 @@ napi_value WebGLRenderingContext::ValidateProgram(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glValidateProgram(program);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib1f(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("VertexAttrib1f");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib1f(index, v0);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib1fv(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("VertexAttrib1fv");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib1fv(index,
+                                                 static_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib2f(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("VertexAttrib2f");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[2], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib2f(index, v0, v1);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib2fv(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("VertexAttrib2fv");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib2fv(index,
+                                                 static_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib3f(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("VertexAttrib3f");
+
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[1], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[1], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib3f(index, v0, v1, v2);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib3fv(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("VertexAttrib1fv");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib3fv(index,
+                                                 static_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib4f(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("VertexAttrib4f");
+
+  napi_status nstatus;
+
+  size_t argc = 5;
+  napi_value args[5];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[1], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[1], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v3;
+  nstatus = napi_get_value_double(env, args[1], &v3);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib4f(index, v0, v1, v2, v3);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib4fv(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("VertexAttrib4fv");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib4fv(index,
+                                                 static_cast<GLfloat *>(data));
 
 #if DEBUG
   context->CheckForErrors();

@@ -334,30 +334,62 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(
       eglGetProcAddress("glTexParameteri"));
+  glTexParameterf = reinterpret_cast<PFNGLTEXPARAMETERFPROC>(
+      eglGetProcAddress("glTexParameterf"));
   glTexSubImage2D = reinterpret_cast<PFNGLTEXSUBIMAGE2DPROC>(
       eglGetProcAddress("glTexSubImage2D"));
   glUniform1i =
       reinterpret_cast<PFNGLUNIFORM1IPROC>(eglGetProcAddress("glUniform1i"));
+  glUniform1iv =
+      reinterpret_cast<PFNGLUNIFORM1IVPROC>(eglGetProcAddress("glUniform1iv"));
   glUniform1f =
       reinterpret_cast<PFNGLUNIFORM1FPROC>(eglGetProcAddress("glUniform1f"));
   glUniform1fv =
       reinterpret_cast<PFNGLUNIFORM1FVPROC>(eglGetProcAddress("glUniform1fv"));
   glUniform2f =
       reinterpret_cast<PFNGLUNIFORM2FPROC>(eglGetProcAddress("glUniform2f"));
+  glUniform2fv =
+      reinterpret_cast<PFNGLUNIFORM2FVPROC>(eglGetProcAddress("glUniform2fv"));
   glUniform2i =
       reinterpret_cast<PFNGLUNIFORM2IPROC>(eglGetProcAddress("glUniform2i"));
   glUniform2iv =
       reinterpret_cast<PFNGLUNIFORM2IVPROC>(eglGetProcAddress("glUniform2iv"));
+  glUniform3i =
+      reinterpret_cast<PFNGLUNIFORM3IPROC>(eglGetProcAddress("glUniform3i"));
   glUniform3iv =
       reinterpret_cast<PFNGLUNIFORM3IVPROC>(eglGetProcAddress("glUniform3iv"));
+  glUniform3f =
+      reinterpret_cast<PFNGLUNIFORM3FPROC>(eglGetProcAddress("glUniform3f"));
+  glUniform3fv =
+      reinterpret_cast<PFNGLUNIFORM3FVPROC>(eglGetProcAddress("glUniform3fv"));
   glUniform4fv =
       reinterpret_cast<PFNGLUNIFORM4FVPROC>(eglGetProcAddress("glUniform4fv"));
   glUniform4i =
       reinterpret_cast<PFNGLUNIFORM4IPROC>(eglGetProcAddress("glUniform4i"));
+  glUniform4iv =
+      reinterpret_cast<PFNGLUNIFORM4IVPROC>(eglGetProcAddress("glUniform4iv"));
+  glUniform4f =
+      reinterpret_cast<PFNGLUNIFORM4FPROC>(eglGetProcAddress("glUniform4f"));
   glUseProgram =
       reinterpret_cast<PFNGLUSEPROGRAMPROC>(eglGetProcAddress("glUseProgram"));
   glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(
       eglGetProcAddress("glValidateProgram"));
+  glVertexAttrib1f = reinterpret_cast<PFNGLVERTEXATTRIB1FPROC>(
+      eglGetProcAddress("glVertexAttrib1f"));
+  glVertexAttrib1fv = reinterpret_cast<PFNGLVERTEXATTRIB1FVPROC>(
+      eglGetProcAddress("glVertexAttrib1fv"));
+  glVertexAttrib2f = reinterpret_cast<PFNGLVERTEXATTRIB2FPROC>(
+      eglGetProcAddress("glVertexAttrib2f"));
+  glVertexAttrib2fv = reinterpret_cast<PFNGLVERTEXATTRIB2FVPROC>(
+      eglGetProcAddress("glVertexAttrib2fv"));
+  glVertexAttrib3f = reinterpret_cast<PFNGLVERTEXATTRIB3FPROC>(
+      eglGetProcAddress("glVertexAttrib3f"));
+  glVertexAttrib3fv = reinterpret_cast<PFNGLVERTEXATTRIB3FVPROC>(
+      eglGetProcAddress("glVertexAttrib3fv"));
+  glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(
+      eglGetProcAddress("glVertexAttrib4f"));
+  glVertexAttrib4fv = reinterpret_cast<PFNGLVERTEXATTRIB4FVPROC>(
+      eglGetProcAddress("glVertexAttrib4fv"));
   glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(
       eglGetProcAddress("glVertexAttribPointer"));
   glViewport =
