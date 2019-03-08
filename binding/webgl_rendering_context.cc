@@ -371,6 +371,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("framebufferRenderbuffer", FramebufferRenderbuffer),
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
       NAPI_DEFINE_METHOD("frontFace", FrontFace),
+      NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
 // generateMipmap(target: number): void;
 // getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
 // getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
@@ -2204,6 +2205,24 @@ napi_value WebGLRenderingContext::FrontFace(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glFrontFace(mode);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("GenerateMipmap");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum target;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glGenerateMipmap(target);
 
 #if DEBUG
   context->CheckForErrors();

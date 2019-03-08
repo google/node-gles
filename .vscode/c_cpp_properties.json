@@ -5,7 +5,7 @@
       "includePath": [
         "${workspaceFolder}/**",
         "${workspaceFolder}/deps/angle/include",
-        "${env.HOME}/.node-gyp/10.15.2/include/node",
+        "${env.HOME}/.node-gyp/10.15.3/include/node",
         "/usr/include/c++/7"
       ],
       "defines": [],
