@@ -370,7 +370,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("flush", Flush),
       NAPI_DEFINE_METHOD("framebufferRenderbuffer", FramebufferRenderbuffer),
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
-// frontFace(mode: number): void;
+      NAPI_DEFINE_METHOD("frontFace", FrontFace),
 // generateMipmap(target: number): void;
 // getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
 // getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
@@ -2105,6 +2105,22 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::Flush(napi_env env, napi_callback_info info) {
+  LOG_CALL("Flush");
+
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContext(env, info, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glFlush();
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::FramebufferRenderbuffer(
     napi_env env, napi_callback_info info) {
   LOG_CALL("FramebufferRenderbuffer");
@@ -2178,14 +2194,16 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
 }
 
 /* static */
-napi_value WebGLRenderingContext::Flush(napi_env env, napi_callback_info info) {
-  LOG_CALL("Flush");
+napi_value WebGLRenderingContext::FrontFace(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("FrontFace");
 
   WebGLRenderingContext *context = nullptr;
-  napi_status nstatus = GetContext(env, info, &context);
+  GLenum mode;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mode);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glFlush();
+  context->eglContextWrapper_->glFrontFace(mode);
 
 #if DEBUG
   context->CheckForErrors();

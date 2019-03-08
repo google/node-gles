@@ -87,11 +87,13 @@ class WebGLRenderingContext {
   static napi_value Enable(napi_env env, napi_callback_info info);
   static napi_value EnableVertexAttribArray(napi_env env,
                                             napi_callback_info info);
+  // TODO(kreeger): Check alignment in CC file here
   static napi_value Finish(napi_env env, napi_callback_info info);
   static napi_value Flush(napi_env env, napi_callback_info info);
   static napi_value FramebufferRenderbuffer(napi_env env,
                                             napi_callback_info info);
   static napi_value FramebufferTexture2D(napi_env env, napi_callback_info info);
+  static napi_value FrontFace(napi_env env, napi_callback_info info);
   static napi_value GetAttribLocation(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
   static napi_value GetExtension(napi_env env, napi_callback_info info);

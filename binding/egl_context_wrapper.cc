@@ -255,6 +255,8 @@ void EGLContextWrapper::BindProcAddresses() {
           eglGetProcAddress("glFramebufferRenderbuffer"));
   glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(
       eglGetProcAddress("glFramebufferTexture2D"));
+  glFrontFace =
+      reinterpret_cast<PFNGLFRONTFACEPROC>(eglGetProcAddress("glFrontFace"));
   glGenBuffers =
       reinterpret_cast<PFNGLGENBUFFERSPROC>(eglGetProcAddress("glGenBuffers"));
   glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(
