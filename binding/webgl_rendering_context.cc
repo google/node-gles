@@ -372,8 +372,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
       NAPI_DEFINE_METHOD("frontFace", FrontFace),
       NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
-// generateMipmap(target: number): void;
-// getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
+// getActiveAttrib(program: WebGLProgram | null, index: Number): WebGLActiveInfo | null;
 // getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
 // getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
