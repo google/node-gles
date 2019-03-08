@@ -315,14 +315,18 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLSCISSORPROC>(eglGetProcAddress("glScissor"));
   glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(
       eglGetProcAddress("glShaderSource"));
-  glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(
-      eglGetProcAddress("glStencilFunc"));
   glStencilMask = reinterpret_cast<PFNGLSTENCILMASKPROC>(
       eglGetProcAddress("glStencilMask"));
   glStencilMaskSeparate = reinterpret_cast<PFNGLSTENCILMASKSEPARATEPROC>(
       eglGetProcAddress("glStencilMaskSeparate"));
+  glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(
+      eglGetProcAddress("glStencilFunc"));
   glStencilFuncSeparate = reinterpret_cast<PFNGLSTENCILFUNCSEPARATEPROC>(
       eglGetProcAddress("glStencilFuncSeparate"));
+  glStencilOp =
+      reinterpret_cast<PFNGLSTENCILOPPROC>(eglGetProcAddress("glStencilOp"));
+  glStencilOpSeparate = reinterpret_cast<PFNGLSTENCILOPSEPARATEPROC>(
+      eglGetProcAddress("glStencilOpSeparate"));
   glTexImage2D =
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(

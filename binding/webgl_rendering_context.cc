@@ -436,8 +436,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("stencilFuncSeparate", StencilFuncSeparate),
       NAPI_DEFINE_METHOD("stencilMask", StencilMask),
       NAPI_DEFINE_METHOD("stencilMaskSeparate", StencilMaskSeparate),
-// stencilOp(fail: number, zfail: number, zpass: number): void;
-// stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
+      NAPI_DEFINE_METHOD("stencilOp", StencilOp),
+      NAPI_DEFINE_METHOD("stencilOpSeparate", StencilOpSeparate),
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
 // texParameterf(target: number, pname: number, param: number): void;
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
@@ -3113,6 +3113,43 @@ napi_value WebGLRenderingContext::StencilMaskSeparate(napi_env env,
 
   context->eglContextWrapper_->glStencilMaskSeparate(
       static_cast<GLenum>(args[0]), static_cast<GLuint>(args[1]));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilOp(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("StencilOp");
+
+  GLenum args[3];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 3, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilOp(args[0], args[1], args[2]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilOpSeparate(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("StencilOpSeparate");
+
+  GLenum args[4];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilOpSeparate(args[0], args[1], args[2],
+                                                   args[3]);
 
 #if DEBUG
   context->CheckForErrors();
