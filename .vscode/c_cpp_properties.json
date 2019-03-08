@@ -1,20 +1,20 @@
 {
-    "configurations": [
-        {
-            "name": "Mac",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/deps/angle/include",
-                "${workspaceFolder}/../../.node-gyp/10.14.2/include/node",
-                "/usr/include/c++/7"
-            ],
-            "defines": [],
-            "macFrameworkPath": [],
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/deps/angle/include",
+        "${env.HOME}/.node-gyp/10.15.2/include/node",
+        "/usr/include/c++/7"
+      ],
+      "defines": [],
+      "macFrameworkPath": [],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "clang-x64"
+    }
+  ],
+  "version": 4
 }
