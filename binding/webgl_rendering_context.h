@@ -78,6 +78,7 @@ class WebGLRenderingContext {
   static napi_value DepthFunc(napi_env env, napi_callback_info info);
   static napi_value DepthMask(napi_env env, napi_callback_info info);
   static napi_value DepthRange(napi_env env, napi_callback_info info);
+  static napi_value DetachShader(napi_env env, napi_callback_info info);
   static napi_value Disable(napi_env env, napi_callback_info info);
   static napi_value DisableVertexAttribArray(napi_env env,
                                              napi_callback_info info);

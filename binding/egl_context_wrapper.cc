@@ -237,6 +237,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLDRAWARRAYSPROC>(eglGetProcAddress("glDrawArrays"));
   glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(
       eglGetProcAddress("glDrawElements"));
+  glDetachShader = reinterpret_cast<PFNGLDETACHSHADERPROC>(
+      eglGetProcAddress("glDetachShader"));
   glDisable =
       reinterpret_cast<PFNGLDISABLEPROC>(eglGetProcAddress("glDisable"));
   glDisableVertexAttribArray =
