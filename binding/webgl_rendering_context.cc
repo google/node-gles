@@ -457,7 +457,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform4f", Uniform4f),
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
-// uniform4iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniform4iv", Uniform4iv),
 // uniformMatrix2fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix3fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
 // uniformMatrix4fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
@@ -3835,6 +3835,41 @@ napi_value WebGLRenderingContext::Uniform4i(napi_env env,
 
   context->eglContextWrapper_->glUniform4i(args[0], args[1], args[2], args[3],
                                            args[4]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform4iv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform4iv(
+      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
 
 #if DEBUG
   context->CheckForErrors();
