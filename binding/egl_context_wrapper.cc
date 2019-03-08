@@ -334,6 +334,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(
       eglGetProcAddress("glTexParameteri"));
+  glTexParameterf = reinterpret_cast<PFNGLTEXPARAMETERFPROC>(
+      eglGetProcAddress("glTexParameterf"));
   glTexSubImage2D = reinterpret_cast<PFNGLTEXSUBIMAGE2DPROC>(
       eglGetProcAddress("glTexSubImage2D"));
   glUniform1i =

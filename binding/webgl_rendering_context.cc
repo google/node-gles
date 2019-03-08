@@ -439,8 +439,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("stencilOp", StencilOp),
       NAPI_DEFINE_METHOD("stencilOpSeparate", StencilOpSeparate),
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
-// texParameterf(target: number, pname: number, param: number): void;
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
+      NAPI_DEFINE_METHOD("texParameterf", TexParameterf),
       NAPI_DEFINE_METHOD("texSubImage2D", TexSubImage2D),
 // uniform1fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
       NAPI_DEFINE_METHOD("uniform1f", Uniform1f),
@@ -3246,6 +3246,48 @@ napi_value WebGLRenderingContext::TexParameteri(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glTexParameteri(target, pname, param);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::TexParameterf(napi_env env,
+                                                napi_callback_info info) {
+  LOG_CALL("TexParameterf");
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum pname;
+  nstatus = napi_get_value_uint32(env, args[1], &pname);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double param;
+  nstatus = napi_get_value_double(env, args[2], &param);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glTexParameterf(target, pname,
+                                               static_cast<GLfloat>(param));
 
 #if DEBUG
   context->CheckForErrors();
