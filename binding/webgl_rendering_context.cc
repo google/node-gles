@@ -425,7 +425,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("isTexture", IsTexture),
       NAPI_DEFINE_METHOD("lineWidth", LineWidth),
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
-// pixelStorei(pname: number, param: number | boolean): void;
+      NAPI_DEFINE_METHOD("pixelStorei", PixelStorei),
 // polygonOffset(factor: number, units: number): void;
       NAPI_DEFINE_METHOD("readPixels", ReadPixels),
       NAPI_DEFINE_METHOD("renderbufferStorage", RenderbufferStorage),
@@ -2623,6 +2623,42 @@ napi_value WebGLRenderingContext::LinkProgram(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glLinkProgram(program);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::PixelStorei(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("PixelStorei");
+
+  napi_status nstatus;
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum pname;
+  nstatus = napi_get_value_uint32(env, args[0], &pname);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint param;
+  nstatus = napi_get_value_int32(env, args[1], &param);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glPixelStorei(pname, param);
 
 #if DEBUG
   context->CheckForErrors();
