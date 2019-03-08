@@ -454,7 +454,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform3iv", Uniform3iv),
       NAPI_DEFINE_METHOD("uniform3f", Uniform3f),
       NAPI_DEFINE_METHOD("uniform3fv", Uniform3fv),
-// uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
+      NAPI_DEFINE_METHOD("uniform4f", Uniform4f),
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
 // uniform4iv(location: WebGLUniformLocation | null, v: Int32Array | ArrayLike<number>): void;
@@ -3835,6 +3835,53 @@ napi_value WebGLRenderingContext::Uniform4i(napi_env env,
 
   context->eglContextWrapper_->glUniform4i(args[0], args[1], args[2], args[3],
                                            args[4]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform4f(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform4f");
+  napi_status nstatus;
+
+  size_t argc = 5;
+  napi_value args[5];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 5, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v1;
+  nstatus = napi_get_value_double(env, args[2], &v1);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v2;
+  nstatus = napi_get_value_double(env, args[3], &v2);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v3;
+  nstatus = napi_get_value_double(env, args[4], &v3);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform4f(
+      location, static_cast<GLfloat>(v0), static_cast<GLfloat>(v1),
+      static_cast<GLfloat>(v2), static_cast<GLfloat>(v3));
 
 #if DEBUG
   context->CheckForErrors();
