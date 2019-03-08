@@ -434,8 +434,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("stencilFunc", StencilFunc),
       NAPI_DEFINE_METHOD("stencilFuncSeparate", StencilFuncSeparate),
-// stencilMask(mask: number): void;
-// stencilMaskSeparate(face: number, mask: number): void;
+      NAPI_DEFINE_METHOD("stencilMask", StencilMask),
+      NAPI_DEFINE_METHOD("stencilMaskSeparate", StencilMaskSeparate),
 // stencilOp(fail: number, zfail: number, zpass: number): void;
 // stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
@@ -3077,6 +3077,42 @@ napi_value WebGLRenderingContext::StencilFuncSeparate(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glStencilFuncSeparate(face, func, ref, mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilMask(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("StencilMask");
+  GLuint mask;
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 1, &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilMask(mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilMaskSeparate(napi_env env,
+                                                      napi_callback_info info) {
+  LOG_CALL("StencilMaskSeparate");
+
+  uint32_t args[2];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilMaskSeparate(
+      static_cast<GLenum>(args[0]), static_cast<GLuint>(args[1]));
 
 #if DEBUG
   context->CheckForErrors();
