@@ -447,7 +447,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform1i", Uniform1i),
       NAPI_DEFINE_METHOD("uniform1iv", Uniform1iv),
       NAPI_DEFINE_METHOD("uniform2f", Uniform2f),
-// uniform2fv(location: WebGLUniformLocation | null, v: Float32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniform2fv", Uniform2fv),
       NAPI_DEFINE_METHOD("uniform2i", Uniform2i),
       NAPI_DEFINE_METHOD("uniform2iv", Uniform2iv),
       NAPI_DEFINE_METHOD("uniform3iv", Uniform3iv),
@@ -3545,6 +3545,43 @@ napi_value WebGLRenderingContext::Uniform2f(napi_env env,
 
   context->eglContextWrapper_->glUniform2f(location, static_cast<GLfloat>(v0),
                                            static_cast<GLfloat>(v1));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform2fv(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("Uniform2fv");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform2fv(
+      location, static_cast<GLsizei>(length), static_cast<GLfloat *>(data));
 
 #if DEBUG
   context->CheckForErrors();
