@@ -423,7 +423,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("isRenderbuffer", IsRenderbuffer),
       NAPI_DEFINE_METHOD("isShader", IsShader),
       NAPI_DEFINE_METHOD("isTexture", IsTexture),
-// lineWidth(width: number): void;
+      NAPI_DEFINE_METHOD("lineWidth", LineWidth),
       NAPI_DEFINE_METHOD("linkProgram", LinkProgram),
 // pixelStorei(pname: number, param: number | boolean): void;
 // polygonOffset(factor: number, units: number): void;
@@ -2591,6 +2591,24 @@ napi_value WebGLRenderingContext::IsTexture(napi_env env,
   context->CheckForErrors();
 #endif
   return result_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::LineWidth(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("LineWidth");
+
+  WebGLRenderingContext *context = nullptr;
+  double width;
+  napi_status nstatus = GetContextDoubleParams(env, info, &context, 1, &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glLineWidth(static_cast<GLfloat>(width));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
 }
 
 /* static */

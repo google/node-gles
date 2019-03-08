@@ -112,6 +112,7 @@ class WebGLRenderingContext {
   static napi_value IsRenderbuffer(napi_env env, napi_callback_info info);
   static napi_value IsShader(napi_env env, napi_callback_info info);
   static napi_value IsTexture(napi_env env, napi_callback_info info);
+  static napi_value LineWidth(napi_env env, napi_callback_info info);
   static napi_value LinkProgram(napi_env env, napi_callback_info info);
   static napi_value ReadPixels(napi_env env, napi_callback_info info);
   static napi_value RenderbufferStorage(napi_env env, napi_callback_info info);
