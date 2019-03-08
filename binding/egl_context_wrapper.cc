@@ -374,6 +374,22 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUSEPROGRAMPROC>(eglGetProcAddress("glUseProgram"));
   glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(
       eglGetProcAddress("glValidateProgram"));
+  glVertexAttrib1f = reinterpret_cast<PFNGLVERTEXATTRIB1FPROC>(
+      eglGetProcAddress("glVertexAttrib1f"));
+  glVertexAttrib1fv = reinterpret_cast<PFNGLVERTEXATTRIB1FVPROC>(
+      eglGetProcAddress("glVertexAttrib1fv"));
+  glVertexAttrib2f = reinterpret_cast<PFNGLVERTEXATTRIB2FPROC>(
+      eglGetProcAddress("glVertexAttrib2f"));
+  glVertexAttrib2fv = reinterpret_cast<PFNGLVERTEXATTRIB2FVPROC>(
+      eglGetProcAddress("glVertexAttrib2fv"));
+  glVertexAttrib3f = reinterpret_cast<PFNGLVERTEXATTRIB3FPROC>(
+      eglGetProcAddress("glVertexAttrib3f"));
+  glVertexAttrib3fv = reinterpret_cast<PFNGLVERTEXATTRIB3FVPROC>(
+      eglGetProcAddress("glVertexAttrib3fv"));
+  glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(
+      eglGetProcAddress("glVertexAttrib4f"));
+  glVertexAttrib4fv = reinterpret_cast<PFNGLVERTEXATTRIB4FVPROC>(
+      eglGetProcAddress("glVertexAttrib4fv"));
   glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(
       eglGetProcAddress("glVertexAttribPointer"));
   glViewport =

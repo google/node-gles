@@ -152,6 +152,14 @@ class WebGLRenderingContext {
   static napi_value Uniform4f(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);
   static napi_value ValidateProgram(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib1f(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib1fv(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib2f(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib2fv(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib3f(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib3fv(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib4f(napi_env env, napi_callback_info info);
+  static napi_value VertexAttrib4fv(napi_env env, napi_callback_info info);
   static napi_value VertexAttribPointer(napi_env env, napi_callback_info info);
   static napi_value Viewport(napi_env env, napi_callback_info info);
 

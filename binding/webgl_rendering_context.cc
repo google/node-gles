@@ -3963,6 +3963,78 @@ napi_value WebGLRenderingContext::ValidateProgram(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::VertexAttrib1f(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("VertexAttrib1f");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  double v0;
+  nstatus = napi_get_value_double(env, args[1], &v0);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib1f(index, v0);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::VertexAttrib1fv(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("VertexAttrib1fv");
+
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
+  GLuint index;
+  nstatus = napi_get_value_uint32(env, args[0], &index);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glVertexAttrib1fv(index,
+                                                 static_cast<GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::VertexAttribPointer(napi_env env,
                                                       napi_callback_info info) {
   LOG_CALL("VertexAttribPointer");
