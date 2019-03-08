@@ -433,7 +433,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("scissor", Scissor),
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("stencilFunc", StencilFunc),
-// stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
+      NAPI_DEFINE_METHOD("stencilFuncSeparate", StencilFuncSeparate),
 // stencilMask(mask: number): void;
 // stencilMaskSeparate(face: number, mask: number): void;
 // stencilOp(fail: number, zfail: number, zpass: number): void;
@@ -3031,6 +3031,52 @@ napi_value WebGLRenderingContext::StencilFunc(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glStencilFunc(func, ref, mask);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilFuncSeparate(napi_env env,
+                                                      napi_callback_info info) {
+  LOG_CALL("StencilFuncSeparate");
+  napi_status nstatus;
+
+  size_t argc = 4;
+  napi_value args[4];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 4, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  GLenum face;
+  nstatus = napi_get_value_uint32(env, args[0], &face);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum func;
+  nstatus = napi_get_value_uint32(env, args[1], &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint ref;
+  nstatus = napi_get_value_int32(env, args[2], &ref);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLuint mask;
+  nstatus = napi_get_value_uint32(env, args[3], &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilFuncSeparate(face, func, ref, mask);
 
 #if DEBUG
   context->CheckForErrors();

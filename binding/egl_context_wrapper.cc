@@ -317,6 +317,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glShaderSource"));
   glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(
       eglGetProcAddress("glStencilFunc"));
+  glStencilFuncSeparate = reinterpret_cast<PFNGLSTENCILFUNCSEPARATEPROC>(
+      eglGetProcAddress("glStencilFuncSeparate"));
   glTexImage2D =
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(
