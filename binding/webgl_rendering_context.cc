@@ -432,7 +432,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("sampleCoverage", SampleCoverage),
       NAPI_DEFINE_METHOD("scissor", Scissor),
       NAPI_DEFINE_METHOD("shaderSource", ShaderSource),
-// stencilFunc(func: number, ref: number, mask: number): void;
+      NAPI_DEFINE_METHOD("stencilFunc", StencilFunc),
 // stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
 // stencilMask(mask: number): void;
 // stencilMaskSeparate(face: number, mask: number): void;
@@ -2990,6 +2990,47 @@ napi_value WebGLRenderingContext::ShaderSource(napi_env env,
   GLint length = source.size();
   const char *codes[] = {source.c_str()};
   context->eglContextWrapper_->glShaderSource(shader, 1, codes, &length);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::StencilFunc(napi_env env,
+                                              napi_callback_info info) {
+  LOG_CALL("StencilFunc");
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLenum func;
+  nstatus = napi_get_value_uint32(env, args[0], &func);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint ref;
+  nstatus = napi_get_value_int32(env, args[1], &ref);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLuint mask;
+  nstatus = napi_get_value_uint32(env, args[2], &mask);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glStencilFunc(func, ref, mask);
 
 #if DEBUG
   context->CheckForErrors();
