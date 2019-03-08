@@ -354,6 +354,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLUNIFORM2IPROC>(eglGetProcAddress("glUniform2i"));
   glUniform2iv =
       reinterpret_cast<PFNGLUNIFORM2IVPROC>(eglGetProcAddress("glUniform2iv"));
+  glUniform3i =
+      reinterpret_cast<PFNGLUNIFORM3IPROC>(eglGetProcAddress("glUniform3i"));
   glUniform3iv =
       reinterpret_cast<PFNGLUNIFORM3IVPROC>(eglGetProcAddress("glUniform3iv"));
   glUniform3f =

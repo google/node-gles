@@ -450,10 +450,10 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform2fv", Uniform2fv),
       NAPI_DEFINE_METHOD("uniform2i", Uniform2i),
       NAPI_DEFINE_METHOD("uniform2iv", Uniform2iv),
+      NAPI_DEFINE_METHOD("uniform3i", Uniform3i),
       NAPI_DEFINE_METHOD("uniform3iv", Uniform3iv),
       NAPI_DEFINE_METHOD("uniform3f", Uniform3f),
       NAPI_DEFINE_METHOD("uniform3fv", Uniform3fv),
-// uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
 // uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
@@ -3637,6 +3637,24 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
 
   context->eglContextWrapper_->glUniform2iv(location, 1,
                                             reinterpret_cast<GLint *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::Uniform3i(napi_env env,
+                                            napi_callback_info info) {
+  LOG_CALL("Uniform3i");
+
+  GLint args[4];
+  WebGLRenderingContext *context = nullptr;
+  napi_status nstatus = GetContextInt32Params(env, info, &context, 4, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniform3i(args[0], args[1], args[2], args[3]);
 
 #if DEBUG
   context->CheckForErrors();
