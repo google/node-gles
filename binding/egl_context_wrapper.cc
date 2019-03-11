@@ -276,6 +276,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGenRenderbuffers"));
   glGetAttribLocation = reinterpret_cast<PFNGLGETATTRIBLOCATIONPROC>(
       eglGetProcAddress("glGetAttribLocation"));
+  glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(
+      eglGetProcAddress("glGetBufferParameteriv"));
   glGetError =
       reinterpret_cast<PFNGLGETERRORPROC>(eglGetProcAddress("glGetError"));
   glGetIntegerv = reinterpret_cast<PFNGLGETINTEGERVPROC>(

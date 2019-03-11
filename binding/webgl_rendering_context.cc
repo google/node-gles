@@ -376,7 +376,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getActiveUniform", GetActiveUniform),
       NAPI_DEFINE_METHOD("getAttachedShaders", GetAttachedShaders),
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
-// getBufferParameter(target: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
 // getContextAttributes(): WebGLContextAttributes;
       NAPI_DEFINE_METHOD("getError", GetError),
 // getExtension(extensionName: "EXT_blend_minmax"): EXT_blend_minmax | null;
@@ -2595,6 +2595,45 @@ napi_value WebGLRenderingContext::GetActiveAttrib(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetAttribLocation(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("GetAttribLocation");
+  napi_status nstatus;
+
+  size_t argc = 2;
+  napi_value args[2];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  GLuint program;
+  nstatus = napi_get_value_uint32(env, args[0], &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  std::string attrib_name;
+  nstatus = GetStringParam(env, args[1], attrib_name);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint location = context->eglContextWrapper_->glGetAttribLocation(
+      program, attrib_name.c_str());
+
+  napi_value location_value;
+  nstatus = napi_create_int32(env, location, &location_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return location_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetActiveUniform(napi_env env,
                                                    napi_callback_info info) {
   LOG_CALL("GetActiveUniform");
@@ -2657,42 +2696,28 @@ napi_value WebGLRenderingContext::GetActiveUniform(napi_env env,
 }
 
 /* static */
-napi_value WebGLRenderingContext::GetAttribLocation(napi_env env,
-                                                    napi_callback_info info) {
-  LOG_CALL("GetAttribLocation");
+napi_value WebGLRenderingContext::GetBufferParameter(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("GetBufferParameter");
   napi_status nstatus;
 
-  size_t argc = 2;
-  napi_value args[2];
-  napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
-
+  GLenum args[2];
   WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  GLuint program;
-  nstatus = napi_get_value_uint32(env, args[0], &program);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  std::string attrib_name;
-  nstatus = GetStringParam(env, args[1], attrib_name);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint location = context->eglContextWrapper_->glGetAttribLocation(
-      program, attrib_name.c_str());
-
-  napi_value location_value;
-  nstatus = napi_create_int32(env, location, &location_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
+  GLint params;
+  context->eglContextWrapper_->glGetBufferParameteriv(args[0], args[1],
+                                                      &params);
 #if DEBUG
   context->CheckForErrors();
 #endif
-  return location_value;
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return params_value;
 }
 
 /* static */
