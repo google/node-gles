@@ -410,7 +410,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getShaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
       NAPI_DEFINE_METHOD("getTexParameter", GetSupportedExtensions),
-// getTexParameter(target: number, pname: number): any;
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
 // getVertexAttrib(index: number, pname: number): any;
