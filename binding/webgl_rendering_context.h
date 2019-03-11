@@ -65,6 +65,8 @@ class WebGLRenderingContext {
   static napi_value CompressedTexImage2D(napi_env env, napi_callback_info info);
   static napi_value CompressedTexSubImage2D(napi_env env,
                                             napi_callback_info info);
+  static napi_value CopyTexImage2D(napi_env env, napi_callback_info info);
+  static napi_value CopyTexSubImage2D(napi_env env, napi_callback_info info);
   static napi_value CreateBuffer(napi_env env, napi_callback_info info);
   static napi_value CreateFramebuffer(napi_env env, napi_callback_info info);
   static napi_value CreateProgram(napi_env env, napi_callback_info info);

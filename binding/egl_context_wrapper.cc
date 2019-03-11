@@ -214,6 +214,10 @@ void EGLContextWrapper::BindProcAddresses() {
   glCompressedTexSubImage2D =
       reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>(
           eglGetProcAddress("glCompressedTexSubImage2D"));
+  glCopyTexImage2D = reinterpret_cast<PFNGLCOPYTEXIMAGE2DPROC>(
+      eglGetProcAddress("glCopyTexImage2D"));
+  glCopyTexSubImage2D = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE2DPROC>(
+      eglGetProcAddress("glCopyTexSubImage2D"));
   glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(
       eglGetProcAddress("glCreateProgram"));
   glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(

@@ -341,8 +341,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
       NAPI_DEFINE_METHOD("compressedTexImage2D", CompressedTexImage2D),
       NAPI_DEFINE_METHOD("compressedTexSubImage2D", CompressedTexSubImage2D),
-// copyTexImage2D(target: number, level: number, internalformat: number, x: number, y: number, width: number, height: number, border: number): void;
-// copyTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
+      NAPI_DEFINE_METHOD("copyTexImage2D", CopyTexImage2D),
+      NAPI_DEFINE_METHOD("copyTexSubImage2D", CopyTexSubImage2D),
       NAPI_DEFINE_METHOD("createBuffer", CreateBuffer),
       NAPI_DEFINE_METHOD("createFramebuffer", CreateFramebuffer),
       NAPI_DEFINE_METHOD("createProgram", CreateProgram),
@@ -1526,6 +1526,134 @@ napi_value WebGLRenderingContext::CompressedTexSubImage2D(
   context->eglContextWrapper_->glCompressedTexSubImage2D(
       target, level, xoffset, yoffset, width, height, format,
       static_cast<GLsizei>(length), data);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::CopyTexImage2D(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("CopyTexImage2D");
+
+  napi_status nstatus;
+
+  size_t argc = 8;
+  napi_value args[8];
+  napi_value js_this;
+
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 8, nullptr);
+
+  for (size_t i = 0; i < 8; i++) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nullptr);
+  }
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint level;
+  nstatus = napi_get_value_int32(env, args[1], &level);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum internalformat;
+  nstatus = napi_get_value_uint32(env, args[2], &internalformat);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint x;
+  nstatus = napi_get_value_int32(env, args[3], &x);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint y;
+  nstatus = napi_get_value_int32(env, args[4], &y);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei width;
+  nstatus = napi_get_value_int32(env, args[5], &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei height;
+  nstatus = napi_get_value_int32(env, args[6], &height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint border;
+  nstatus = napi_get_value_int32(env, args[7], &border);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glCopyTexImage2D(target, level, internalformat,
+                                                x, y, width, height, border);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::CopyTexSubImage2D(napi_env env,
+                                                    napi_callback_info info) {
+  LOG_CALL("CopyTexSubImage2D");
+
+  napi_status nstatus;
+
+  size_t argc = 8;
+  napi_value args[8];
+  napi_value js_this;
+
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 8, nullptr);
+
+  for (size_t i = 0; i < 8; i++) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[i], nullptr);
+  }
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint level;
+  nstatus = napi_get_value_int32(env, args[1], &level);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint xoffset;
+  nstatus = napi_get_value_int32(env, args[2], &xoffset);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint yoffset;
+  nstatus = napi_get_value_int32(env, args[3], &yoffset);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint x;
+  nstatus = napi_get_value_int32(env, args[4], &x);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint y;
+  nstatus = napi_get_value_int32(env, args[5], &y);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei width;
+  nstatus = napi_get_value_int32(env, args[6], &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei height;
+  nstatus = napi_get_value_int32(env, args[7], &height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glCopyTexSubImage2D(
+      target, level, xoffset, yoffset, x, y, width, height);
 
 #if DEBUG
   context->CheckForErrors();
