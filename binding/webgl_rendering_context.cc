@@ -340,7 +340,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("colorMask", ColorMask),
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
       NAPI_DEFINE_METHOD("compressedTexImage2D", CompressedTexImage2D),
-// compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null): void;
+      NAPI_DEFINE_METHOD("compressedTexSubImage2D", CompressedTexSubImage2D),
 // copyTexImage2D(target: number, level: number, internalformat: number, x: number, y: number, width: number, height: number, border: number): void;
 // copyTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
       NAPI_DEFINE_METHOD("createBuffer", CreateBuffer),
@@ -1455,6 +1455,76 @@ napi_value WebGLRenderingContext::CompressedTexImage2D(
 
   context->eglContextWrapper_->glCompressedTexImage2D(
       target, level, internal_format, width, height, border,
+      static_cast<GLsizei>(length), data);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::CompressedTexSubImage2D(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("CompressedTexSubImage2D");
+
+  napi_status nstatus;
+
+  size_t argc = 8;
+  napi_value args[8];
+  napi_value js_this;
+
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 8, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[5], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[6], nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint level;
+  nstatus = napi_get_value_int32(env, args[1], &level);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint xoffset;
+  nstatus = napi_get_value_int32(env, args[2], &xoffset);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint yoffset;
+  nstatus = napi_get_value_int32(env, args[3], &yoffset);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei width;
+  nstatus = napi_get_value_int32(env, args[4], &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei height;
+  nstatus = napi_get_value_int32(env, args[5], &height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum format;
+  nstatus = napi_get_value_uint32(env, args[6], &format);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[7], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glCompressedTexSubImage2D(
+      target, level, xoffset, yoffset, width, height, format,
       static_cast<GLsizei>(length), data);
 
 #if DEBUG
