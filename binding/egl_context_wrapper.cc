@@ -286,6 +286,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetActiveAttrib"));
   glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(
       eglGetProcAddress("glGetActiveUniform"));
+  glGetAttachedShaders = reinterpret_cast<PFNGLGETATTACHEDSHADERSPROC>(
+      eglGetProcAddress("glGetAttachedShaders"));
   glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(
       eglGetProcAddress("glGetProgramiv"));
   glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(

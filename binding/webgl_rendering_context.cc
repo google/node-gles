@@ -374,7 +374,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
       NAPI_DEFINE_METHOD("getActiveAttrib", GetActiveAttrib),
       NAPI_DEFINE_METHOD("getActiveUniform", GetActiveUniform),
-// getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
+      NAPI_DEFINE_METHOD("getAttachedShaders", GetAttachedShaders),
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
 // getBufferParameter(target: number, pname: number): any;
 // getContextAttributes(): WebGLContextAttributes;
@@ -2489,6 +2489,48 @@ napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
   context->CheckForErrors();
 #endif
   return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetAttachedShaders(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("GetAttachedShaders");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum program;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint attached_shader_count;
+  context->eglContextWrapper_->glGetProgramiv(program, GL_ATTACHED_SHADERS,
+                                              &attached_shader_count);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  GLsizei count;
+  GLuint shaders[attached_shader_count];
+  context->eglContextWrapper_->glGetAttachedShaders(
+      program, attached_shader_count, &count, shaders);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value shaders_array_value;
+  nstatus = napi_create_array_with_length(env, count, &shaders_array_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  for (GLsizei i = 0; i < count; i++) {
+    napi_value shader_value;
+    nstatus = napi_create_uint32(env, shaders[i], &shader_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_set_element(env, shaders_array_value, i, shader_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
+
+  return shaders_array_value;
 }
 
 /* static */
