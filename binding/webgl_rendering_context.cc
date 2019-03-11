@@ -236,12 +236,12 @@ static napi_status GetStringParam(napi_env env, napi_value string_value,
       napi_get_value_string_utf8(env, string_value, nullptr, 0, &str_length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  char buffer[str_length + 1];
-  nstatus = napi_get_value_string_utf8(env, string_value, buffer,
+  AutoBuffer<char> buffer(str_length + 1);
+  nstatus = napi_get_value_string_utf8(env, string_value, buffer.get(),
                                        str_length + 1, &str_length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  string.assign(buffer, str_length);
+  string.assign(buffer.get(), str_length);
   return napi_ok;
 }
 
@@ -372,8 +372,8 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
       NAPI_DEFINE_METHOD("frontFace", FrontFace),
       NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
-// getActiveAttrib(program: WebGLProgram | null, index: Number): WebGLActiveInfo | null;
-// getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
+      NAPI_DEFINE_METHOD("getActiveAttrib", GetActiveAttrib),
+      NAPI_DEFINE_METHOD("getActiveUniform", GetActiveUniform),
 // getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
 // getBufferParameter(target: number, pname: number): any;
@@ -458,9 +458,9 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("uniform4fv", Uniform4fv),
       NAPI_DEFINE_METHOD("uniform4i", Uniform4i),
       NAPI_DEFINE_METHOD("uniform4iv", Uniform4iv),
-// uniformMatrix2fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
-// uniformMatrix3fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
-// uniformMatrix4fv(location: WebGLUniformLocation | null, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
+      NAPI_DEFINE_METHOD("uniformMatrix2fv", UniformMatrix2fv),
+      NAPI_DEFINE_METHOD("uniformMatrix3fv", UniformMatrix3fv),
+      NAPI_DEFINE_METHOD("uniformMatrix4fv", UniformMatrix4fv),
       NAPI_DEFINE_METHOD("useProgram", UseProgram),
       NAPI_DEFINE_METHOD("validateProgram", ValidateProgram),
       NAPI_DEFINE_METHOD("vertexAttrib1f", VertexAttrib1f),
@@ -2229,6 +2229,129 @@ napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetActiveAttrib(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("GetActiveAttrib");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint max_attr_length;
+  context->eglContextWrapper_->glGetProgramiv(
+      args[0], GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_attr_length);
+
+  GLsizei length = 0;
+  GLsizei size;
+  GLenum type;
+
+  AutoBuffer<char> buffer(max_attr_length);
+  context->eglContextWrapper_->glGetActiveAttrib(
+      args[0], args[1], max_attr_length, &length, &size, &type, buffer.get());
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  if (length <= 0) {
+    // Attribute not found - return nullptr.
+    return nullptr;
+  }
+
+  napi_value name_value;
+  nstatus = napi_create_string_utf8(env, buffer.get(), length, &name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value size_value;
+  nstatus = napi_create_int32(env, size, &size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value type_value;
+  nstatus = napi_create_uint32(env, type, &type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value active_info_value;
+  nstatus = napi_create_object(env, &active_info_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "name", name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "size", size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "type", type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return active_info_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetActiveUniform(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("GetActiveUniform");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint max_uniform_length;
+  context->eglContextWrapper_->glGetProgramiv(
+      args[0], GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_uniform_length);
+
+  GLsizei length = 0;
+  GLsizei size;
+  GLenum type;
+
+  AutoBuffer<char> buffer(max_uniform_length);
+  context->eglContextWrapper_->glGetActiveUniform(args[0], args[1],
+                                                  max_uniform_length, &length,
+                                                  &size, &type, buffer.get());
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  if (length <= 0) {
+    // Attribute not found - return nullptr.
+    return nullptr;
+  }
+
+  napi_value name_value;
+  nstatus = napi_create_string_utf8(env, buffer.get(), length, &name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value size_value;
+  nstatus = napi_create_int32(env, size, &size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value type_value;
+  nstatus = napi_create_uint32(env, type, &type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value active_info_value;
+  nstatus = napi_create_object(env, &active_info_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "name", name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "size", size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "type", type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return active_info_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetAttribLocation(napi_env env,
                                                     napi_callback_info info) {
   LOG_CALL("GetAttribLocation");
@@ -3917,6 +4040,135 @@ napi_value WebGLRenderingContext::Uniform4f(napi_env env,
   context->eglContextWrapper_->glUniform4f(
       location, static_cast<GLfloat>(v0), static_cast<GLfloat>(v1),
       static_cast<GLfloat>(v2), static_cast<GLfloat>(v3));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::UniformMatrix2fv(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("UniformMatrix2fv");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool transpose;
+  nstatus = napi_get_value_bool(env, args[1], &transpose);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniformMatrix2fv(
+      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::UniformMatrix3fv(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("UniformMatrix3fv");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool transpose;
+  nstatus = napi_get_value_bool(env, args[1], &transpose);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniformMatrix3fv(
+      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(data));
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::UniformMatrix4fv(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("UniformMatrix4fv");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+
+  GLint location;
+  nstatus = napi_get_value_int32(env, args[0], &location);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  bool transpose;
+  nstatus = napi_get_value_bool(env, args[1], &transpose);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  size_t length;
+  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glUniformMatrix4fv(
+      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(data));
 
 #if DEBUG
   context->CheckForErrors();

@@ -96,6 +96,8 @@ class WebGLRenderingContext {
   static napi_value FrontFace(napi_env env, napi_callback_info info);
   static napi_value GenerateMipmap(napi_env env, napi_callback_info info);
   static napi_value GetAttribLocation(napi_env env, napi_callback_info info);
+  static napi_value GetActiveAttrib(napi_env env, napi_callback_info info);
+  static napi_value GetActiveUniform(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
   static napi_value GetExtension(napi_env env, napi_callback_info info);
   static napi_value GetParameter(napi_env env, napi_callback_info info);
@@ -150,6 +152,9 @@ class WebGLRenderingContext {
   static napi_value Uniform4i(napi_env env, napi_callback_info info);
   static napi_value Uniform4iv(napi_env env, napi_callback_info info);
   static napi_value Uniform4f(napi_env env, napi_callback_info info);
+  static napi_value UniformMatrix2fv(napi_env env, napi_callback_info info);
+  static napi_value UniformMatrix3fv(napi_env env, napi_callback_info info);
+  static napi_value UniformMatrix4fv(napi_env env, napi_callback_info info);
   static napi_value UseProgram(napi_env env, napi_callback_info info);
   static napi_value ValidateProgram(napi_env env, napi_callback_info info);
   static napi_value VertexAttrib1f(napi_env env, napi_callback_info info);

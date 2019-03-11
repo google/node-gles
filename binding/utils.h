@@ -242,4 +242,26 @@ inline napi_property_descriptor NapiDefineIntProperty(napi_env env,
           nullptr, js_value, napi_default, nullptr};
 }
 
+namespace nodejsgl {
+
+// Auto-class for alloc'ing and deleting heap allocations.
+template <typename T>
+class AutoBuffer {
+ public:
+  AutoBuffer(const size_t length) { buffer = new T[length]; }
+
+  ~AutoBuffer() {
+    if (buffer) {
+      delete buffer;
+    }
+  }
+
+  T* get() { return buffer; }
+
+ private:
+  T* buffer;
+};
+
+}  // namespace nodejsgl
+
 #endif  // NODEJS_GL_UTILS_H_
