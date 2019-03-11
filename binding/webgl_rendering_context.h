@@ -105,6 +105,7 @@ class WebGLRenderingContext {
   static napi_value GetActiveAttrib(napi_env env, napi_callback_info info);
   static napi_value GetActiveUniform(napi_env env, napi_callback_info info);
   static napi_value GetBufferParameter(napi_env env, napi_callback_info info);
+  static napi_value GetContextAttributes(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
   static napi_value GetExtension(napi_env env, napi_callback_info info);
   static napi_value GetParameter(napi_env env, napi_callback_info info);

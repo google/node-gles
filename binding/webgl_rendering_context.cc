@@ -377,7 +377,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getAttachedShaders", GetAttachedShaders),
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
-// getContextAttributes(): WebGLContextAttributes;
+      NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
 // getExtension(extensionName: "EXT_blend_minmax"): EXT_blend_minmax | null;
 // getExtension(extensionName: "EXT_texture_filter_anisotropic"): EXT_texture_filter_anisotropic | null;
@@ -2718,6 +2718,83 @@ napi_value WebGLRenderingContext::GetBufferParameter(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   return params_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetContextAttributes(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetContextAttributes");
+
+  napi_status nstatus;
+
+  napi_value context_attr_value;
+  nstatus = napi_create_object(env, &context_attr_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // TODO(kreeger): These context values should be stored at creation time.
+  napi_value alpha_value;
+  nstatus = napi_get_boolean(env, true, &alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "alpha", alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value antialias_value;
+  nstatus = napi_get_boolean(env, true, &antialias_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "antialias",
+                                    antialias_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value depth_value;
+  nstatus = napi_get_boolean(env, true, &depth_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "depth", depth_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value fail_if_major_performance_caveat_value;
+  nstatus =
+      napi_get_boolean(env, false, &fail_if_major_performance_caveat_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value,
+                                    "failIfMajorPerformanceCaveat",
+                                    fail_if_major_performance_caveat_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  const char *default_value = "default";
+  napi_value power_pref_value;
+  nstatus = napi_create_string_utf8(env, default_value,
+                                    strnlen(default_value, NAPI_STRING_SIZE),
+                                    &power_pref_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "powerPreference",
+                                    power_pref_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value premultiplied_alpha_value;
+  nstatus = napi_get_boolean(env, true, &premultiplied_alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(
+      env, context_attr_value, "premultipliedAlpha", premultiplied_alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value preserve_drawing_buffer_value;
+  nstatus = napi_get_boolean(env, true, &preserve_drawing_buffer_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "preserveDrawingBuffer",
+                              preserve_drawing_buffer_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value stencil_value;
+  nstatus = napi_get_boolean(env, true, &stencil_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "stencil",
+                                    stencil_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return stencil_value;
 }
 
 /* static */
