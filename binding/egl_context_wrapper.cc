@@ -275,6 +275,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGenTextures"));
   glGetActiveAttrib = reinterpret_cast<PFNGLGETACTIVEATTRIBPROC>(
       eglGetProcAddress("glGetActiveAttrib"));
+  glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(
+      eglGetProcAddress("glGetActiveUniform"));
   glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(
       eglGetProcAddress("glGetProgramiv"));
   glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(
