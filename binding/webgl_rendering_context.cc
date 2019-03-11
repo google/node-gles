@@ -403,12 +403,13 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getParameter", GetParameter),
       NAPI_DEFINE_METHOD("getProgramInfoLog", GetProgramInfoLog),
       NAPI_DEFINE_METHOD("getProgramParameter", GetProgramParameter),
-// getRenderbufferParameter(target: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getRenderbufferParameter", GetRenderbufferParameter),
       NAPI_DEFINE_METHOD("getShaderInfoLog", GetShaderInfoLog),
       NAPI_DEFINE_METHOD("getShaderParameter", GetShaderParameter),
-// getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat | null;
+      NAPI_DEFINE_METHOD("getShaderPrecisionFormat", GetShaderPrecisionFormat),
       NAPI_DEFINE_METHOD("getShaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
+      NAPI_DEFINE_METHOD("getTexParameter", GetSupportedExtensions),
 // getTexParameter(target: number, pname: number): any;
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
@@ -2875,6 +2876,81 @@ napi_value WebGLRenderingContext::GetProgramParameter(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetRenderbufferParameter(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetRenderbufferParameter");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint params;
+  context->eglContextWrapper_->glGetRenderbufferParameteriv(args[0], args[1],
+                                                            &params);
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return params_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetShaderPrecisionFormat(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetShaderPrecisionFormat");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint range[2];
+  GLint precision;
+  context->eglContextWrapper_->glGetShaderPrecisionFormat(args[0], args[1],
+                                                          range, &precision);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value precision_value;
+  nstatus = napi_create_int32(env, precision, &precision_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value range_min_value;
+  nstatus = napi_create_int32(env, range[0], &range_min_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value range_max_value;
+  nstatus = napi_create_int32(env, range[1], &range_max_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value precision_format_value;
+  nstatus = napi_create_object(env, &precision_format_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "prevision",
+                                    precision_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "rangeMin",
+                                    range_min_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "rangeMax",
+                                    range_max_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return precision_format_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetShaderInfoLog(napi_env env,
                                                    napi_callback_info info) {
   LOG_CALL("GetShaderInfoLog");
@@ -2965,6 +3041,31 @@ napi_value WebGLRenderingContext::GetSupportedExtensions(
   }
 
   return extensions_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetTexParameter(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("GetTexParameter");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint params;
+  context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1], &params);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return params_value;
 }
 
 /* static */

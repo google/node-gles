@@ -297,12 +297,20 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetProgramiv"));
   glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(
       eglGetProcAddress("glGetProgramInfoLog"));
+  glGetRenderbufferParameteriv =
+      reinterpret_cast<PFNGLGETRENDERBUFFERPARAMETERIVPROC>(
+          eglGetProcAddress("glGetRenderbufferParameteriv"));
   glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(
       eglGetProcAddress("glGetShaderiv"));
   glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(
       eglGetProcAddress("glGetShaderInfoLog"));
+  glGetShaderPrecisionFormat =
+      reinterpret_cast<PFNGLGETSHADERPRECISIONFORMATPROC>(
+          eglGetProcAddress("glGetShaderPrecisionFormat"));
   glGetString =
       reinterpret_cast<PFNGLGETSTRINGPROC>(eglGetProcAddress("glGetString"));
+  glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(
+      eglGetProcAddress("glGetTexParameteriv"));
   glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(
       eglGetProcAddress("glGetUniformLocation"));
   glHint = reinterpret_cast<PFNGLHINTPROC>(eglGetProcAddress("glHint"));
