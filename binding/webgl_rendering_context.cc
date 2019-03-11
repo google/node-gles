@@ -398,7 +398,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "OES_element_index_uint"): OES_element_index_uint | null;
 // getExtension(extensionName: "ANGLE_instanced_arrays"): ANGLE_instanced_arrays | null;
 // getExtension(extensionName: string): any;
-// getFramebufferAttachmentParameter(target: number, attachment: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getFramebufferAttachmentParameter", GetFramebufferAttachmentParameter),
       NAPI_DEFINE_METHOD("getExtension", GetExtension),
       NAPI_DEFINE_METHOD("getParameter", GetParameter),
       NAPI_DEFINE_METHOD("getProgramInfoLog", GetProgramInfoLog),
@@ -2223,6 +2223,30 @@ napi_value WebGLRenderingContext::GetError(napi_env env,
   context->CheckForErrors();
 #endif
   return error_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetFramebufferAttachmentParameter(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetFramebufferAttachmentParameter");
+  napi_status nstatus;
+
+  GLenum args[3];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextUint32Params(env, info, &context, 3, args);
+
+  GLint params;
+  context->eglContextWrapper_->glGetFramebufferAttachmentParameteriv(
+      args[0], args[1], args[2], &params);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return params_value;
 }
 
 /* static */
