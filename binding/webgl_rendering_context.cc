@@ -236,12 +236,12 @@ static napi_status GetStringParam(napi_env env, napi_value string_value,
       napi_get_value_string_utf8(env, string_value, nullptr, 0, &str_length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  char buffer[str_length + 1];
-  nstatus = napi_get_value_string_utf8(env, string_value, buffer,
+  AutoBuffer<char> buffer(str_length + 1);
+  nstatus = napi_get_value_string_utf8(env, string_value, buffer.get(),
                                        str_length + 1, &str_length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  string.assign(buffer, str_length);
+  string.assign(buffer.get(), str_length);
   return napi_ok;
 }
 
@@ -372,7 +372,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("framebufferTexture2D", FramebufferTexture2D),
       NAPI_DEFINE_METHOD("frontFace", FrontFace),
       NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
-// getActiveAttrib(program: WebGLProgram | null, index: Number): WebGLActiveInfo | null;
+      NAPI_DEFINE_METHOD("getActiveAttrib", GetActiveAttrib),
 // getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
 // getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
@@ -2226,6 +2226,67 @@ napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
   context->CheckForErrors();
 #endif
   return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetActiveAttrib(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("GetActiveAttrib");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint max_attr_length;
+  context->eglContextWrapper_->glGetProgramiv(
+      args[0], GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_attr_length);
+
+  GLsizei length = 0;
+  GLsizei size;
+  GLenum type;
+
+  AutoBuffer<char> buffer(max_attr_length);
+  context->eglContextWrapper_->glGetActiveAttrib(
+      args[0], args[1], max_attr_length, &length, &size, &type, buffer.get());
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  if (length <= 0) {
+    // Attribute not found - return nullptr.
+    return nullptr;
+  }
+
+  napi_value name_value;
+  nstatus = napi_create_string_utf8(env, buffer.get(), length, &name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value size_value;
+  nstatus = napi_create_int32(env, size, &size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value type_value;
+  nstatus = napi_create_uint32(env, type, &type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value active_info_value;
+  nstatus = napi_create_object(env, &active_info_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "name", name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "size", size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "type", type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return active_info_value;
 }
 
 /* static */

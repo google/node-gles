@@ -96,6 +96,7 @@ class WebGLRenderingContext {
   static napi_value FrontFace(napi_env env, napi_callback_info info);
   static napi_value GenerateMipmap(napi_env env, napi_callback_info info);
   static napi_value GetAttribLocation(napi_env env, napi_callback_info info);
+  static napi_value GetActiveAttrib(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
   static napi_value GetExtension(napi_env env, napi_callback_info info);
   static napi_value GetParameter(napi_env env, napi_callback_info info);
