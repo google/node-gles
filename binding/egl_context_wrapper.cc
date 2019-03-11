@@ -209,6 +209,11 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLCOLORMASKPROC>(eglGetProcAddress("glColorMask"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
       eglGetProcAddress("glCompileShader"));
+  glCompressedTexImage2D = reinterpret_cast<PFNGLCOMPRESSEDTEXIMAGE2DPROC>(
+      eglGetProcAddress("glCompressedTexImage2D"));
+  glCompressedTexSubImage2D =
+      reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>(
+          eglGetProcAddress("glCompressedTexSubImage2D"));
   glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(
       eglGetProcAddress("glCreateProgram"));
   glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(
