@@ -379,7 +379,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
       NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
-// getExtension(extensionName: "EXT_blend_minmax"): EXT_blend_minmax | null;
 // getExtension(extensionName: "EXT_texture_filter_anisotropic"): EXT_texture_filter_anisotropic | null;
 // getExtension(extensionName: "EXT_frag_depth"): EXT_frag_depth | null;
 // getExtension(extensionName: "EXT_shader_texture_lod"): EXT_shader_texture_lod | null;
