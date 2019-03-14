@@ -2275,9 +2275,16 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   // different names and matching that needs to be done in this binding.
 
   napi_value webgl_extension = nullptr;
-  if ((strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0 ||
-       strcmp(extension_name.c_str(), "WEBGL_color_buffer_float") == 0) &&
-      WebGL_EXTColorBufferFloat::IsSupported(context->eglContextWrapper_)) {
+  if (strcmp(extension_name.c_str(), "EXT_blend_minmax") == 0 &&
+      WebGL_EXTBlendMinmaxExtension::IsSupported(context->eglContextWrapper_)) {
+    nstatus = WebGL_EXTBlendMinmaxExtension::NewInstance(
+        env, &webgl_extension, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else if ((strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0 ||
+              strcmp(extension_name.c_str(), "WEBGL_color_buffer_float") ==
+                  0) &&
+             WebGL_EXTColorBufferFloat::IsSupported(
+                 context->eglContextWrapper_)) {
     nstatus = WebGL_EXTColorBufferFloat::NewInstance(
         env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);

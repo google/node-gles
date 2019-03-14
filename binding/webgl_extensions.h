@@ -61,6 +61,16 @@ class WebGLExtensionBase {
   napi_ref ref_;
 };
 
+// Provides 'EXT_blend_minmax':
+// https://www.khronos.org/registry/webgl/extensions/EXT_blend_minmax/
+class WebGL_EXTBlendMinmaxExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTBlendMinmaxExtension(napi_env env);
+  virtual ~WebGL_EXTBlendMinmaxExtension() {}
+};
+
 // Provides 'OES_texture_float':
 // https://www.khronos.org/registry/webgl/extensions/OES_texture_float/
 class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
@@ -69,10 +79,6 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
  protected:
   WebGL_OESTextureFloatExtension(napi_env env);
   virtual ~WebGL_OESTextureFloatExtension() {}
-
- private:
-  static void Cleanup(napi_env env, void* native,
-                      void* hint);  // TODO(kreeger): Remove?
 };
 
 // Provides 'OES_texture_half_float':

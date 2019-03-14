@@ -74,6 +74,56 @@ napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
+// WebGL_EXTBlendMinmaxExtension
+
+napi_ref WebGL_EXTBlendMinmaxExtension::constructor_ref_;
+
+WebGL_EXTBlendMinmaxExtension::WebGL_EXTBlendMinmaxExtension(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_EXTBlendMinmaxExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_blend_minmax");
+}
+
+/* static */
+napi_status WebGL_EXTBlendMinmaxExtension::Register(napi_env env,
+                                                    napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_MAX_EXT, "MIN_EXT"),
+      NapiDefineIntProperty(env, GL_MIN_EXT, "MAX_EXT")};
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_blend_minmax", NAPI_AUTO_LENGTH,
+                              WebGLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_EXTBlendMinmaxExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_blend_minmax");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGL_OESTextureFloatExtension
 
 napi_ref WebGL_OESTextureFloatExtension::constructor_ref_;
