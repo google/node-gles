@@ -309,6 +309,8 @@ void EGLContextWrapper::BindProcAddresses() {
           eglGetProcAddress("glGetShaderPrecisionFormat"));
   glGetString =
       reinterpret_cast<PFNGLGETSTRINGPROC>(eglGetProcAddress("glGetString"));
+  glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(
+      eglGetProcAddress("glGetTexParameterfv"));
   glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(
       eglGetProcAddress("glGetTexParameteriv"));
   glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(

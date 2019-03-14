@@ -409,7 +409,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getShaderPrecisionFormat", GetShaderPrecisionFormat),
       NAPI_DEFINE_METHOD("getShaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
-      NAPI_DEFINE_METHOD("getTexParameter", GetSupportedExtensions),
+      NAPI_DEFINE_METHOD("getTexParameter", GetTexParameter),
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
 // getVertexAttrib(index: number, pname: number): any;
@@ -3054,15 +3054,71 @@ napi_value WebGLRenderingContext::GetTexParameter(napi_env env,
   nstatus = GetContextUint32Params(env, info, &context, 2, args);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLint params;
-  context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1], &params);
+  napi_value params_value;
+
+  switch (args[1]) {
+    case GL_TEXTURE_MAX_ANISOTROPY_EXT:
+    case GL_TEXTURE_MAX_LOD:
+    case GL_TEXTURE_MIN_LOD: {
+      GLfloat params;
+      context->eglContextWrapper_->glGetTexParameterfv(args[0], args[1],
+                                                       &params);
 #if DEBUG
-  context->CheckForErrors();
+      context->CheckForErrors();
 #endif
 
-  napi_value params_value;
-  nstatus = napi_create_int32(env, params, &params_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      nstatus = napi_create_double(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_MAG_FILTER:
+    case GL_TEXTURE_MIN_FILTER:
+    case GL_TEXTURE_WRAP_S:
+    case GL_TEXTURE_WRAP_T:
+    case GL_TEXTURE_COMPARE_FUNC:
+    case GL_TEXTURE_COMPARE_MODE:
+    case GL_TEXTURE_WRAP_R:
+    case GL_TEXTURE_IMMUTABLE_LEVELS: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_create_uint32(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_BASE_LEVEL:
+    case GL_TEXTURE_MAX_LEVEL: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_create_int32(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_IMMUTABLE_FORMAT: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_get_boolean(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    default:
+      NAPI_THROW_ERROR(env, "Invalid argument");
+      return nullptr;
+  }
 
   return params_value;
 }
