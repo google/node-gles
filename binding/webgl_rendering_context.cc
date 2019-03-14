@@ -374,10 +374,10 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("generateMipmap", GenerateMipmap),
       NAPI_DEFINE_METHOD("getActiveAttrib", GetActiveAttrib),
       NAPI_DEFINE_METHOD("getActiveUniform", GetActiveUniform),
-// getAttachedShaders(program: WebGLProgram | null): WebGLShader[] | null;
+      NAPI_DEFINE_METHOD("getAttachedShaders", GetAttachedShaders),
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
-// getBufferParameter(target: number, pname: number): any;
-// getContextAttributes(): WebGLContextAttributes;
+      NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
+      NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
 // getExtension(extensionName: "EXT_blend_minmax"): EXT_blend_minmax | null;
 // getExtension(extensionName: "EXT_texture_filter_anisotropic"): EXT_texture_filter_anisotropic | null;
@@ -398,18 +398,18 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "OES_element_index_uint"): OES_element_index_uint | null;
 // getExtension(extensionName: "ANGLE_instanced_arrays"): ANGLE_instanced_arrays | null;
 // getExtension(extensionName: string): any;
-// getFramebufferAttachmentParameter(target: number, attachment: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getFramebufferAttachmentParameter", GetFramebufferAttachmentParameter),
       NAPI_DEFINE_METHOD("getExtension", GetExtension),
       NAPI_DEFINE_METHOD("getParameter", GetParameter),
       NAPI_DEFINE_METHOD("getProgramInfoLog", GetProgramInfoLog),
       NAPI_DEFINE_METHOD("getProgramParameter", GetProgramParameter),
-// getRenderbufferParameter(target: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getRenderbufferParameter", GetRenderbufferParameter),
       NAPI_DEFINE_METHOD("getShaderInfoLog", GetShaderInfoLog),
       NAPI_DEFINE_METHOD("getShaderParameter", GetShaderParameter),
-// getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat | null;
+      NAPI_DEFINE_METHOD("getShaderPrecisionFormat", GetShaderPrecisionFormat),
       NAPI_DEFINE_METHOD("getShaderSource", ShaderSource),
       NAPI_DEFINE_METHOD("getSupportedExtensions", GetSupportedExtensions),
-// getTexParameter(target: number, pname: number): any;
+      NAPI_DEFINE_METHOD("getTexParameter", GetTexParameter),
 // getUniform(program: WebGLProgram | null, location: WebGLUniformLocation | null): any;
       NAPI_DEFINE_METHOD("getUniformLocation", GetUniformLocation),
 // getVertexAttrib(index: number, pname: number): any;
@@ -2226,6 +2226,30 @@ napi_value WebGLRenderingContext::GetError(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetFramebufferAttachmentParameter(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetFramebufferAttachmentParameter");
+  napi_status nstatus;
+
+  GLenum args[3];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextUint32Params(env, info, &context, 3, args);
+
+  GLint params;
+  context->eglContextWrapper_->glGetFramebufferAttachmentParameteriv(
+      args[0], args[1], args[2], &params);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return params_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetExtension(napi_env env,
                                                napi_callback_info info) {
   LOG_CALL("GetExtension");
@@ -2492,6 +2516,48 @@ napi_value WebGLRenderingContext::GenerateMipmap(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetAttachedShaders(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("GetAttachedShaders");
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum program;
+  napi_status nstatus =
+      GetContextUint32Params(env, info, &context, 1, &program);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint attached_shader_count;
+  context->eglContextWrapper_->glGetProgramiv(program, GL_ATTACHED_SHADERS,
+                                              &attached_shader_count);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  GLsizei count;
+  GLuint shaders[attached_shader_count];
+  context->eglContextWrapper_->glGetAttachedShaders(
+      program, attached_shader_count, &count, shaders);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value shaders_array_value;
+  nstatus = napi_create_array_with_length(env, count, &shaders_array_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  for (GLsizei i = 0; i < count; i++) {
+    napi_value shader_value;
+    nstatus = napi_create_uint32(env, shaders[i], &shader_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_set_element(env, shaders_array_value, i, shader_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
+
+  return shaders_array_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetActiveAttrib(napi_env env,
                                                   napi_callback_info info) {
   LOG_CALL("GetActiveAttrib");
@@ -2514,68 +2580,6 @@ napi_value WebGLRenderingContext::GetActiveAttrib(napi_env env,
   AutoBuffer<char> buffer(max_attr_length);
   context->eglContextWrapper_->glGetActiveAttrib(
       args[0], args[1], max_attr_length, &length, &size, &type, buffer.get());
-
-#if DEBUG
-  context->CheckForErrors();
-#endif
-
-  if (length <= 0) {
-    // Attribute not found - return nullptr.
-    return nullptr;
-  }
-
-  napi_value name_value;
-  nstatus = napi_create_string_utf8(env, buffer.get(), length, &name_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  napi_value size_value;
-  nstatus = napi_create_int32(env, size, &size_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  napi_value type_value;
-  nstatus = napi_create_uint32(env, type, &type_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  napi_value active_info_value;
-  nstatus = napi_create_object(env, &active_info_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  nstatus = napi_set_named_property(env, active_info_value, "name", name_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  nstatus = napi_set_named_property(env, active_info_value, "size", size_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  nstatus = napi_set_named_property(env, active_info_value, "type", type_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  return active_info_value;
-}
-
-/* static */
-napi_value WebGLRenderingContext::GetActiveUniform(napi_env env,
-                                                   napi_callback_info info) {
-  LOG_CALL("GetActiveUniform");
-
-  napi_status nstatus;
-
-  WebGLRenderingContext *context = nullptr;
-  GLuint args[2];
-  nstatus = GetContextUint32Params(env, info, &context, 2, args);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint max_uniform_length;
-  context->eglContextWrapper_->glGetProgramiv(
-      args[0], GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_uniform_length);
-
-  GLsizei length = 0;
-  GLsizei size;
-  GLenum type;
-
-  AutoBuffer<char> buffer(max_uniform_length);
-  context->eglContextWrapper_->glGetActiveUniform(args[0], args[1],
-                                                  max_uniform_length, &length,
-                                                  &size, &type, buffer.get());
 
 #if DEBUG
   context->CheckForErrors();
@@ -2654,6 +2658,170 @@ napi_value WebGLRenderingContext::GetAttribLocation(napi_env env,
 }
 
 /* static */
+napi_value WebGLRenderingContext::GetActiveUniform(napi_env env,
+                                                   napi_callback_info info) {
+  LOG_CALL("GetActiveUniform");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLuint args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint max_uniform_length;
+  context->eglContextWrapper_->glGetProgramiv(
+      args[0], GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_uniform_length);
+
+  GLsizei length = 0;
+  GLsizei size;
+  GLenum type;
+
+  AutoBuffer<char> buffer(max_uniform_length);
+  context->eglContextWrapper_->glGetActiveUniform(args[0], args[1],
+                                                  max_uniform_length, &length,
+                                                  &size, &type, buffer.get());
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  if (length <= 0) {
+    // Attribute not found - return nullptr.
+    return nullptr;
+  }
+
+  napi_value name_value;
+  nstatus = napi_create_string_utf8(env, buffer.get(), length, &name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value size_value;
+  nstatus = napi_create_int32(env, size, &size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value type_value;
+  nstatus = napi_create_uint32(env, type, &type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value active_info_value;
+  nstatus = napi_create_object(env, &active_info_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "name", name_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "size", size_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, active_info_value, "type", type_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return active_info_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetBufferParameter(napi_env env,
+                                                     napi_callback_info info) {
+  LOG_CALL("GetBufferParameter");
+  napi_status nstatus;
+
+  GLenum args[2];
+  WebGLRenderingContext *context = nullptr;
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint params;
+  context->eglContextWrapper_->glGetBufferParameteriv(args[0], args[1],
+                                                      &params);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return params_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetContextAttributes(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetContextAttributes");
+
+  napi_status nstatus;
+
+  napi_value context_attr_value;
+  nstatus = napi_create_object(env, &context_attr_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // TODO(kreeger): These context values should be stored at creation time.
+  napi_value alpha_value;
+  nstatus = napi_get_boolean(env, true, &alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "alpha", alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value antialias_value;
+  nstatus = napi_get_boolean(env, true, &antialias_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "antialias",
+                                    antialias_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value depth_value;
+  nstatus = napi_get_boolean(env, true, &depth_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "depth", depth_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value fail_if_major_performance_caveat_value;
+  nstatus =
+      napi_get_boolean(env, false, &fail_if_major_performance_caveat_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value,
+                                    "failIfMajorPerformanceCaveat",
+                                    fail_if_major_performance_caveat_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  const char *default_value = "default";
+  napi_value power_pref_value;
+  nstatus = napi_create_string_utf8(env, default_value,
+                                    strnlen(default_value, NAPI_STRING_SIZE),
+                                    &power_pref_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "powerPreference",
+                                    power_pref_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value premultiplied_alpha_value;
+  nstatus = napi_get_boolean(env, true, &premultiplied_alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(
+      env, context_attr_value, "premultipliedAlpha", premultiplied_alpha_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value preserve_drawing_buffer_value;
+  nstatus = napi_get_boolean(env, true, &preserve_drawing_buffer_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus =
+      napi_set_named_property(env, context_attr_value, "preserveDrawingBuffer",
+                              preserve_drawing_buffer_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value stencil_value;
+  nstatus = napi_get_boolean(env, true, &stencil_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  nstatus = napi_set_named_property(env, context_attr_value, "stencil",
+                                    stencil_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return stencil_value;
+}
+
+/* static */
 napi_value WebGLRenderingContext::GetProgramInfoLog(napi_env env,
                                                     napi_callback_info info) {
   LOG_CALL("GetProgramInfoLog");
@@ -2704,6 +2872,81 @@ napi_value WebGLRenderingContext::GetProgramParameter(napi_env env,
   context->CheckForErrors();
 #endif
   return param_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetRenderbufferParameter(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetRenderbufferParameter");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint params;
+  context->eglContextWrapper_->glGetRenderbufferParameteriv(args[0], args[1],
+                                                            &params);
+
+  napi_value params_value;
+  nstatus = napi_create_int32(env, params, &params_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return params_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetShaderPrecisionFormat(
+    napi_env env, napi_callback_info info) {
+  LOG_CALL("GetShaderPrecisionFormat");
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLint range[2];
+  GLint precision;
+  context->eglContextWrapper_->glGetShaderPrecisionFormat(args[0], args[1],
+                                                          range, &precision);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
+  napi_value precision_value;
+  nstatus = napi_create_int32(env, precision, &precision_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value range_min_value;
+  nstatus = napi_create_int32(env, range[0], &range_min_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value range_max_value;
+  nstatus = napi_create_int32(env, range[1], &range_max_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value precision_format_value;
+  nstatus = napi_create_object(env, &precision_format_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "prevision",
+                                    precision_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "rangeMin",
+                                    range_min_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_set_named_property(env, precision_format_value, "rangeMax",
+                                    range_max_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  return precision_format_value;
 }
 
 /* static */
@@ -2797,6 +3040,87 @@ napi_value WebGLRenderingContext::GetSupportedExtensions(
   }
 
   return extensions_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetTexParameter(napi_env env,
+                                                  napi_callback_info info) {
+  LOG_CALL("GetTexParameter");
+
+  napi_status nstatus;
+
+  WebGLRenderingContext *context = nullptr;
+  GLenum args[2];
+  nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  napi_value params_value;
+
+  switch (args[1]) {
+    case GL_TEXTURE_MAX_ANISOTROPY_EXT:
+    case GL_TEXTURE_MAX_LOD:
+    case GL_TEXTURE_MIN_LOD: {
+      GLfloat params;
+      context->eglContextWrapper_->glGetTexParameterfv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_create_double(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_MAG_FILTER:
+    case GL_TEXTURE_MIN_FILTER:
+    case GL_TEXTURE_WRAP_S:
+    case GL_TEXTURE_WRAP_T:
+    case GL_TEXTURE_COMPARE_FUNC:
+    case GL_TEXTURE_COMPARE_MODE:
+    case GL_TEXTURE_WRAP_R:
+    case GL_TEXTURE_IMMUTABLE_LEVELS: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_create_uint32(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_BASE_LEVEL:
+    case GL_TEXTURE_MAX_LEVEL: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_create_int32(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    case GL_TEXTURE_IMMUTABLE_FORMAT: {
+      GLint params;
+      context->eglContextWrapper_->glGetTexParameteriv(args[0], args[1],
+                                                       &params);
+#if DEBUG
+      context->CheckForErrors();
+#endif
+
+      nstatus = napi_get_boolean(env, params, &params_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      break;
+    }
+    default:
+      NAPI_THROW_ERROR(env, "Invalid argument");
+      return nullptr;
+  }
+
+  return params_value;
 }
 
 /* static */

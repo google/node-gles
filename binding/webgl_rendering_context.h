@@ -100,18 +100,28 @@ class WebGLRenderingContext {
   static napi_value FramebufferTexture2D(napi_env env, napi_callback_info info);
   static napi_value FrontFace(napi_env env, napi_callback_info info);
   static napi_value GenerateMipmap(napi_env env, napi_callback_info info);
+  static napi_value GetAttachedShaders(napi_env env, napi_callback_info info);
   static napi_value GetAttribLocation(napi_env env, napi_callback_info info);
   static napi_value GetActiveAttrib(napi_env env, napi_callback_info info);
   static napi_value GetActiveUniform(napi_env env, napi_callback_info info);
+  static napi_value GetBufferParameter(napi_env env, napi_callback_info info);
+  static napi_value GetContextAttributes(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
+  static napi_value GetFramebufferAttachmentParameter(napi_env env,
+                                                      napi_callback_info info);
   static napi_value GetExtension(napi_env env, napi_callback_info info);
   static napi_value GetParameter(napi_env env, napi_callback_info info);
   static napi_value GetProgramInfoLog(napi_env env, napi_callback_info info);
   static napi_value GetProgramParameter(napi_env env, napi_callback_info info);
+  static napi_value GetRenderbufferParameter(napi_env env,
+                                             napi_callback_info info);
+  static napi_value GetShaderPrecisionFormat(napi_env env,
+                                             napi_callback_info info);
   static napi_value GetShaderInfoLog(napi_env env, napi_callback_info info);
   static napi_value GetShaderParameter(napi_env env, napi_callback_info info);
   static napi_value GetSupportedExtensions(napi_env env,
                                            napi_callback_info info);
+  static napi_value GetTexParameter(napi_env env, napi_callback_info info);
   static napi_value GetUniformLocation(napi_env env, napi_callback_info info);
   static napi_value Hint(napi_env env, napi_callback_info info);
   static napi_value IsBuffer(napi_env env, napi_callback_info info);

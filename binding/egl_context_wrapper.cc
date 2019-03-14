@@ -276,8 +276,13 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGenRenderbuffers"));
   glGetAttribLocation = reinterpret_cast<PFNGLGETATTRIBLOCATIONPROC>(
       eglGetProcAddress("glGetAttribLocation"));
+  glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(
+      eglGetProcAddress("glGetBufferParameteriv"));
   glGetError =
       reinterpret_cast<PFNGLGETERRORPROC>(eglGetProcAddress("glGetError"));
+  glGetFramebufferAttachmentParameteriv =
+      reinterpret_cast<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>(
+          eglGetProcAddress("glGetFramebufferAttachmentParameteriv"));
   glGetIntegerv = reinterpret_cast<PFNGLGETINTEGERVPROC>(
       eglGetProcAddress("glGetIntegerv"));
   glGenTextures = reinterpret_cast<PFNGLGENTEXTURESPROC>(
@@ -286,16 +291,28 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetActiveAttrib"));
   glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(
       eglGetProcAddress("glGetActiveUniform"));
+  glGetAttachedShaders = reinterpret_cast<PFNGLGETATTACHEDSHADERSPROC>(
+      eglGetProcAddress("glGetAttachedShaders"));
   glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(
       eglGetProcAddress("glGetProgramiv"));
   glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(
       eglGetProcAddress("glGetProgramInfoLog"));
+  glGetRenderbufferParameteriv =
+      reinterpret_cast<PFNGLGETRENDERBUFFERPARAMETERIVPROC>(
+          eglGetProcAddress("glGetRenderbufferParameteriv"));
   glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(
       eglGetProcAddress("glGetShaderiv"));
   glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(
       eglGetProcAddress("glGetShaderInfoLog"));
+  glGetShaderPrecisionFormat =
+      reinterpret_cast<PFNGLGETSHADERPRECISIONFORMATPROC>(
+          eglGetProcAddress("glGetShaderPrecisionFormat"));
   glGetString =
       reinterpret_cast<PFNGLGETSTRINGPROC>(eglGetProcAddress("glGetString"));
+  glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(
+      eglGetProcAddress("glGetTexParameterfv"));
+  glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(
+      eglGetProcAddress("glGetTexParameteriv"));
   glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(
       eglGetProcAddress("glGetUniformLocation"));
   glHint = reinterpret_cast<PFNGLHINTPROC>(eglGetProcAddress("glHint"));
