@@ -71,6 +71,16 @@ class WebGL_EXTBlendMinmaxExtension : public WebGLExtensionBase {
   virtual ~WebGL_EXTBlendMinmaxExtension() {}
 };
 
+// Provides 'EXT_texture_filter_anisotropic'
+// https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
+class WebGL_EXTTextureFilterAnisotropic : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTTextureFilterAnisotropic(napi_env env);
+  virtual ~WebGL_EXTTextureFilterAnisotropic() {}
+};
+
 // Provides 'OES_texture_float':
 // https://www.khronos.org/registry/webgl/extensions/OES_texture_float/
 class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
