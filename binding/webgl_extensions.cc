@@ -42,11 +42,11 @@ namespace nodejsgl {
 #endif
 
 //==============================================================================
-// WebGLExtensionBase
+// GLExtensionBase
 
 /* static */
-napi_value WebGLExtensionBase::InitStubClass(napi_env env,
-                                             napi_callback_info info) {
+napi_value GLExtensionBase::InitStubClass(napi_env env,
+                                          napi_callback_info info) {
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
 
   napi_status nstatus;
@@ -58,9 +58,9 @@ napi_value WebGLExtensionBase::InitStubClass(napi_env env,
 }
 
 /* static */
-napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
-                                                napi_ref constructor_ref,
-                                                napi_value* instance) {
+napi_status GLExtensionBase::NewInstanceBase(napi_env env,
+                                             napi_ref constructor_ref,
+                                             napi_value* instance) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -74,120 +74,22 @@ napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
-// WebGL_DebugRendererInfoExtension
+// EXTBlendMinmaxExtension
 
-napi_ref WebGL_DebugRendererInfoExtension::constructor_ref_;
+napi_ref EXTBlendMinmaxExtension::constructor_ref_;
 
-WebGL_DebugRendererInfoExtension::WebGL_DebugRendererInfoExtension(napi_env env)
-    : WebGLExtensionBase(env) {}
-
-/* static */
-bool WebGL_DebugRendererInfoExtension::IsSupported(
-    EGLContextWrapper* egl_context_wrapper) {
-  return true;
-}
+EXTBlendMinmaxExtension::EXTBlendMinmaxExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-napi_status WebGL_DebugRendererInfoExtension::Register(napi_env env,
-                                                       napi_value exports) {
-  napi_status nstatus;
-
-  napi_property_descriptor properties[] = {
-      NapiDefineIntProperty(env, GL_VENDOR, "UNMASKED_VENDOR_WEBGL"),
-      NapiDefineIntProperty(env, GL_RENDERER, "UNMASKED_RENDERER_WEBGL")};
-
-  napi_value ctor_value;
-  nstatus =
-      napi_define_class(env, "WEBGL_debug_renderer_info", NAPI_AUTO_LENGTH,
-                        WebGLExtensionBase::InitStubClass, nullptr,
-                        ARRAY_SIZE(properties), properties, &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
-}
-
-/* static */
-napi_status WebGL_DebugRendererInfoExtension::NewInstance(
-    napi_env env, napi_value* instance,
-    EGLContextWrapper* egl_context_wrapper) {
-  ENSURE_EXTENSION_IS_SUPPORTED
-
-  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
-}
-
-//==============================================================================
-// WebGL_DepthTextureExtension
-
-napi_ref WebGL_DepthTextureExtension::constructor_ref_;
-
-WebGL_DepthTextureExtension::WebGL_DepthTextureExtension(napi_env env)
-    : WebGLExtensionBase(env) {}
-
-/* static */
-bool WebGL_DepthTextureExtension::IsSupported(
-    EGLContextWrapper* egl_context_wrapper) {
-  IS_EXTENSION_NAME_AVAILABLE("GL_OES_packed_depth_stencil");
-  IS_EXTENSION_NAME_AVAILABLE("GL_CHROMIUM_depth_texture");
-}
-
-/* static */
-napi_status WebGL_DepthTextureExtension::Register(napi_env env,
-                                                  napi_value exports) {
-  napi_status nstatus;
-
-  napi_property_descriptor properties[] = {NapiDefineIntProperty(
-      env, GL_UNSIGNED_INT_24_8_OES, "UNSIGNED_INT_24_8_WEBGL")};
-
-  napi_value ctor_value;
-  nstatus = napi_define_class(env, "WEBGL_depth_texture", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr,
-                              ARRAY_SIZE(properties), properties, &ctor_value);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  return napi_ok;
-}
-
-/* static */
-napi_status WebGL_DepthTextureExtension::NewInstance(
-    napi_env env, napi_value* instance,
-    EGLContextWrapper* egl_context_wrapper) {
-  ENSURE_EXTENSION_IS_SUPPORTED
-
-  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
-
-  egl_context_wrapper->glRequestExtensionANGLE("GL_CHROMIUM_depth_texture");
-  egl_context_wrapper->RefreshGLExtensions();
-
-  return napi_ok;
-}
-
-//==============================================================================
-// WebGL_EXTBlendMinmaxExtension
-
-napi_ref WebGL_EXTBlendMinmaxExtension::constructor_ref_;
-
-WebGL_EXTBlendMinmaxExtension::WebGL_EXTBlendMinmaxExtension(napi_env env)
-    : WebGLExtensionBase(env) {}
-
-/* static */
-bool WebGL_EXTBlendMinmaxExtension::IsSupported(
+bool EXTBlendMinmaxExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_blend_minmax");
 }
 
 /* static */
-napi_status WebGL_EXTBlendMinmaxExtension::Register(napi_env env,
-                                                    napi_value exports) {
+napi_status EXTBlendMinmaxExtension::Register(napi_env env,
+                                              napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -196,7 +98,7 @@ napi_status WebGL_EXTBlendMinmaxExtension::Register(napi_env env,
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "EXT_blend_minmax", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr,
+                              GLExtensionBase::InitStubClass, nullptr,
                               ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -207,7 +109,7 @@ napi_status WebGL_EXTBlendMinmaxExtension::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTBlendMinmaxExtension::NewInstance(
+napi_status EXTBlendMinmaxExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -222,27 +124,24 @@ napi_status WebGL_EXTBlendMinmaxExtension::NewInstance(
 }
 
 //==============================================================================
-// WebGL_EXTFragDepthExtension
+// EXTColorBufferFloat
 
-napi_ref WebGL_EXTFragDepthExtension::constructor_ref_;
+napi_ref EXTColorBufferFloat::constructor_ref_;
 
-WebGL_EXTFragDepthExtension::WebGL_EXTFragDepthExtension(napi_env env)
-    : WebGLExtensionBase(env) {}
+EXTColorBufferFloat::EXTColorBufferFloat(napi_env env) : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTFragDepthExtension::IsSupported(
-    EGLContextWrapper* egl_context_wrapper) {
-  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_frag_depth");
+bool EXTColorBufferFloat::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_float");
 }
 
 /* static */
-napi_status WebGL_EXTFragDepthExtension::Register(napi_env env,
-                                                  napi_value exports) {
+napi_status EXTColorBufferFloat::Register(napi_env env, napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
-  nstatus = napi_define_class(env, "EXT_frag_depth", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+  nstatus = napi_define_class(env, "EXT_color_buffer_float", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
                               nullptr, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -253,7 +152,99 @@ napi_status WebGL_EXTFragDepthExtension::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTFragDepthExtension::NewInstance(
+napi_status EXTColorBufferFloat::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_color_buffer_float");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
+// EXTColorBufferHalfFloat
+
+napi_ref EXTColorBufferHalfFloat::constructor_ref_;
+
+EXTColorBufferHalfFloat::EXTColorBufferHalfFloat(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool EXTColorBufferHalfFloat::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_half_float");
+}
+
+/* static */
+napi_status EXTColorBufferHalfFloat::Register(napi_env env,
+                                              napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_color_buffer_half_float",
+                              NAPI_AUTO_LENGTH, GLExtensionBase::InitStubClass,
+                              nullptr, 0, nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status EXTColorBufferHalfFloat::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_EXT_color_buffer_half_float");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
+// EXTFragDepthExtension
+
+napi_ref EXTFragDepthExtension::constructor_ref_;
+
+EXTFragDepthExtension::EXTFragDepthExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool EXTFragDepthExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_frag_depth");
+}
+
+/* static */
+napi_status EXTFragDepthExtension::Register(napi_env env, napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_frag_depth", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status EXTFragDepthExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -268,27 +259,24 @@ napi_status WebGL_EXTFragDepthExtension::NewInstance(
 }
 
 //==============================================================================
-// WebGL_EXTShaderTextureLod
+// EXTShaderTextureLod
 
-napi_ref WebGL_EXTShaderTextureLod::constructor_ref_;
+napi_ref EXTShaderTextureLod::constructor_ref_;
 
-WebGL_EXTShaderTextureLod::WebGL_EXTShaderTextureLod(napi_env env)
-    : WebGLExtensionBase(env) {}
+EXTShaderTextureLod::EXTShaderTextureLod(napi_env env) : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTShaderTextureLod::IsSupported(
-    EGLContextWrapper* egl_context_wrapper) {
+bool EXTShaderTextureLod::IsSupported(EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_shader_texture_lod");
 }
 
 /* static */
-napi_status WebGL_EXTShaderTextureLod::Register(napi_env env,
-                                                napi_value exports) {
+napi_status EXTShaderTextureLod::Register(napi_env env, napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "EXT_shader_texture_lod", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
                               nullptr, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -299,7 +287,7 @@ napi_status WebGL_EXTShaderTextureLod::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTShaderTextureLod::NewInstance(
+napi_status EXTShaderTextureLod::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -314,19 +302,19 @@ napi_status WebGL_EXTShaderTextureLod::NewInstance(
 }
 
 //==============================================================================
-// WebGL_EXTSRGB
+// EXTSRGB
 
-napi_ref WebGL_EXTSRGB::constructor_ref_;
+napi_ref EXTSRGB::constructor_ref_;
 
-WebGL_EXTSRGB::WebGL_EXTSRGB(napi_env env) : WebGLExtensionBase(env) {}
+EXTSRGB::EXTSRGB(napi_env env) : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTSRGB::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+bool EXTSRGB::IsSupported(EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_sRGB");
 }
 
 /* static */
-napi_status WebGL_EXTSRGB::Register(napi_env env, napi_value exports) {
+napi_status EXTSRGB::Register(napi_env env, napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -339,7 +327,7 @@ napi_status WebGL_EXTSRGB::Register(napi_env env, napi_value exports) {
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "EXT_sRGB", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr,
+                              GLExtensionBase::InitStubClass, nullptr,
                               ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -350,8 +338,8 @@ napi_status WebGL_EXTSRGB::Register(napi_env env, napi_value exports) {
 }
 
 /* static */
-napi_status WebGL_EXTSRGB::NewInstance(napi_env env, napi_value* instance,
-                                       EGLContextWrapper* egl_context_wrapper) {
+napi_status EXTSRGB::NewInstance(napi_env env, napi_value* instance,
+                                 EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
 
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
@@ -364,23 +352,22 @@ napi_status WebGL_EXTSRGB::NewInstance(napi_env env, napi_value* instance,
 }
 
 //==============================================================================
-// WebGL_EXTTextureFilterAnisotropic
+// EXTTextureFilterAnisotropic
 
-napi_ref WebGL_EXTTextureFilterAnisotropic::constructor_ref_;
+napi_ref EXTTextureFilterAnisotropic::constructor_ref_;
 
-WebGL_EXTTextureFilterAnisotropic::WebGL_EXTTextureFilterAnisotropic(
-    napi_env env)
-    : WebGLExtensionBase(env) {}
+EXTTextureFilterAnisotropic::EXTTextureFilterAnisotropic(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTTextureFilterAnisotropic::IsSupported(
+bool EXTTextureFilterAnisotropic::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_texture_filter_anisotropic");
 }
 
 /* static */
-napi_status WebGL_EXTTextureFilterAnisotropic::Register(napi_env env,
-                                                        napi_value exports) {
+napi_status EXTTextureFilterAnisotropic::Register(napi_env env,
+                                                  napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -393,7 +380,7 @@ napi_status WebGL_EXTTextureFilterAnisotropic::Register(napi_env env,
   napi_value ctor_value;
   nstatus =
       napi_define_class(env, "EXT_texture_filter_anisotropic", NAPI_AUTO_LENGTH,
-                        WebGLExtensionBase::InitStubClass, nullptr,
+                        GLExtensionBase::InitStubClass, nullptr,
                         ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -404,7 +391,7 @@ napi_status WebGL_EXTTextureFilterAnisotropic::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTTextureFilterAnisotropic::NewInstance(
+napi_status EXTTextureFilterAnisotropic::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -420,27 +407,27 @@ napi_status WebGL_EXTTextureFilterAnisotropic::NewInstance(
 }
 
 //==============================================================================
-// WebGL_OESTextureFloatExtension
+// OESTextureFloatExtension
 
-napi_ref WebGL_OESTextureFloatExtension::constructor_ref_;
+napi_ref OESTextureFloatExtension::constructor_ref_;
 
-WebGL_OESTextureFloatExtension::WebGL_OESTextureFloatExtension(napi_env env)
-    : WebGLExtensionBase(env) {}
+OESTextureFloatExtension::OESTextureFloatExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_OESTextureFloatExtension::IsSupported(
+bool OESTextureFloatExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_float");
 }
 
 /* static */
-napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
-                                                     napi_value exports) {
+napi_status OESTextureFloatExtension::Register(napi_env env,
+                                               napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "OES_texture_float", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
                               nullptr, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -451,7 +438,7 @@ napi_status WebGL_OESTextureFloatExtension::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_OESTextureFloatExtension::NewInstance(
+napi_status OESTextureFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -470,23 +457,22 @@ napi_status WebGL_OESTextureFloatExtension::NewInstance(
 }
 
 //==============================================================================
-// WebGL_OESTextureHalfFloatExtension
+// OESTextureHalfFloatExtension
 
-napi_ref WebGL_OESTextureHalfFloatExtension::constructor_ref_;
+napi_ref OESTextureHalfFloatExtension::constructor_ref_;
 
-WebGL_OESTextureHalfFloatExtension::WebGL_OESTextureHalfFloatExtension(
-    napi_env env)
-    : WebGLExtensionBase(env) {}
+OESTextureHalfFloatExtension::OESTextureHalfFloatExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_OESTextureHalfFloatExtension::IsSupported(
+bool OESTextureHalfFloatExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_half_float");
 }
 
 /* static */
-napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
-                                                         napi_value exports) {
+napi_status OESTextureHalfFloatExtension::Register(napi_env env,
+                                                   napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -494,7 +480,7 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "OES_texture_half_float", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr,
+                              GLExtensionBase::InitStubClass, nullptr,
                               ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
@@ -505,7 +491,7 @@ napi_status WebGL_OESTextureHalfFloatExtension::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
+napi_status OESTextureHalfFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -526,28 +512,33 @@ napi_status WebGL_OESTextureHalfFloatExtension::NewInstance(
 }
 
 //==============================================================================
-// WebGL_EXTColorBufferFloat
+// WebGLDebugRendererInfoExtension
 
-napi_ref WebGL_EXTColorBufferFloat::constructor_ref_;
+napi_ref WebGLDebugRendererInfoExtension::constructor_ref_;
 
-WebGL_EXTColorBufferFloat::WebGL_EXTColorBufferFloat(napi_env env)
-    : WebGLExtensionBase(env) {}
+WebGLDebugRendererInfoExtension::WebGLDebugRendererInfoExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTColorBufferFloat::IsSupported(
+bool WebGLDebugRendererInfoExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
-  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_float");
+  return true;
 }
 
 /* static */
-napi_status WebGL_EXTColorBufferFloat::Register(napi_env env,
-                                                napi_value exports) {
+napi_status WebGLDebugRendererInfoExtension::Register(napi_env env,
+                                                      napi_value exports) {
   napi_status nstatus;
 
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_VENDOR, "UNMASKED_VENDOR_WEBGL"),
+      NapiDefineIntProperty(env, GL_RENDERER, "UNMASKED_RENDERER_WEBGL")};
+
   napi_value ctor_value;
-  nstatus = napi_define_class(env, "EXT_color_buffer_float", NAPI_AUTO_LENGTH,
-                              WebGLExtensionBase::InitStubClass, nullptr, 0,
-                              nullptr, &ctor_value);
+  nstatus =
+      napi_define_class(env, "WEBGL_debug_renderer_info", NAPI_AUTO_LENGTH,
+                        GLExtensionBase::InitStubClass, nullptr,
+                        ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -557,7 +548,7 @@ napi_status WebGL_EXTColorBufferFloat::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTColorBufferFloat::NewInstance(
+napi_status WebGLDebugRendererInfoExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -565,35 +556,36 @@ napi_status WebGL_EXTColorBufferFloat::NewInstance(
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_color_buffer_float");
-  egl_context_wrapper->RefreshGLExtensions();
-
   return napi_ok;
 }
 
 //==============================================================================
-// WebGL_EXTColorBufferHalfFloat
+// WebGLDepthTextureExtension
 
-napi_ref WebGL_EXTColorBufferHalfFloat::constructor_ref_;
+napi_ref WebGLDepthTextureExtension::constructor_ref_;
 
-WebGL_EXTColorBufferHalfFloat::WebGL_EXTColorBufferHalfFloat(napi_env env)
-    : WebGLExtensionBase(env) {}
+WebGLDepthTextureExtension::WebGLDepthTextureExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool WebGL_EXTColorBufferHalfFloat::IsSupported(
+bool WebGLDepthTextureExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
-  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_half_float");
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_packed_depth_stencil");
+  IS_EXTENSION_NAME_AVAILABLE("GL_CHROMIUM_depth_texture");
 }
 
 /* static */
-napi_status WebGL_EXTColorBufferHalfFloat::Register(napi_env env,
-                                                    napi_value exports) {
+napi_status WebGLDepthTextureExtension::Register(napi_env env,
+                                                 napi_value exports) {
   napi_status nstatus;
 
+  napi_property_descriptor properties[] = {NapiDefineIntProperty(
+      env, GL_UNSIGNED_INT_24_8_OES, "UNSIGNED_INT_24_8_WEBGL")};
+
   napi_value ctor_value;
-  nstatus = napi_define_class(
-      env, "EXT_color_buffer_half_float", NAPI_AUTO_LENGTH,
-      WebGLExtensionBase::InitStubClass, nullptr, 0, nullptr, &ctor_value);
+  nstatus = napi_define_class(env, "WEBGL_depth_texture", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -603,7 +595,7 @@ napi_status WebGL_EXTColorBufferHalfFloat::Register(napi_env env,
 }
 
 /* static */
-napi_status WebGL_EXTColorBufferHalfFloat::NewInstance(
+napi_status WebGLDepthTextureExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -611,28 +603,27 @@ napi_status WebGL_EXTColorBufferHalfFloat::NewInstance(
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  egl_context_wrapper->glRequestExtensionANGLE(
-      "GL_EXT_color_buffer_half_float");
+  egl_context_wrapper->glRequestExtensionANGLE("GL_CHROMIUM_depth_texture");
   egl_context_wrapper->RefreshGLExtensions();
 
   return napi_ok;
 }
 
 //==============================================================================
-// WebGL_LoseContextExtension
+// WebGLLoseContextExtension
 
-napi_ref WebGL_LoseContextExtension::constructor_ref_;
+napi_ref WebGLLoseContextExtension::constructor_ref_;
 
 /* static */
-bool WebGL_LoseContextExtension::IsSupported(
+bool WebGLLoseContextExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   // This extension is purely a stub in Node - return true.
   return true;
 }
 
 /* static */
-napi_status WebGL_LoseContextExtension::Register(napi_env env,
-                                                 napi_value exports) {
+napi_status WebGLLoseContextExtension::Register(napi_env env,
+                                                napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -642,7 +633,7 @@ napi_status WebGL_LoseContextExtension::Register(napi_env env,
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "WEBGL_lose_context", NAPI_AUTO_LENGTH,
-                              WebGL_LoseContextExtension::InitInternal, nullptr,
+                              WebGLLoseContextExtension::InitInternal, nullptr,
                               ARRAY_SIZE(properties), properties, &ctor_value);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -652,15 +643,15 @@ napi_status WebGL_LoseContextExtension::Register(napi_env env,
 }
 
 /* static  */
-napi_status WebGL_LoseContextExtension::NewInstance(
+napi_status WebGLLoseContextExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   return NewInstanceBase(env, constructor_ref_, instance);
 }
 
 /* static */
-napi_value WebGL_LoseContextExtension::InitInternal(napi_env env,
-                                                    napi_callback_info info) {
+napi_value WebGLLoseContextExtension::InitInternal(napi_env env,
+                                                   napi_callback_info info) {
   napi_status nstatus;
 
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
@@ -669,7 +660,7 @@ napi_value WebGL_LoseContextExtension::InitInternal(napi_env env,
   nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  WebGL_LoseContextExtension* context = new WebGL_LoseContextExtension(env);
+  WebGLLoseContextExtension* context = new WebGLLoseContextExtension(env);
   ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, context, nullptr);
 
   nstatus = napi_wrap(env, js_this, context, Cleanup, nullptr, &context->ref_);
@@ -679,23 +670,23 @@ napi_value WebGL_LoseContextExtension::InitInternal(napi_env env,
 }
 
 /* static */
-void WebGL_LoseContextExtension::Cleanup(napi_env env, void* native,
-                                         void* hint) {
-  WebGL_LoseContextExtension* extension =
-      static_cast<WebGL_LoseContextExtension*>(native);
+void WebGLLoseContextExtension::Cleanup(napi_env env, void* native,
+                                        void* hint) {
+  WebGLLoseContextExtension* extension =
+      static_cast<WebGLLoseContextExtension*>(native);
   delete extension;
 }
 
 /* static */
-napi_value WebGL_LoseContextExtension::LoseContext(napi_env env,
-                                                   napi_callback_info info) {
+napi_value WebGLLoseContextExtension::LoseContext(napi_env env,
+                                                  napi_callback_info info) {
   // Pure stub extension - no-op.
   return nullptr;
 }
 
 /* static */
-napi_value WebGL_LoseContextExtension::RestoreContext(napi_env env,
-                                                      napi_callback_info info) {
+napi_value WebGLLoseContextExtension::RestoreContext(napi_env env,
+                                                     napi_callback_info info) {
   // Pure stub extension - no-op.
   return nullptr;
 }
