@@ -386,7 +386,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "WEBGL_draw_buffers"): WEBGL_draw_buffers | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc"): WEBGL_compressed_texture_s3tc | null;
 // getExtension(extensionName: "ANGLE_instanced_arrays"): ANGLE_instanced_arrays | null;
-// getExtension(extensionName: string): any;
       NAPI_DEFINE_METHOD("getFramebufferAttachmentParameter", GetFramebufferAttachmentParameter),
       NAPI_DEFINE_METHOD("getExtension", GetExtension),
       NAPI_DEFINE_METHOD("getParameter", GetParameter),
