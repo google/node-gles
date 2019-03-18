@@ -19,9 +19,11 @@
 
 #include "utils.h"
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <GLES2/gl2.h>
+#include "angle/include/EGL/egl.h"
+#include "angle/include/EGL/eglext.h"
+// #include <EGL/egl.h>
+// #include <EGL/eglext.h>
+// #include <GLES2/gl2.h>
 
 #include <vector>
 

@@ -20,9 +20,9 @@
 
 #include <node_api.h>
 
-#include <EGL/egl.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include "angle/include/EGL/egl.h"
+#include "angle/include/GLES2/gl2.h"
+#include "angle/include/GLES2/gl2ext.h"
 
 #include <iostream>
 #include <memory>
