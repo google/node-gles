@@ -73,22 +73,22 @@ class EXTBlendMinmaxExtension : public GLExtensionBase {
 
 // Provides 'EXT_color_buffer_float':
 // https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_float/
-class EXTColorBufferFloat : public GLExtensionBase {
+class EXTColorBufferFloatExtension : public GLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  protected:
-  EXTColorBufferFloat(napi_env env);
-  virtual ~EXTColorBufferFloat() {}
+  EXTColorBufferFloatExtension(napi_env env);
+  virtual ~EXTColorBufferFloatExtension() {}
 };
 
 // Provides 'EXT_color_buffer_half_float':
 // https://www.khronos.org/registry/webgl/extensions/EXT_color_buffer_half_float/
-class EXTColorBufferHalfFloat : public GLExtensionBase {
+class EXTColorBufferHalfFloatExtension : public GLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  protected:
-  EXTColorBufferHalfFloat(napi_env env);
-  virtual ~EXTColorBufferHalfFloat() {}
+  EXTColorBufferHalfFloatExtension(napi_env env);
+  virtual ~EXTColorBufferHalfFloatExtension() {}
 };
 
 // Provides 'EXT_frag_depth':
@@ -103,32 +103,42 @@ class EXTFragDepthExtension : public GLExtensionBase {
 
 // Provides 'EXT_shader_texture_lod':
 // https://www.khronos.org/registry/webgl/extensions/EXT_shader_texture_lod/
-class EXTShaderTextureLod : public GLExtensionBase {
+class EXTShaderTextureLodExtension : public GLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  protected:
-  EXTShaderTextureLod(napi_env env);
-  virtual ~EXTShaderTextureLod() {}
+  EXTShaderTextureLodExtension(napi_env env);
+  virtual ~EXTShaderTextureLodExtension() {}
 };
 
 // Provides 'EXT_sRGB':
 // https://www.khronos.org/registry/webgl/extensions/EXT_sRGB/
-class EXTSRGB : public GLExtensionBase {
+class EXTSRGBExtension : public GLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  protected:
-  EXTSRGB(napi_env env);
-  virtual ~EXTSRGB() {}
+  EXTSRGBExtension(napi_env env);
+  virtual ~EXTSRGBExtension() {}
 };
 
 // Provides 'EXT_texture_filter_anisotropic'
 // https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
-class EXTTextureFilterAnisotropic : public GLExtensionBase {
+class EXTTextureFilterAnisotropicExtension : public GLExtensionBase {
   NAPI_BOOTSTRAP_METHODS
 
  protected:
-  EXTTextureFilterAnisotropic(napi_env env);
-  virtual ~EXTTextureFilterAnisotropic() {}
+  EXTTextureFilterAnisotropicExtension(napi_env env);
+  virtual ~EXTTextureFilterAnisotropicExtension() {}
+};
+
+// Provides 'OES_standard_derivatives':
+// https://www.khronos.org/registry/webgl/extensions/OES_standard_derivatives/
+class OESStandardDerivativesExtension : public GLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  OESStandardDerivativesExtension(napi_env env);
+  virtual ~OESStandardDerivativesExtension() {}
 };
 
 // Provides 'OES_texture_float':
