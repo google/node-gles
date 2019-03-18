@@ -379,7 +379,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
       NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
-// getExtension(extensionName: "EXT_sRGB"): EXT_sRGB | null;
 // getExtension(extensionName: "OES_vertex_array_object"): OES_vertex_array_object | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_astc"): WEBGL_compressed_texture_astc | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc_srgb"): WEBGL_compressed_texture_s3tc_srgb | null;
@@ -2291,6 +2290,9 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
              WebGL_EXTFragDepthExtension::IsSupported(egl_ctx)) {
     nstatus = WebGL_EXTFragDepthExtension::NewInstance(env, &webgl_extension,
                                                        egl_ctx);
+  } else if (strcmp(name, "EXT_sRGB") == 0 &&
+             WebGL_EXTSRGB::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTSRGB::NewInstance(env, &webgl_extension, egl_ctx);
   } else if (strcmp(name, "EXT_shader_texture_lod") == 0 &&
              WebGL_EXTShaderTextureLod::IsSupported(egl_ctx)) {
     nstatus =

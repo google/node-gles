@@ -91,6 +91,16 @@ class WebGL_EXTShaderTextureLod : public WebGLExtensionBase {
   virtual ~WebGL_EXTShaderTextureLod() {}
 };
 
+// Provides 'EXT_sRGB':
+// https://www.khronos.org/registry/webgl/extensions/EXT_sRGB/
+class WebGL_EXTSRGB : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTSRGB(napi_env env);
+  virtual ~WebGL_EXTSRGB() {}
+};
+
 // Provides 'EXT_texture_filter_anisotropic'
 // https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
 class WebGL_EXTTextureFilterAnisotropic : public WebGLExtensionBase {

@@ -216,6 +216,56 @@ napi_status WebGL_EXTShaderTextureLod::NewInstance(
 }
 
 //==============================================================================
+// WebGL_EXTSRGB
+
+napi_ref WebGL_EXTSRGB::constructor_ref_;
+
+WebGL_EXTSRGB::WebGL_EXTSRGB(napi_env env) : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_EXTSRGB::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_sRGB");
+}
+
+/* static */
+napi_status WebGL_EXTSRGB::Register(napi_env env, napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_SRGB_EXT, "SRGB_EXT"),
+      NapiDefineIntProperty(env, GL_SRGB_ALPHA_EXT, "SRGB_ALPHA_EXT"),
+      NapiDefineIntProperty(env, GL_SRGB8_ALPHA8_EXT, "SRGB8_ALPHA8_EXT"),
+      NapiDefineIntProperty(env, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT,
+                            "FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT"),
+  };
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_sRGB", NAPI_AUTO_LENGTH,
+                              WebGLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_EXTSRGB::NewInstance(napi_env env, napi_value* instance,
+                                       EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_sRGB");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGL_EXTTextureFilterAnisotropic
 
 napi_ref WebGL_EXTTextureFilterAnisotropic::constructor_ref_;
