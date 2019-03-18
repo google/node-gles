@@ -81,6 +81,16 @@ class WebGL_EXTFragDepthExtension : public WebGLExtensionBase {
   virtual ~WebGL_EXTFragDepthExtension() {}
 };
 
+// Provides 'EXT_shader_texture_lod':
+// https://www.khronos.org/registry/webgl/extensions/EXT_shader_texture_lod/
+class WebGL_EXTShaderTextureLod : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTShaderTextureLod(napi_env env);
+  virtual ~WebGL_EXTShaderTextureLod() {}
+};
+
 // Provides 'EXT_texture_filter_anisotropic'
 // https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
 class WebGL_EXTTextureFilterAnisotropic : public WebGLExtensionBase {

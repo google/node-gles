@@ -170,6 +170,52 @@ napi_status WebGL_EXTFragDepthExtension::NewInstance(
 }
 
 //==============================================================================
+// WebGL_EXTShaderTextureLod
+
+napi_ref WebGL_EXTShaderTextureLod::constructor_ref_;
+
+WebGL_EXTShaderTextureLod::WebGL_EXTShaderTextureLod(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_EXTShaderTextureLod::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_shader_texture_lod");
+}
+
+/* static */
+napi_status WebGL_EXTShaderTextureLod::Register(napi_env env,
+                                                napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "EXT_shader_texture_lod", NAPI_AUTO_LENGTH,
+                              WebGLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_EXTShaderTextureLod::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_shader_texture_lod");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGL_EXTTextureFilterAnisotropic
 
 napi_ref WebGL_EXTTextureFilterAnisotropic::constructor_ref_;

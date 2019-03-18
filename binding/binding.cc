@@ -37,6 +37,7 @@ static napi_value InitBinding(napi_env env, napi_value exports) {
   WebGL_EXTColorBufferFloat::Register(env, exports);
   WebGL_EXTColorBufferHalfFloat::Register(env, exports);
   WebGL_EXTFragDepthExtension::Register(env, exports);
+  WebGL_EXTShaderTextureLod::Register(env, exports);
   WebGL_EXTTextureFilterAnisotropic::Register(env, exports);
   WebGL_LoseContextExtension::Register(env, exports);
   WebGL_OESTextureFloatExtension::Register(env, exports);
