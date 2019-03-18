@@ -379,8 +379,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
       NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
-// getExtension(extensionName: "EXT_texture_filter_anisotropic"): EXT_texture_filter_anisotropic | null;
-// getExtension(extensionName: "EXT_frag_depth"): EXT_frag_depth | null;
 // getExtension(extensionName: "EXT_shader_texture_lod"): EXT_shader_texture_lod | null;
 // getExtension(extensionName: "EXT_sRGB"): EXT_sRGB | null;
 // getExtension(extensionName: "OES_vertex_array_object"): OES_vertex_array_object | null;
@@ -2294,7 +2292,14 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     nstatus = WebGL_EXTColorBufferHalfFloat::NewInstance(
         env, &webgl_extension, context->eglContextWrapper_);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  } else if (strcmp(extension_name.c_str(), "EXT_texture_filter_anisotropic") &&
+  } else if (strcmp(extension_name.c_str(), "EXT_frag_depth") == 0 &&
+             WebGL_EXTFragDepthExtension::IsSupported(
+                 context->eglContextWrapper_)) {
+    nstatus = WebGL_EXTFragDepthExtension::NewInstance(
+        env, &webgl_extension, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else if (strcmp(extension_name.c_str(), "EXT_texture_filter_anisotropic") ==
+                 0 &&
              WebGL_EXTTextureFilterAnisotropic::IsSupported(
                  context->eglContextWrapper_)) {
     nstatus = WebGL_EXTTextureFilterAnisotropic::NewInstance(

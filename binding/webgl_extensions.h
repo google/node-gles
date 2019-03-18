@@ -71,6 +71,16 @@ class WebGL_EXTBlendMinmaxExtension : public WebGLExtensionBase {
   virtual ~WebGL_EXTBlendMinmaxExtension() {}
 };
 
+// Provides 'EXT_frag_depth':
+// https://www.khronos.org/registry/webgl/extensions/EXT_frag_depth/
+class WebGL_EXTFragDepthExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTFragDepthExtension(napi_env env);
+  virtual ~WebGL_EXTFragDepthExtension() {}
+};
+
 // Provides 'EXT_texture_filter_anisotropic'
 // https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
 class WebGL_EXTTextureFilterAnisotropic : public WebGLExtensionBase {
