@@ -512,6 +512,53 @@ napi_status OESTextureHalfFloatExtension::NewInstance(
 }
 
 //==============================================================================
+// OESTextureHalfFloatLinearExtension
+
+napi_ref OESTextureHalfFloatLinearExtension::constructor_ref_;
+
+OESTextureHalfFloatLinearExtension::OESTextureHalfFloatLinearExtension(
+    napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESTextureHalfFloatLinearExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_half_float_linear");
+}
+
+/* static */
+napi_status OESTextureHalfFloatLinearExtension::Register(napi_env env,
+                                                         napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_half_float_linear",
+                              NAPI_AUTO_LENGTH, GLExtensionBase::InitStubClass,
+                              nullptr, 0, nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESTextureHalfFloatLinearExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_OES_texture_half_float_linear");
+  egl_context_wrapper->RefreshGLExtensions();
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGLDebugRendererInfoExtension
 
 napi_ref WebGLDebugRendererInfoExtension::constructor_ref_;

@@ -151,6 +151,16 @@ class OESTextureHalfFloatExtension : public GLExtensionBase {
   virtual ~OESTextureHalfFloatExtension() {}
 };
 
+// Provides 'OES_texture_half_float_linear':
+// https://www.khronos.org/registry/webgl/extensions/OES_texture_half_float_linear/
+class OESTextureHalfFloatLinearExtension : public GLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  OESTextureHalfFloatLinearExtension(napi_env env);
+  virtual ~OESTextureHalfFloatLinearExtension() {}
+};
+
 // Provides 'WEBGL_debug_renderer_info':
 // https://www.khronos.org/registry/webgl/extensions/WEBGL_debug_renderer_info/
 class WebGLDebugRendererInfoExtension : public GLExtensionBase {

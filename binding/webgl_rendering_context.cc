@@ -385,7 +385,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "WEBGL_debug_shaders"): WEBGL_debug_shaders | null;
 // getExtension(extensionName: "WEBGL_draw_buffers"): WEBGL_draw_buffers | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc"): WEBGL_compressed_texture_s3tc | null;
-// getExtension(extensionName: "OES_texture_half_float_linear"): OES_texture_half_float_linear | null;
 // getExtension(extensionName: "OES_texture_float_linear"): OES_texture_float_linear | null;
 // getExtension(extensionName: "OES_standard_derivatives"): OES_standard_derivatives | null;
 // getExtension(extensionName: "OES_element_index_uint"): OES_element_index_uint | null;
@@ -2300,6 +2299,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
              OESTextureFloatExtension::IsSupported(egl_ctx)) {
     nstatus =
         OESTextureFloatExtension::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "OES_texture_half_float_linear") == 0 &&
+             OESTextureHalfFloatLinearExtension::IsSupported(egl_ctx)) {
+    nstatus = OESTextureHalfFloatLinearExtension::NewInstance(
+        env, &webgl_extension, egl_ctx);
   } else if (strcmp(name, "WEBGL_debug_renderer_info") == 0 &&
              WebGLDebugRendererInfoExtension::IsSupported(egl_ctx)) {
     nstatus = WebGLDebugRendererInfoExtension::NewInstance(
