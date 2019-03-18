@@ -41,6 +41,7 @@ static napi_value InitBinding(napi_env env, napi_value exports) {
   EXTSRGB::Register(env, exports);
   EXTTextureFilterAnisotropic::Register(env, exports);
   OESTextureFloatExtension::Register(env, exports);
+  OESTextureFloatLinearExtension::Register(env, exports);
   OESTextureHalfFloatExtension::Register(env, exports);
   OESTextureHalfFloatLinearExtension::Register(env, exports);
   WebGLDebugRendererInfoExtension::Register(env, exports);
