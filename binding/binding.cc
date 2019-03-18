@@ -33,6 +33,7 @@ static napi_value CreateWebGLRenderingContext(napi_env env,
 }
 
 static napi_value InitBinding(napi_env env, napi_value exports) {
+  WebGL_DepthTextureExtension::Register(env, exports);
   WebGL_EXTBlendMinmaxExtension::Register(env, exports);
   WebGL_EXTColorBufferFloat::Register(env, exports);
   WebGL_EXTColorBufferHalfFloat::Register(env, exports);

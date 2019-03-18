@@ -61,6 +61,16 @@ class WebGLExtensionBase {
   napi_ref ref_;
 };
 
+// Provides 'WEBGL_depth_texture':
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_depth_texture/
+class WebGL_DepthTextureExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_DepthTextureExtension(napi_env env);
+  virtual ~WebGL_DepthTextureExtension() {}
+};
+
 // Provides 'EXT_blend_minmax':
 // https://www.khronos.org/registry/webgl/extensions/EXT_blend_minmax/
 class WebGL_EXTBlendMinmaxExtension : public WebGLExtensionBase {

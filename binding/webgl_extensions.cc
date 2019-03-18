@@ -74,6 +74,56 @@ napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
+// WebGL_DepthTextureExtension
+
+napi_ref WebGL_DepthTextureExtension::constructor_ref_;
+
+WebGL_DepthTextureExtension::WebGL_DepthTextureExtension(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_DepthTextureExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_packed_depth_stencil");
+  IS_EXTENSION_NAME_AVAILABLE("GL_CHROMIUM_depth_texture");
+}
+
+/* static */
+napi_status WebGL_DepthTextureExtension::Register(napi_env env,
+                                                  napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {NapiDefineIntProperty(
+      env, GL_UNSIGNED_INT_24_8_OES, "UNSIGNED_INT_24_8_WEBGL")};
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "WEBGL_depth_texture", NAPI_AUTO_LENGTH,
+                              WebGLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_DepthTextureExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_CHROMIUM_depth_texture");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGL_EXTBlendMinmaxExtension
 
 napi_ref WebGL_EXTBlendMinmaxExtension::constructor_ref_;

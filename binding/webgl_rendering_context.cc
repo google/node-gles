@@ -384,7 +384,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc_srgb"): WEBGL_compressed_texture_s3tc_srgb | null;
 // getExtension(extensionName: "WEBGL_debug_shaders"): WEBGL_debug_shaders | null;
 // getExtension(extensionName: "WEBGL_draw_buffers"): WEBGL_draw_buffers | null;
-// getExtension(extensionName: "WEBGL_depth_texture"): WEBGL_depth_texture | null;
 // getExtension(extensionName: "WEBGL_debug_renderer_info"): WEBGL_debug_renderer_info | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc"): WEBGL_compressed_texture_s3tc | null;
 // getExtension(extensionName: "OES_texture_half_float_linear"): OES_texture_half_float_linear | null;
@@ -2273,8 +2272,12 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   EGLContextWrapper *egl_ctx = context->eglContextWrapper_;
 
   napi_value webgl_extension = nullptr;
-  if (strcmp(name, "EXT_blend_minmax") == 0 &&
-      WebGL_EXTBlendMinmaxExtension::IsSupported(egl_ctx)) {
+  if (strcmp(name, "WEBGL_depth_texture") == 0 &&
+      WebGL_DepthTextureExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_DepthTextureExtension::NewInstance(env, &webgl_extension,
+                                                       egl_ctx);
+  } else if (strcmp(name, "EXT_blend_minmax") == 0 &&
+             WebGL_EXTBlendMinmaxExtension::IsSupported(egl_ctx)) {
     nstatus = WebGL_EXTBlendMinmaxExtension::NewInstance(env, &webgl_extension,
                                                          egl_ctx);
   } else if ((strcmp(name, "EXT_color_buffer_float") == 0 ||
