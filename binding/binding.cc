@@ -33,18 +33,18 @@ static napi_value CreateWebGLRenderingContext(napi_env env,
 }
 
 static napi_value InitBinding(napi_env env, napi_value exports) {
-  WebGL_DebugRendererInfoExtension::Register(env, exports);
-  WebGL_DepthTextureExtension::Register(env, exports);
-  WebGL_EXTBlendMinmaxExtension::Register(env, exports);
-  WebGL_EXTColorBufferFloat::Register(env, exports);
-  WebGL_EXTColorBufferHalfFloat::Register(env, exports);
-  WebGL_EXTFragDepthExtension::Register(env, exports);
-  WebGL_EXTShaderTextureLod::Register(env, exports);
-  WebGL_EXTSRGB::Register(env, exports);
-  WebGL_EXTTextureFilterAnisotropic::Register(env, exports);
-  WebGL_LoseContextExtension::Register(env, exports);
-  WebGL_OESTextureFloatExtension::Register(env, exports);
-  WebGL_OESTextureHalfFloatExtension::Register(env, exports);
+  EXTBlendMinmaxExtension::Register(env, exports);
+  EXTColorBufferFloat::Register(env, exports);
+  EXTColorBufferHalfFloat::Register(env, exports);
+  EXTFragDepthExtension::Register(env, exports);
+  EXTShaderTextureLod::Register(env, exports);
+  EXTSRGB::Register(env, exports);
+  EXTTextureFilterAnisotropic::Register(env, exports);
+  OESTextureFloatExtension::Register(env, exports);
+  OESTextureHalfFloatExtension::Register(env, exports);
+  WebGLDebugRendererInfoExtension::Register(env, exports);
+  WebGLDepthTextureExtension::Register(env, exports);
+  WebGLLoseContextExtension::Register(env, exports);
   WebGLRenderingContext::Register(env, exports);
 
   napi_property_descriptor properties[] = {

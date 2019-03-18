@@ -62,7 +62,7 @@ export function createTexture2D(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, 1, 1, 0, format, type, null);
-  gl.bindTexture(gl.TEXTURE_2D, 0);
+  gl.bindTexture(gl.TEXTURE_2D, null);
   return texture;
 }
 
