@@ -61,6 +61,76 @@ class WebGLExtensionBase {
   napi_ref ref_;
 };
 
+// Provides 'WEBGL_debug_renderer_info':
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_debug_renderer_info/
+class WebGL_DebugRendererInfoExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_DebugRendererInfoExtension(napi_env env);
+  virtual ~WebGL_DebugRendererInfoExtension() {}
+};
+
+// Provides 'WEBGL_depth_texture':
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_depth_texture/
+class WebGL_DepthTextureExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_DepthTextureExtension(napi_env env);
+  virtual ~WebGL_DepthTextureExtension() {}
+};
+
+// Provides 'EXT_blend_minmax':
+// https://www.khronos.org/registry/webgl/extensions/EXT_blend_minmax/
+class WebGL_EXTBlendMinmaxExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTBlendMinmaxExtension(napi_env env);
+  virtual ~WebGL_EXTBlendMinmaxExtension() {}
+};
+
+// Provides 'EXT_frag_depth':
+// https://www.khronos.org/registry/webgl/extensions/EXT_frag_depth/
+class WebGL_EXTFragDepthExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTFragDepthExtension(napi_env env);
+  virtual ~WebGL_EXTFragDepthExtension() {}
+};
+
+// Provides 'EXT_shader_texture_lod':
+// https://www.khronos.org/registry/webgl/extensions/EXT_shader_texture_lod/
+class WebGL_EXTShaderTextureLod : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTShaderTextureLod(napi_env env);
+  virtual ~WebGL_EXTShaderTextureLod() {}
+};
+
+// Provides 'EXT_sRGB':
+// https://www.khronos.org/registry/webgl/extensions/EXT_sRGB/
+class WebGL_EXTSRGB : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTSRGB(napi_env env);
+  virtual ~WebGL_EXTSRGB() {}
+};
+
+// Provides 'EXT_texture_filter_anisotropic'
+// https://www.khronos.org/registry/webgl/extensions/EXT_texture_filter_anisotropic/
+class WebGL_EXTTextureFilterAnisotropic : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_EXTTextureFilterAnisotropic(napi_env env);
+  virtual ~WebGL_EXTTextureFilterAnisotropic() {}
+};
+
 // Provides 'OES_texture_float':
 // https://www.khronos.org/registry/webgl/extensions/OES_texture_float/
 class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
@@ -69,10 +139,6 @@ class WebGL_OESTextureFloatExtension : public WebGLExtensionBase {
  protected:
   WebGL_OESTextureFloatExtension(napi_env env);
   virtual ~WebGL_OESTextureFloatExtension() {}
-
- private:
-  static void Cleanup(napi_env env, void* native,
-                      void* hint);  // TODO(kreeger): Remove?
 };
 
 // Provides 'OES_texture_half_float':

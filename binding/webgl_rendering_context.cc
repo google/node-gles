@@ -379,18 +379,11 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
       NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
-// getExtension(extensionName: "EXT_blend_minmax"): EXT_blend_minmax | null;
-// getExtension(extensionName: "EXT_texture_filter_anisotropic"): EXT_texture_filter_anisotropic | null;
-// getExtension(extensionName: "EXT_frag_depth"): EXT_frag_depth | null;
-// getExtension(extensionName: "EXT_shader_texture_lod"): EXT_shader_texture_lod | null;
-// getExtension(extensionName: "EXT_sRGB"): EXT_sRGB | null;
 // getExtension(extensionName: "OES_vertex_array_object"): OES_vertex_array_object | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_astc"): WEBGL_compressed_texture_astc | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc_srgb"): WEBGL_compressed_texture_s3tc_srgb | null;
 // getExtension(extensionName: "WEBGL_debug_shaders"): WEBGL_debug_shaders | null;
 // getExtension(extensionName: "WEBGL_draw_buffers"): WEBGL_draw_buffers | null;
-// getExtension(extensionName: "WEBGL_depth_texture"): WEBGL_depth_texture | null;
-// getExtension(extensionName: "WEBGL_debug_renderer_info"): WEBGL_debug_renderer_info | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc"): WEBGL_compressed_texture_s3tc | null;
 // getExtension(extensionName: "OES_texture_half_float_linear"): OES_texture_half_float_linear | null;
 // getExtension(extensionName: "OES_texture_float_linear"): OES_texture_float_linear | null;
@@ -2274,41 +2267,63 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   // TODO(kreeger): Extension stuff is super funny w/ WebGL vs. ANGLE. Many
   // different names and matching that needs to be done in this binding.
 
+  const char *name = extension_name.c_str();
+  EGLContextWrapper *egl_ctx = context->eglContextWrapper_;
+
   napi_value webgl_extension = nullptr;
-  if ((strcmp(extension_name.c_str(), "EXT_color_buffer_float") == 0 ||
-       strcmp(extension_name.c_str(), "WEBGL_color_buffer_float") == 0) &&
-      WebGL_EXTColorBufferFloat::IsSupported(context->eglContextWrapper_)) {
-    nstatus = WebGL_EXTColorBufferFloat::NewInstance(
-        env, &webgl_extension, context->eglContextWrapper_);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  } else if (strcmp(extension_name.c_str(), "EXT_color_buffer_half_float") ==
-                 0 &&
-             WebGL_EXTColorBufferHalfFloat::IsSupported(
-                 context->eglContextWrapper_)) {
-    nstatus = WebGL_EXTColorBufferHalfFloat::NewInstance(
-        env, &webgl_extension, context->eglContextWrapper_);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0 &&
-             WebGL_OESTextureFloatExtension::IsSupported(
-                 context->eglContextWrapper_)) {
-    nstatus = WebGL_OESTextureFloatExtension::NewInstance(
-        env, &webgl_extension, context->eglContextWrapper_);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  } else if (strcmp(extension_name.c_str(), "WEBGL_lose_context") == 0 &&
-             WebGL_LoseContextExtension::IsSupported(
-                 context->eglContextWrapper_)) {
-    nstatus = WebGL_LoseContextExtension::NewInstance(
-        env, &webgl_extension, context->eglContextWrapper_);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  } else if (strcmp(extension_name.c_str(), "OES_texture_half_float") == 0 &&
-             WebGL_OESTextureHalfFloatExtension::IsSupported(
-                 context->eglContextWrapper_)) {
+  if (strcmp(name, "EXT_blend_minmax") == 0 &&
+      WebGL_EXTBlendMinmaxExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTBlendMinmaxExtension::NewInstance(env, &webgl_extension,
+                                                         egl_ctx);
+  } else if ((strcmp(name, "EXT_color_buffer_float") == 0 ||
+              strcmp(name, "WEBGL_color_buffer_float") == 0) &&
+             WebGL_EXTColorBufferFloat::IsSupported(egl_ctx)) {
+    nstatus =
+        WebGL_EXTColorBufferFloat::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "EXT_color_buffer_half_float") == 0 &&
+             WebGL_EXTColorBufferHalfFloat::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTColorBufferHalfFloat::NewInstance(env, &webgl_extension,
+                                                         egl_ctx);
+  } else if (strcmp(name, "EXT_frag_depth") == 0 &&
+             WebGL_EXTFragDepthExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTFragDepthExtension::NewInstance(env, &webgl_extension,
+                                                       egl_ctx);
+  } else if (strcmp(name, "EXT_sRGB") == 0 &&
+             WebGL_EXTSRGB::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTSRGB::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "EXT_shader_texture_lod") == 0 &&
+             WebGL_EXTShaderTextureLod::IsSupported(egl_ctx)) {
+    nstatus =
+        WebGL_EXTShaderTextureLod::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "EXT_texture_filter_anisotropic") == 0 &&
+             WebGL_EXTTextureFilterAnisotropic::IsSupported(egl_ctx)) {
+    nstatus = WebGL_EXTTextureFilterAnisotropic::NewInstance(
+        env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "OES_texture_float") == 0 &&
+             WebGL_OESTextureFloatExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_OESTextureFloatExtension::NewInstance(env, &webgl_extension,
+                                                          egl_ctx);
+  } else if (strcmp(name, "WEBGL_debug_renderer_info") == 0 &&
+             WebGL_DebugRendererInfoExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_DebugRendererInfoExtension::NewInstance(
+        env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "WEBGL_depth_texture") == 0 &&
+             WebGL_DepthTextureExtension::IsSupported(egl_ctx)) {
+    nstatus = WebGL_DepthTextureExtension::NewInstance(env, &webgl_extension,
+                                                       egl_ctx);
+  } else if (strcmp(name, "WEBGL_lose_context") == 0 &&
+             WebGL_LoseContextExtension::IsSupported(egl_ctx)) {
+    nstatus =
+        WebGL_LoseContextExtension::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "OES_texture_half_float") == 0 &&
+             WebGL_OESTextureHalfFloatExtension::IsSupported(egl_ctx)) {
     nstatus = WebGL_OESTextureHalfFloatExtension::NewInstance(
-        env, &webgl_extension, context->eglContextWrapper_);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+        env, &webgl_extension, egl_ctx);
   } else {
     NAPI_THROW_ERROR(env, "Unsupported extension");
+    nstatus = napi_invalid_arg;
   }
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
   context->CheckForErrors();
