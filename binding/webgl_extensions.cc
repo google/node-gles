@@ -74,6 +74,54 @@ napi_status WebGLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
+// WebGL_DebugRendererInfoExtension
+
+napi_ref WebGL_DebugRendererInfoExtension::constructor_ref_;
+
+WebGL_DebugRendererInfoExtension::WebGL_DebugRendererInfoExtension(napi_env env)
+    : WebGLExtensionBase(env) {}
+
+/* static */
+bool WebGL_DebugRendererInfoExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  return true;
+}
+
+/* static */
+napi_status WebGL_DebugRendererInfoExtension::Register(napi_env env,
+                                                       napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_VENDOR, "UNMASKED_VENDOR_WEBGL"),
+      NapiDefineIntProperty(env, GL_RENDERER, "UNMASKED_RENDERER_WEBGL")};
+
+  napi_value ctor_value;
+  nstatus =
+      napi_define_class(env, "WEBGL_debug_renderer_info", NAPI_AUTO_LENGTH,
+                        WebGLExtensionBase::InitStubClass, nullptr,
+                        ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGL_DebugRendererInfoExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+//==============================================================================
 // WebGL_DepthTextureExtension
 
 napi_ref WebGL_DepthTextureExtension::constructor_ref_;

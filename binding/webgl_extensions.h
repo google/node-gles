@@ -61,6 +61,16 @@ class WebGLExtensionBase {
   napi_ref ref_;
 };
 
+// Provides 'WEBGL_debug_renderer_info':
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_debug_renderer_info/
+class WebGL_DebugRendererInfoExtension : public WebGLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGL_DebugRendererInfoExtension(napi_env env);
+  virtual ~WebGL_DebugRendererInfoExtension() {}
+};
+
 // Provides 'WEBGL_depth_texture':
 // https://www.khronos.org/registry/webgl/extensions/WEBGL_depth_texture/
 class WebGL_DepthTextureExtension : public WebGLExtensionBase {
