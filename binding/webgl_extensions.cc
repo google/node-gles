@@ -415,6 +415,52 @@ napi_status EXTTextureFilterAnisotropicExtension::NewInstance(
 }
 
 //==============================================================================
+// OESElementIndexUintExtension
+
+napi_ref OESElementIndexUintExtension::constructor_ref_;
+
+OESElementIndexUintExtension::OESElementIndexUintExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESElementIndexUintExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_element_index_uint");
+}
+
+/* static */
+napi_status OESElementIndexUintExtension::Register(napi_env env,
+                                                   napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_element_index_uint", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 2, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESElementIndexUintExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_element_index_uint");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
 // OESStandardDerivativesExtension
 
 napi_ref OESStandardDerivativesExtension::constructor_ref_;

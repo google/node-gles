@@ -385,7 +385,6 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 // getExtension(extensionName: "WEBGL_debug_shaders"): WEBGL_debug_shaders | null;
 // getExtension(extensionName: "WEBGL_draw_buffers"): WEBGL_draw_buffers | null;
 // getExtension(extensionName: "WEBGL_compressed_texture_s3tc"): WEBGL_compressed_texture_s3tc | null;
-// getExtension(extensionName: "OES_element_index_uint"): OES_element_index_uint | null;
 // getExtension(extensionName: "ANGLE_instanced_arrays"): ANGLE_instanced_arrays | null;
 // getExtension(extensionName: string): any;
       NAPI_DEFINE_METHOD("getFramebufferAttachmentParameter", GetFramebufferAttachmentParameter),
@@ -2296,6 +2295,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
              EXTTextureFilterAnisotropicExtension::IsSupported(egl_ctx)) {
     nstatus = EXTTextureFilterAnisotropicExtension::NewInstance(
         env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "OES_element_index_uint") == 0 &&
+             OESElementIndexUintExtension::IsSupported(egl_ctx)) {
+    nstatus = OESElementIndexUintExtension::NewInstance(env, &webgl_extension,
+                                                        egl_ctx);
   } else if (strcmp(name, "OES_standard_derivatives") == 0 &&
              OESStandardDerivativesExtension::IsSupported(egl_ctx)) {
     nstatus = OESStandardDerivativesExtension::NewInstance(

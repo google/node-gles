@@ -131,6 +131,16 @@ class EXTTextureFilterAnisotropicExtension : public GLExtensionBase {
   virtual ~EXTTextureFilterAnisotropicExtension() {}
 };
 
+// Provides 'OES_element_index_uint':
+// https://www.khronos.org/registry/webgl/extensions/OES_element_index_uint/
+class OESElementIndexUintExtension : public GLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  OESElementIndexUintExtension(napi_env env);
+  virtual ~OESElementIndexUintExtension() {}
+};
+
 // Provides 'OES_standard_derivatives':
 // https://www.khronos.org/registry/webgl/extensions/OES_standard_derivatives/
 class OESStandardDerivativesExtension : public GLExtensionBase {
