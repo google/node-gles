@@ -124,19 +124,22 @@ napi_status EXTBlendMinmaxExtension::NewInstance(
 }
 
 //==============================================================================
-// EXTColorBufferFloat
+// EXTColorBufferFloatExtension
 
-napi_ref EXTColorBufferFloat::constructor_ref_;
+napi_ref EXTColorBufferFloatExtension::constructor_ref_;
 
-EXTColorBufferFloat::EXTColorBufferFloat(napi_env env) : GLExtensionBase(env) {}
+EXTColorBufferFloatExtension::EXTColorBufferFloatExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool EXTColorBufferFloat::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+bool EXTColorBufferFloatExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_float");
 }
 
 /* static */
-napi_status EXTColorBufferFloat::Register(napi_env env, napi_value exports) {
+napi_status EXTColorBufferFloatExtension::Register(napi_env env,
+                                                   napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -152,7 +155,7 @@ napi_status EXTColorBufferFloat::Register(napi_env env, napi_value exports) {
 }
 
 /* static */
-napi_status EXTColorBufferFloat::NewInstance(
+napi_status EXTColorBufferFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -167,22 +170,22 @@ napi_status EXTColorBufferFloat::NewInstance(
 }
 
 //==============================================================================
-// EXTColorBufferHalfFloat
+// EXTColorBufferHalfFloatExtension
 
-napi_ref EXTColorBufferHalfFloat::constructor_ref_;
+napi_ref EXTColorBufferHalfFloatExtension::constructor_ref_;
 
-EXTColorBufferHalfFloat::EXTColorBufferHalfFloat(napi_env env)
+EXTColorBufferHalfFloatExtension::EXTColorBufferHalfFloatExtension(napi_env env)
     : GLExtensionBase(env) {}
 
 /* static */
-bool EXTColorBufferHalfFloat::IsSupported(
+bool EXTColorBufferHalfFloatExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_color_buffer_half_float");
 }
 
 /* static */
-napi_status EXTColorBufferHalfFloat::Register(napi_env env,
-                                              napi_value exports) {
+napi_status EXTColorBufferHalfFloatExtension::Register(napi_env env,
+                                                       napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -198,7 +201,7 @@ napi_status EXTColorBufferHalfFloat::Register(napi_env env,
 }
 
 /* static */
-napi_status EXTColorBufferHalfFloat::NewInstance(
+napi_status EXTColorBufferHalfFloatExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -259,19 +262,22 @@ napi_status EXTFragDepthExtension::NewInstance(
 }
 
 //==============================================================================
-// EXTShaderTextureLod
+// EXTShaderTextureLodExtension
 
-napi_ref EXTShaderTextureLod::constructor_ref_;
+napi_ref EXTShaderTextureLodExtension::constructor_ref_;
 
-EXTShaderTextureLod::EXTShaderTextureLod(napi_env env) : GLExtensionBase(env) {}
+EXTShaderTextureLodExtension::EXTShaderTextureLodExtension(napi_env env)
+    : GLExtensionBase(env) {}
 
 /* static */
-bool EXTShaderTextureLod::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+bool EXTShaderTextureLodExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_shader_texture_lod");
 }
 
 /* static */
-napi_status EXTShaderTextureLod::Register(napi_env env, napi_value exports) {
+napi_status EXTShaderTextureLodExtension::Register(napi_env env,
+                                                   napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
@@ -287,7 +293,7 @@ napi_status EXTShaderTextureLod::Register(napi_env env, napi_value exports) {
 }
 
 /* static */
-napi_status EXTShaderTextureLod::NewInstance(
+napi_status EXTShaderTextureLodExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -302,19 +308,19 @@ napi_status EXTShaderTextureLod::NewInstance(
 }
 
 //==============================================================================
-// EXTSRGB
+// EXTSRGBExtension
 
-napi_ref EXTSRGB::constructor_ref_;
+napi_ref EXTSRGBExtension::constructor_ref_;
 
-EXTSRGB::EXTSRGB(napi_env env) : GLExtensionBase(env) {}
+EXTSRGBExtension::EXTSRGBExtension(napi_env env) : GLExtensionBase(env) {}
 
 /* static */
-bool EXTSRGB::IsSupported(EGLContextWrapper* egl_context_wrapper) {
+bool EXTSRGBExtension::IsSupported(EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_sRGB");
 }
 
 /* static */
-napi_status EXTSRGB::Register(napi_env env, napi_value exports) {
+napi_status EXTSRGBExtension::Register(napi_env env, napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -338,8 +344,9 @@ napi_status EXTSRGB::Register(napi_env env, napi_value exports) {
 }
 
 /* static */
-napi_status EXTSRGB::NewInstance(napi_env env, napi_value* instance,
-                                 EGLContextWrapper* egl_context_wrapper) {
+napi_status EXTSRGBExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
 
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
@@ -352,22 +359,23 @@ napi_status EXTSRGB::NewInstance(napi_env env, napi_value* instance,
 }
 
 //==============================================================================
-// EXTTextureFilterAnisotropic
+// EXTTextureFilterAnisotropicExtension
 
-napi_ref EXTTextureFilterAnisotropic::constructor_ref_;
+napi_ref EXTTextureFilterAnisotropicExtension::constructor_ref_;
 
-EXTTextureFilterAnisotropic::EXTTextureFilterAnisotropic(napi_env env)
+EXTTextureFilterAnisotropicExtension::EXTTextureFilterAnisotropicExtension(
+    napi_env env)
     : GLExtensionBase(env) {}
 
 /* static */
-bool EXTTextureFilterAnisotropic::IsSupported(
+bool EXTTextureFilterAnisotropicExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_EXT_texture_filter_anisotropic");
 }
 
 /* static */
-napi_status EXTTextureFilterAnisotropic::Register(napi_env env,
-                                                  napi_value exports) {
+napi_status EXTTextureFilterAnisotropicExtension::Register(napi_env env,
+                                                           napi_value exports) {
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
@@ -391,7 +399,7 @@ napi_status EXTTextureFilterAnisotropic::Register(napi_env env,
 }
 
 /* static */
-napi_status EXTTextureFilterAnisotropic::NewInstance(
+napi_status EXTTextureFilterAnisotropicExtension::NewInstance(
     napi_env env, napi_value* instance,
     EGLContextWrapper* egl_context_wrapper) {
   ENSURE_EXTENSION_IS_SUPPORTED
@@ -401,6 +409,102 @@ napi_status EXTTextureFilterAnisotropic::NewInstance(
 
   egl_context_wrapper->glRequestExtensionANGLE(
       "GL_EXT_texture_filter_anisotropic");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
+// OESElementIndexUintExtension
+
+napi_ref OESElementIndexUintExtension::constructor_ref_;
+
+OESElementIndexUintExtension::OESElementIndexUintExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESElementIndexUintExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_element_index_uint");
+}
+
+/* static */
+napi_status OESElementIndexUintExtension::Register(napi_env env,
+                                                   napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_element_index_uint", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 2, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESElementIndexUintExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_element_index_uint");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+//==============================================================================
+// OESStandardDerivativesExtension
+
+napi_ref OESStandardDerivativesExtension::constructor_ref_;
+
+OESStandardDerivativesExtension::OESStandardDerivativesExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESStandardDerivativesExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_standard_derivatives");
+}
+
+/* static */
+napi_status OESStandardDerivativesExtension::Register(napi_env env,
+                                                      napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES,
+                            "FRAGMENT_SHADER_DERIVATIVE_HINT_OES")};
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_standard_derivatives", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 2, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESStandardDerivativesExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_standard_derivatives");
   egl_context_wrapper->RefreshGLExtensions();
 
   return napi_ok;
@@ -457,6 +561,51 @@ napi_status OESTextureFloatExtension::NewInstance(
 }
 
 //==============================================================================
+// OESTextureFloatLinearExtension
+
+napi_ref OESTextureFloatLinearExtension::constructor_ref_;
+
+OESTextureFloatLinearExtension::OESTextureFloatLinearExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESTextureFloatLinearExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_float_linear");
+}
+
+/* static */
+napi_status OESTextureFloatLinearExtension::Register(napi_env env,
+                                                     napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_float_linear", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESTextureFloatLinearExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_OES_texture_float_linear");
+  egl_context_wrapper->RefreshGLExtensions();
+  return napi_ok;
+}
+
+//==============================================================================
 // OESTextureHalfFloatExtension
 
 napi_ref OESTextureHalfFloatExtension::constructor_ref_;
@@ -507,6 +656,53 @@ napi_status OESTextureHalfFloatExtension::NewInstance(
         "GL_EXT_color_buffer_half_float");
   }
 
+  egl_context_wrapper->RefreshGLExtensions();
+  return napi_ok;
+}
+
+//==============================================================================
+// OESTextureHalfFloatLinearExtension
+
+napi_ref OESTextureHalfFloatLinearExtension::constructor_ref_;
+
+OESTextureHalfFloatLinearExtension::OESTextureHalfFloatLinearExtension(
+    napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool OESTextureHalfFloatLinearExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_OES_texture_half_float_linear");
+}
+
+/* static */
+napi_status OESTextureHalfFloatLinearExtension::Register(napi_env env,
+                                                         napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "OES_texture_half_float_linear",
+                              NAPI_AUTO_LENGTH, GLExtensionBase::InitStubClass,
+                              nullptr, 0, nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status OESTextureHalfFloatLinearExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE(
+      "GL_OES_texture_half_float_linear");
   egl_context_wrapper->RefreshGLExtensions();
   return napi_ok;
 }

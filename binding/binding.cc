@@ -34,14 +34,18 @@ static napi_value CreateWebGLRenderingContext(napi_env env,
 
 static napi_value InitBinding(napi_env env, napi_value exports) {
   EXTBlendMinmaxExtension::Register(env, exports);
-  EXTColorBufferFloat::Register(env, exports);
-  EXTColorBufferHalfFloat::Register(env, exports);
+  EXTColorBufferFloatExtension::Register(env, exports);
+  EXTColorBufferHalfFloatExtension::Register(env, exports);
   EXTFragDepthExtension::Register(env, exports);
-  EXTShaderTextureLod::Register(env, exports);
-  EXTSRGB::Register(env, exports);
-  EXTTextureFilterAnisotropic::Register(env, exports);
+  EXTShaderTextureLodExtension::Register(env, exports);
+  EXTSRGBExtension::Register(env, exports);
+  EXTTextureFilterAnisotropicExtension::Register(env, exports);
+  OESElementIndexUintExtension::Register(env, exports);
+  OESStandardDerivativesExtension::Register(env, exports);
   OESTextureFloatExtension::Register(env, exports);
+  OESTextureFloatLinearExtension::Register(env, exports);
   OESTextureHalfFloatExtension::Register(env, exports);
+  OESTextureHalfFloatLinearExtension::Register(env, exports);
   WebGLDebugRendererInfoExtension::Register(env, exports);
   WebGLDepthTextureExtension::Register(env, exports);
   WebGLLoseContextExtension::Register(env, exports);
