@@ -2297,9 +2297,9 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   } else if (strcmp(extension_name.c_str(), "EXT_texture_filter_anisotropic") &&
              WebGL_EXTTextureFilterAnisotropic::IsSupported(
                  context->eglContextWrapper_)) {
-    //
-    // TODO(kreeger): Left off right here.
-    //
+    nstatus = WebGL_EXTTextureFilterAnisotropic::NewInstance(
+        env, &webgl_extension, context->eglContextWrapper_);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   } else if (strcmp(extension_name.c_str(), "OES_texture_float") == 0 &&
              WebGL_OESTextureFloatExtension::IsSupported(
                  context->eglContextWrapper_)) {
