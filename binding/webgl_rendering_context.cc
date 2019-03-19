@@ -20,10 +20,9 @@
 #include "utils.h"
 #include "webgl_extensions.h"
 
-// TODO(kreeger): Fix this when angle is linked/imported.
-#include <GLES2/gl2.h>
-#include <GLES3/gl3.h>
-#include <GLES3/gl32.h>
+#include "angle/include/GLES2/gl2.h"
+#include "angle/include/GLES3/gl3.h"
+#include "angle/include/GLES3/gl32.h"
 
 #include <cstring>
 #include <iostream>

@@ -17,8 +17,8 @@
 
 #include "webgl_extensions.h"
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include "angle/include/GLES2/gl2.h"
+#include "angle/include/GLES2/gl2ext.h"
 
 #include "utils.h"
 

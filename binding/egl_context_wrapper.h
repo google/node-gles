@@ -20,6 +20,9 @@
 
 #include <node_api.h>
 
+// Use generated EGL includes from ANGLE:
+#define EGL_EGL_PROTOTYPES 1
+
 #include "angle/include/EGL/egl.h"
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES2/gl2ext.h"
