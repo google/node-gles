@@ -29,7 +29,7 @@
     ],
     'include_dirs' : [
       '..',
-      '<(module_root_dir)/deps/angle/include'
+      '<(module_root_dir)/deps'
     ],
     'conditions' : [
       [
