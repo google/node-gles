@@ -22,4 +22,5 @@ const arch = `${os.platform()}-${os.arch().toLowerCase()}`;
 console.log('platform: ' + arch);
 console.log('-----------');
 
+// > ninja -C out/Release libGLESv2 libEGL
 // > tar -czvf angle-darwin-x64.tar.gz angle/out/Release/*.dylib angle/include/
