@@ -36,7 +36,7 @@ const platformArch = `${platform}-${os.arch().toLowerCase()}`;
 let ANGLE_BINARY_URI = 'https://storage.googleapis.com/angle-builds/';
 if (platform === 'darwin') {
   // TODO(add debug flag?)
-  ANGLE_BINARY_URI += `angle-3683-${platformArch}.tar.gz`;
+  ANGLE_BINARY_URI += `angle-3729-${platformArch}.tar.gz`;
 } else if (platform === 'linux') {
   // TODO(add debug flag?)
   ANGLE_BINARY_URI += `angle-3729-${platformArch}.tar.gz`;
