@@ -744,6 +744,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NapiDefineIntProperty(env, GL_STENCIL_VALUE_MASK, "STENCIL_VALUE_MASK"),
       NapiDefineIntProperty(env, GL_STENCIL_WRITEMASK, "STENCIL_WRITEMASK"),
       NapiDefineIntProperty(env, GL_STREAM_DRAW, "STREAM_DRAW"),
+      NapiDefineIntProperty(env, GL_STREAM_READ, "STREAM_READ"),
       NapiDefineIntProperty(env, GL_SUBPIXEL_BITS, "SUBPIXEL_BITS"),
       NapiDefineIntProperty(env, GL_TEXTURE, "TEXTURE"),
       NapiDefineIntProperty(env, GL_TEXTURE0, "TEXTURE0"),
