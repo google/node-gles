@@ -1167,14 +1167,29 @@ napi_value WebGLRenderingContext::BufferData(napi_env env,
   nstatus = napi_get_value_uint32(env, args[0], &target);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
+  // WebGL1 allows for an option of target, size, and usage w/o supplying
+  // call of data.
+  // Validate arg 1 type:
+  napi_valuetype arg_type;
+  nstatus = napi_typeof(env, args[1], &arg_type);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  void *data = nullptr;
+  uint32_t length;
+  if (arg_type == napi_number) {
+    nstatus = napi_get_value_uint32(env, args[1], &length);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else {
+    size_t length_t;
+    nstatus = GetArrayLikeBuffer(env, args[1], &data, &length_t);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    length = length_t;
+  }
+
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
   GLenum usage;
   nstatus = napi_get_value_uint32(env, args[2], &usage);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  void *data;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glBufferData(target, length, data, usage);
