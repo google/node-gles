@@ -92,7 +92,7 @@ class WebGLRenderingContext {
   static napi_value Enable(napi_env env, napi_callback_info info);
   static napi_value EnableVertexAttribArray(napi_env env,
                                             napi_callback_info info);
-  static napi_value FencySync(napi_env env, napi_callback_info info);
+  static napi_value FenceSynce(napi_env env, napi_callback_info info);
   // TODO(kreeger): Check alignment in CC file here
   static napi_value Finish(napi_env env, napi_callback_info info);
   static napi_value Flush(napi_env env, napi_callback_info info);
