@@ -3541,7 +3541,16 @@ napi_value WebGLRenderingContext::ReadPixels(napi_env env,
 
   void *data = nullptr;
   nstatus = GetArrayLikeBuffer(env, args[6], &data, nullptr);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  if (nstatus != napi_ok) {
+    napi_valuetype value_type;
+    nstatus = napi_typeof(env, args[6], &value_type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    if (value_type != napi_number) {
+      NAPI_THROW_ERROR(env, "Invalid value passed for data buffer");
+      return nullptr;
+    }
+  }
 
   context->eglContextWrapper_->glReadPixels(x, y, width, height, format, type,
                                             data);
