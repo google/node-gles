@@ -26,6 +26,7 @@
 #include "angle/include/EGL/egl.h"
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES2/gl2ext.h"
+#include "angle/include/GLES3/gl3.h"
 
 #include <iostream>
 #include <memory>
@@ -133,6 +134,7 @@ class EGLContextWrapper {
   PFNGLDRAWELEMENTSPROC glDrawElements;
   PFNGLENABLEPROC glEnable;
   PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+  PFNGLFENCESYNCPROC glFenceSync;
   PFNGLFINISHPROC glFinish;
   PFNGLFLUSHPROC glFlush;
   PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;

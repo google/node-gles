@@ -2190,6 +2190,28 @@ napi_value WebGLRenderingContext::EnableVertexAttribArray(
 }
 
 /* static */
+napi_value WebGLRenderingContext::FenceSynce(napi_env env,
+                                             napi_callback_info info) {
+  LOG_CALL("FenceSync");
+
+  WebGLRenderingContext *context = nullptr;
+
+  uint32_t args[2];
+  napi_status nstatus = GetContextUint32Params(env, info, &context, 2, args);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  //
+  // TODO(kreeger): Left off right here - need fence synce.
+  //
+  context->eglContextWrapper_->glFenceSync(args[0], args[1]);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+/* static */
 napi_value WebGLRenderingContext::Finish(napi_env env,
                                          napi_callback_info info) {
   LOG_CALL("Finish");

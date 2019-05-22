@@ -256,6 +256,8 @@ void EGLContextWrapper::BindProcAddresses() {
   glEnableVertexAttribArray =
       reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(
           eglGetProcAddress("glEnableVertexAttribArray"));
+  glFenceSync =
+      reinterpret_cast<PFNGLFENCESYNCPROC>(eglGetProcAddress("glFenceSync"));
   glFinish = reinterpret_cast<PFNGLFINISHPROC>(eglGetProcAddress("glFinish"));
   glFlush = reinterpret_cast<PFNGLFLUSHPROC>(eglGetProcAddress("glFlush"));
   glFramebufferRenderbuffer =
