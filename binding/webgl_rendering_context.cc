@@ -19,6 +19,7 @@
 
 #include "utils.h"
 #include "webgl_extensions.h"
+#include "webgl_sync.h"
 
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES3/gl3.h"
@@ -2200,15 +2201,18 @@ napi_value WebGLRenderingContext::FenceSynce(napi_env env,
   napi_status nstatus = GetContextUint32Params(env, info, &context, 2, args);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  //
-  // TODO(kreeger): Left off right here - need fence synce.
-  //
-  context->eglContextWrapper_->glFenceSync(args[0], args[1]);
+  GLsync sync = context->eglContextWrapper_->glFenceSync(args[0], args[1]);
+
+  // TODO - wrap sync object.
+
+  napi_value sync_value;
+  nstatus = WrapGLsync(env, sync, context->eglContextWrapper_, &sync_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
   context->CheckForErrors();
 #endif
-  return nullptr;
+  return sync_value;
 }
 
 /* static */
