@@ -27,6 +27,7 @@ void Cleanup(napi_env env, void* native, void* hint) {
 
   egl_context_wrapper->glDeleteSync(sync);
 #if DEBUG
+  // TODO(kreeger): Fix this.
   /* context->CheckForErrors(); */
 #endif
 }

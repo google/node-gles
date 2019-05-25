@@ -2259,8 +2259,6 @@ napi_value WebGLRenderingContext::FenceSynce(napi_env env,
 
   GLsync sync = context->eglContextWrapper_->glFenceSync(args[0], args[1]);
 
-  // TODO - wrap sync object.
-
   napi_value sync_value;
   nstatus = WrapGLsync(env, sync, context->eglContextWrapper_, &sync_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -2873,8 +2871,6 @@ napi_value WebGLRenderingContext::GetBufferSubData(napi_env env,
                                                    napi_callback_info info) {
   napi_status nstatus;
 
-  // TODO(kreeger): Looks like I need to use getBufferSubData instead...
-
   // TODO(kreeger): This method requires 3 - but takes upto 5 args.
   size_t argc = 3;
   napi_value args[3];
@@ -2904,13 +2900,18 @@ napi_value WebGLRenderingContext::GetBufferSubData(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  // Does not exist.
-  /* context->eglContextWrapper_->glGetBufferSubData(target, offset, length,
-   * data); */
-
+  void *buffer = context->eglContextWrapper_->glMapBufferRange(
+      target, offset, length, GL_MAP_READ_BIT);
 #if DEBUG
   context->CheckForErrors();
 #endif
+  memcpy(data, buffer, length);
+
+  context->eglContextWrapper_->glUnmapBuffer(target);
+#if DEBUG
+  context->CheckForErrors();
+#endif
+
   return nullptr;
 }
 

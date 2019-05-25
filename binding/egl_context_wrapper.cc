@@ -283,8 +283,6 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetAttribLocation"));
   glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(
       eglGetProcAddress("glGetBufferParameteriv"));
-  /* glGetBufferSubData = reinterpret_cast<PFNGLGETBUFFERSUBDATAPROC>( */
-  /*     eglGetProcAddress("glGetBufferSubData")); */
   glGetError =
       reinterpret_cast<PFNGLGETERRORPROC>(eglGetProcAddress("glGetError"));
   glGetFramebufferAttachmentParameteriv =
@@ -341,6 +339,8 @@ void EGLContextWrapper::BindProcAddresses() {
       reinterpret_cast<PFNGLLINEWIDTHPROC>(eglGetProcAddress("glLineWidth"));
   glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(
       eglGetProcAddress("glLinkProgram"));
+  glMapBufferRange = reinterpret_cast<PFNGLMAPBUFFERRANGEPROC>(
+      eglGetProcAddress("glMapBufferRange"));
   glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(
       eglGetProcAddress("glPixelStorei"));
   glPolygonOffset = reinterpret_cast<PFNGLPOLYGONOFFSETPROC>(
@@ -413,6 +413,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glUniformMatrix3fv"));
   glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(
       eglGetProcAddress("glUniformMatrix4fv"));
+  glUnmapBuffer = reinterpret_cast<PFNGLUNMAPBUFFERPROC>(
+      eglGetProcAddress("glUnmapBuffer"));
   glUseProgram =
       reinterpret_cast<PFNGLUSEPROGRAMPROC>(eglGetProcAddress("glUseProgram"));
   glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(
