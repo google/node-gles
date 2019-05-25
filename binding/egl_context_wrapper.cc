@@ -204,6 +204,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glClearDepthf"));
   glClearStencil = reinterpret_cast<PFNGLCLEARSTENCILPROC>(
       eglGetProcAddress("glClearStencil"));
+  glClientWaitSync = reinterpret_cast<PFNGLCLIENTWAITSYNCPROC>(
+      eglGetProcAddress("glClientWaitSync"));
   glColorMask =
       reinterpret_cast<PFNGLCOLORMASKPROC>(eglGetProcAddress("glColorMask"));
   glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(
@@ -281,6 +283,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glGetAttribLocation"));
   glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(
       eglGetProcAddress("glGetBufferParameteriv"));
+  /* glGetBufferSubData = reinterpret_cast<PFNGLGETBUFFERSUBDATAPROC>( */
+  /*     eglGetProcAddress("glGetBufferSubData")); */
   glGetError =
       reinterpret_cast<PFNGLGETERRORPROC>(eglGetProcAddress("glGetError"));
   glGetFramebufferAttachmentParameteriv =

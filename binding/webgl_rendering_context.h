@@ -60,6 +60,7 @@ class WebGLRenderingContext {
   static napi_value ClearColor(napi_env env, napi_callback_info info);
   static napi_value ClearDepth(napi_env env, napi_callback_info info);
   static napi_value ClearStencil(napi_env env, napi_callback_info info);
+  static napi_value ClientWaitSync(napi_env env, napi_callback_info info);
   static napi_value ColorMask(napi_env env, napi_callback_info info);
   static napi_value CompileShader(napi_env env, napi_callback_info info);
   static napi_value CompressedTexImage2D(napi_env env, napi_callback_info info);
@@ -106,6 +107,7 @@ class WebGLRenderingContext {
   static napi_value GetActiveAttrib(napi_env env, napi_callback_info info);
   static napi_value GetActiveUniform(napi_env env, napi_callback_info info);
   static napi_value GetBufferParameter(napi_env env, napi_callback_info info);
+  static napi_value GetBufferSubData(napi_env env, napi_callback_info info);
   static napi_value GetContextAttributes(napi_env env, napi_callback_info info);
   static napi_value GetError(napi_env env, napi_callback_info info);
   static napi_value GetFramebufferAttachmentParameter(napi_env env,

@@ -32,6 +32,10 @@
 #include <memory>
 #include <string>
 
+// TODO(kreeger): Fix this  - it is not in ANGLE.
+// typedef void(GL_APIENTRYP PFNGLGETBUFFERSUBDATAPROC)(GLenum, GLintptr,
+//                                                      GLsizeiptr, GLvoid*);
+
 namespace nodejsgl {
 
 // Provides initialization of EGL/GL context options.
@@ -109,6 +113,7 @@ class EGLContextWrapper {
   PFNGLCLEARCOLORPROC glClearColor;
   PFNGLCLEARDEPTHFPROC glClearDepthf;
   PFNGLCLEARSTENCILPROC glClearStencil;
+  PFNGLCLIENTWAITSYNCPROC glClientWaitSync;
   PFNGLCOLORMASKPROC glColorMask;
   PFNGLCOMPILESHADERPROC glCompileShader;
   PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
@@ -151,6 +156,7 @@ class EGLContextWrapper {
   PFNGLGETATTACHEDSHADERSPROC glGetAttachedShaders;
   PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
   PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
+  /* PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData; */
   PFNGLGETERRORPROC glGetError;
   PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC
   glGetFramebufferAttachmentParameteriv;

@@ -337,6 +337,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("clearColor", ClearColor),
       NAPI_DEFINE_METHOD("clearDepth", ClearDepth),
       NAPI_DEFINE_METHOD("clearStencil", ClearStencil),
+      NAPI_DEFINE_METHOD("clientWaitSync", ClientWaitSync),
       NAPI_DEFINE_METHOD("colorMask", ColorMask),
       NAPI_DEFINE_METHOD("compileShader", CompileShader),
       NAPI_DEFINE_METHOD("compressedTexImage2D", CompressedTexImage2D),
@@ -366,6 +367,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("drawElements", DrawElements),
       NAPI_DEFINE_METHOD("enable", Enable),
       NAPI_DEFINE_METHOD("enableVertexAttribArray", EnableVertexAttribArray),
+      NAPI_DEFINE_METHOD("fenceSync", FenceSynce),
       NAPI_DEFINE_METHOD("finish", Finish),
       NAPI_DEFINE_METHOD("flush", Flush),
       NAPI_DEFINE_METHOD("framebufferRenderbuffer", FramebufferRenderbuffer),
@@ -377,6 +379,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("getAttachedShaders", GetAttachedShaders),
       NAPI_DEFINE_METHOD("getAttribLocation", GetAttribLocation),
       NAPI_DEFINE_METHOD("getBufferParameter", GetBufferParameter),
+      NAPI_DEFINE_METHOD("getBufferSubData", GetBufferSubData),
       NAPI_DEFINE_METHOD("getContextAttributes", GetContextAttributes),
       NAPI_DEFINE_METHOD("getError", GetError),
 // getExtension(extensionName: "OES_vertex_array_object"): OES_vertex_array_object | null;
@@ -844,14 +847,18 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("activeTexture", ActiveTexture),
 
       // WebGL2 attributes:
+      NapiDefineIntProperty(env, GL_CONDITION_SATISFIED, "CONDITION_SATISFIED"),
+      NapiDefineIntProperty(env, GL_ALREADY_SIGNALED, "ALREADY_SIGNALED"),
       NapiDefineIntProperty(env, GL_HALF_FLOAT, "HALF_FLOAT"),
+      NapiDefineIntProperty(env, GL_PIXEL_PACK_BUFFER, "PIXEL_PACK_BUFFER"),
       NapiDefineIntProperty(env, GL_R16F, "R16F"),
       NapiDefineIntProperty(env, GL_R32F, "R32F"),
       NapiDefineIntProperty(env, GL_RGBA16F, "RGBA16F"),
       NapiDefineIntProperty(env, GL_RGBA32F, "RGBA32F"),
       NapiDefineIntProperty(env, GL_RGBA8, "RGBA8"),
       NapiDefineIntProperty(env, GL_RED, "RED"),
-      NapiDefineIntProperty(env, GL_PIXEL_PACK_BUFFER, "PIXEL_PACK_BUFFER"),
+      NapiDefineIntProperty(env, GL_SYNC_GPU_COMMANDS_COMPLETE,
+                            "SYNC_GPU_COMMANDS_COMPLETE"),
   };
 
   // Create constructor
@@ -1361,6 +1368,55 @@ napi_value WebGLRenderingContext::ClearStencil(napi_env env,
   context->CheckForErrors();
 #endif
   return nullptr;
+}
+
+/* static */
+napi_value WebGLRenderingContext::ClientWaitSync(napi_env env,
+                                                 napi_callback_info info) {
+  LOG_CALL("ClientWaitSync");
+
+  napi_status nstatus;
+
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_OBJECT_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+
+  GLsync sync;
+  nstatus = napi_unwrap(env, args[0], reinterpret_cast<void **>(&sync));
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLbitfield flags;
+  nstatus = napi_get_value_uint32(env, args[1], &flags);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // TODO(kreeger): Note that N-API doesn't have uint64 support.
+  uint32_t timeout;
+  nstatus = napi_get_value_uint32(env, args[2], &timeout);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum result =
+      context->eglContextWrapper_->glClientWaitSync(sync, flags, timeout);
+
+  napi_value result_value;
+  nstatus = napi_create_uint32(env, result, &result_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return result_value;
 }
 
 /* static */
@@ -2372,6 +2428,7 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     nstatus =
         WebGLLoseContextExtension::NewInstance(env, &webgl_extension, egl_ctx);
   } else {
+    fprintf(stderr, "Extension: %s\n", name);
     NAPI_THROW_ERROR(env, "Unsupported extension");
     nstatus = napi_invalid_arg;
   }
@@ -2809,6 +2866,52 @@ napi_value WebGLRenderingContext::GetBufferParameter(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   return params_value;
+}
+
+/* static */
+napi_value WebGLRenderingContext::GetBufferSubData(napi_env env,
+                                                   napi_callback_info info) {
+  napi_status nstatus;
+
+  // TODO(kreeger): Looks like I need to use getBufferSubData instead...
+
+  // TODO(kreeger): This method requires 3 - but takes upto 5 args.
+  size_t argc = 3;
+  napi_value args[3];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // N-API does not support signed long ints:
+  uint32_t offset;
+  nstatus = napi_get_value_uint32(env, args[1], &offset);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  size_t length = 0;
+  void *data = nullptr;
+  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  // Does not exist.
+  /* context->eglContextWrapper_->glGetBufferSubData(target, offset, length,
+   * data); */
+
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
 }
 
 /* static */
@@ -3278,7 +3381,7 @@ napi_value WebGLRenderingContext::IsContextLost(napi_env env,
 
   // Headless bindings never lose context:
   napi_value result_value;
-  nstatus = napi_get_boolean(env, true, &result_value);
+  nstatus = napi_get_boolean(env, false, &result_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   return result_value;
