@@ -2280,6 +2280,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   const char *name = extension_name.c_str();
   EGLContextWrapper *egl_ctx = context->eglContextWrapper_;
 
+  //
+  // TODO(kreeger): Implement 'EXT_disjoint_timer_query'
+  //
+
   napi_value webgl_extension = nullptr;
   if (strcmp(name, "EXT_blend_minmax") == 0 &&
       EXTBlendMinmaxExtension::IsSupported(egl_ctx)) {
