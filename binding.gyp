@@ -25,7 +25,8 @@
       'binding/binding.cc',
       'binding/egl_context_wrapper.cc',
       'binding/webgl_extensions.cc',
-      'binding/webgl_rendering_context.cc'
+      'binding/webgl_rendering_context.cc',
+      'binding/webgl_sync.cc'
     ],
     'include_dirs' : [
       '..',

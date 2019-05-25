@@ -26,6 +26,7 @@
 #include "angle/include/EGL/egl.h"
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES2/gl2ext.h"
+#include "angle/include/GLES3/gl3.h"
 
 #include <iostream>
 #include <memory>
@@ -108,6 +109,7 @@ class EGLContextWrapper {
   PFNGLCLEARCOLORPROC glClearColor;
   PFNGLCLEARDEPTHFPROC glClearDepthf;
   PFNGLCLEARSTENCILPROC glClearStencil;
+  PFNGLCLIENTWAITSYNCPROC glClientWaitSync;
   PFNGLCOLORMASKPROC glColorMask;
   PFNGLCOMPILESHADERPROC glCompileShader;
   PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
@@ -122,6 +124,7 @@ class EGLContextWrapper {
   PFNGLDELETEPROGRAMPROC glDeleteProgram;
   PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers;
   PFNGLDELETESHADERPROC glDeleteShader;
+  PFNGLDELETESYNCPROC glDeleteSync;
   PFNGLDELETETEXTURESPROC glDeleteTextures;
   PFNGLDEPTHFUNCPROC glDepthFunc;
   PFNGLDEPTHMASKPROC glDepthMask;
@@ -133,6 +136,7 @@ class EGLContextWrapper {
   PFNGLDRAWELEMENTSPROC glDrawElements;
   PFNGLENABLEPROC glEnable;
   PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+  PFNGLFENCESYNCPROC glFenceSync;
   PFNGLFINISHPROC glFinish;
   PFNGLFLUSHPROC glFlush;
   PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
@@ -148,6 +152,7 @@ class EGLContextWrapper {
   PFNGLGETATTACHEDSHADERSPROC glGetAttachedShaders;
   PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
   PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
+  /* PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData; */
   PFNGLGETERRORPROC glGetError;
   PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC
   glGetFramebufferAttachmentParameteriv;
@@ -172,6 +177,7 @@ class EGLContextWrapper {
   PFNGLISTEXTUREPROC glIsTexture;
   PFNGLLINEWIDTHPROC glLineWidth;
   PFNGLLINKPROGRAMPROC glLinkProgram;
+  PFNGLMAPBUFFERRANGEPROC glMapBufferRange;
   PFNGLPIXELSTOREIPROC glPixelStorei;
   PFNGLPOLYGONOFFSETPROC glPolygonOffset;
   PFNGLREADPIXELSPROC glReadPixels;
@@ -208,6 +214,7 @@ class EGLContextWrapper {
   PFNGLUNIFORMMATRIX2FVPROC glUniformMatrix2fv;
   PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv;
   PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+  PFNGLUNMAPBUFFERPROC glUnmapBuffer;
   PFNGLUSEPROGRAMPROC glUseProgram;
   PFNGLVALIDATEPROGRAMPROC glValidateProgram;
   PFNGLVERTEXATTRIB1FPROC glVertexAttrib1f;
