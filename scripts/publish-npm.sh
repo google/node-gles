@@ -29,18 +29,18 @@ set -e
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 ORIGIN=`git config --get remote.origin.url`
 
-if [ "$BRANCH" != "master" ]; then
-  echo "Error: Switch to the master branch before publishing."
-  exit
-fi
+# if [ "$BRANCH" != "master" ]; then
+#   echo "Error: Switch to the master branch before publishing."
+#   exit
+# fi
 
-if ! [[ "$ORIGIN" =~ google/node-gles ]]; then
-  echo "Error: Switch to the main repo (google/node-gles) before publishing."
-  exit
-fi
+# if ! [[ "$ORIGIN" =~ google/node-gles ]]; then
+#   echo "Error: Switch to the main repo (google/node-gles) before publishing."
+#   exit
+# fi
 
 yarn build-npm
-./scripts/make-version # This is for safety in case you forgot to do 2).
-npm publish
-./scripts/tag-version
+# ./scripts/make-version # This is for safety in case you forgot to do 2).
+# npm publish
+# ./scripts/tag-version
 echo 'Yay! Published a new package to npm.'

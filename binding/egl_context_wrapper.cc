@@ -33,13 +33,13 @@ EGLContextWrapper::EGLContextWrapper(napi_env env,
   RefreshGLExtensions();
 
 #if DEBUG
-  std::cerr << "** GL_EXTENSIONS:" << std::endl;
-  gl_extensions->LogExtensions();
-  std::cerr << std::endl;
+  // std::cerr << "** GL_EXTENSIONS:" << std::endl;
+  // gl_extensions->LogExtensions();
+  // std::cerr << std::endl;
 
-  std::cerr << "** REQUESTABLE_EXTENSIONS:" << std::endl;
-  angle_requestable_extensions->LogExtensions();
-  std::cerr << std::endl;
+  // std::cerr << "** REQUESTABLE_EXTENSIONS:" << std::endl;
+  // angle_requestable_extensions->LogExtensions();
+  // std::cerr << std::endl;
 #endif
 }
 

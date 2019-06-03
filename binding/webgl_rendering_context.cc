@@ -3829,25 +3829,118 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
 
   napi_status nstatus;
 
+  //
+  // TODO(kreeger): Optional takes 6 instead of 9...
+  //
+
+  /*
+  gl.texImage2D(
+            gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pixels));
+            */
+
   size_t argc = 9;
   napi_value args[9];
   napi_value js_this;
   nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 9, nullptr);
 
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[5], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[6], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[7], nullptr);
+  GLsizei width;
+  GLsizei height;
+  GLsizei border;
+  GLenum format;
+  GLint type;
+  void *data = nullptr;
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  if (argc == 6) {
+    std::cerr << "... fallback - check for obj\n";
+
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+    ENSURE_VALUE_IS_OBJECT_RETVAL(env, args[5], nullptr);
+
+    /*
+            () => gl.texImage2D(
+            gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+            pixels as ImageData | HTMLImageElement | HTMLCanvasElement |
+                HTMLVideoElement));
+                */
+
+    nstatus = napi_get_value_uint32(env, args[3], &format);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[4], &type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_value width_value;
+    nstatus = napi_get_named_property(env, args[5], "width", &width_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, width_value, &width);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_value height_value;
+    nstatus = napi_get_named_property(env, args[5], "height", &height_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, height_value, &height);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    // Border always is zero (for now)?
+    border = 0;
+
+    std::cerr << "WIDTH: " << width << ", HEIGHT: " << height << std::endl;
+    // nstatus = napi_get_prototype()
+
+    // Next - extract image data.... bytes
+
+    NAPI_THROW_ERROR(env, "END DEBUG FOR NOW");
+
+    // TODO - verify   //
+    // https://cs.corp.google.com/eureka_internal/chromium/src/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc?l=5654
+  } else {
+    // If argc is not 6, it should match arguments for OpenGL ES API.
+    ENSURE_ARGC_RETVAL(env, argc, 9, nullptr);
+
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[5], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[6], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[7], nullptr);
+
+    nstatus = napi_get_value_int32(env, args[3], &width);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[4], &height);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[5], &border);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_uint32(env, args[6], &format);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[7], &type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_valuetype value_type;
+    nstatus = napi_typeof(env, args[8], &value_type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    if (value_type != napi_null) {
+      nstatus = GetArrayLikeBuffer(env, args[8], &data, nullptr);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+    }
+  }
 
   GLenum target;
   nstatus = napi_get_value_uint32(env, args[0], &target);
@@ -3861,43 +3954,9 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   nstatus = napi_get_value_uint32(env, args[2], &internal_format);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLsizei width;
-  nstatus = napi_get_value_int32(env, args[3], &width);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLsizei height;
-  nstatus = napi_get_value_int32(env, args[4], &height);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint border;
-  nstatus = napi_get_value_int32(env, args[5], &border);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLenum format;
-  nstatus = napi_get_value_uint32(env, args[6], &format);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint type;
-  nstatus = napi_get_value_int32(env, args[7], &type);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  napi_valuetype value_type;
-  nstatus = napi_typeof(env, args[8], &value_type);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  if (value_type == napi_null) {
-    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
-                                              width, height, border, format,
-                                              type, nullptr);
-  } else {
-    void *data = nullptr;
-    nstatus = GetArrayLikeBuffer(env, args[8], &data, nullptr);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
-                                              width, height, border, format,
-                                              type, data);
-  }
+  context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
+                                            width, height, border, format, type,
+                                            data);
 
 #if DEBUG
   context->CheckForErrors();
