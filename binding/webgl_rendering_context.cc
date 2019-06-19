@@ -3829,15 +3829,6 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
 
   napi_status nstatus;
 
-  //
-  // TODO(kreeger): Optional takes 6 instead of 9...
-  //
-
-  /*
-  gl.texImage2D(
-            gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pixels));
-            */
-
   size_t argc = 9;
   napi_value args[9];
   napi_value js_this;
@@ -3851,10 +3842,9 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   GLint type;
   void *data = nullptr;
 
-  WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
+  // texImage2D has a WebGL1 API that only takes 6 args intead of 9. This
+  // argument is in place to allow the user to pass an HTML element. Handle the
+  // only types that are available to get the required properties.
   if (argc == 6) {
     std::cerr << "... fallback - check for obj\n";
 
@@ -3866,11 +3856,11 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
     ENSURE_VALUE_IS_OBJECT_RETVAL(env, args[5], nullptr);
 
     /*
-            () => gl.texImage2D(
-            gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-            pixels as ImageData | HTMLImageElement | HTMLCanvasElement |
-                HTMLVideoElement));
-                */
+      () => gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+      pixels as ImageData | HTMLImageElement | HTMLCanvasElement |
+          HTMLVideoElement));
+     */
 
     nstatus = napi_get_value_uint32(env, args[3], &format);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -3952,6 +3942,10 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
 
   GLenum internal_format;
   nstatus = napi_get_value_uint32(env, args[2], &internal_format);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
