@@ -2451,6 +2451,7 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
 
   switch (name) {
     case GL_MAX_TEXTURE_SIZE:
+    case GL_MAX_TEXTURE_IMAGE_UNITS:
       GLint params;
       context->eglContextWrapper_->glGetIntegerv(name, &params);
 
@@ -2569,7 +2570,15 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  // The texture can be null
+  napi_valuetype value_type;
+  nstatus = napi_typeof(env, args[3], &value_type);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  if (value_type != napi_null) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  }
+
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
 
   GLenum target;
@@ -2584,9 +2593,11 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
   nstatus = napi_get_value_uint32(env, args[2], &textarget);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLuint texture;
-  nstatus = napi_get_value_uint32(env, args[3], &texture);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  GLuint texture = 0;
+  if (value_type != napi_null) {
+    nstatus = napi_get_value_uint32(env, args[3], &texture);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
 
   GLint level;
   nstatus = napi_get_value_int32(env, args[4], &level);
