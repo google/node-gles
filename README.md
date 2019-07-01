@@ -22,7 +22,7 @@ To create a new `WebGLRenderingContext` or `WebGL2RenderingContext` - simply inc
 ```js
 const nodeGles = require('node-gles');
 
-const gl = nodeGles.createWebGLRenderingContext();
+const gl = nodeGles.binding.createWebGLRenderingContext();
 
 // Now, use `gl` for regular WebGL calls:
 const tex = gl.createTexture();
