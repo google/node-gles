@@ -266,7 +266,6 @@ static napi_status GetStringParam(napi_env env, napi_value string_value,
 // accessing underlying datastores for all JS-Array-like objects.
 static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
                                       ArrayLikeBuffer *alb) {
-  // void **data, size_t *length) {
   ENSURE_VALUE_IS_ARRAY_LIKE_RETVAL(env, array_like_value, napi_invalid_arg);
 
   bool is_typed_array = false;
@@ -1211,7 +1210,6 @@ napi_value WebGLRenderingContext::BufferData(napi_env env,
     nstatus = napi_get_value_uint32(env, args[1], &length);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   } else {
-    // size_t length_t;
     nstatus = GetArrayLikeBuffer(env, args[1], &alb);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
