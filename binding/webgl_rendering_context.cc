@@ -31,21 +31,48 @@
 
 namespace nodejsgl {
 
+// Basic type to control what byte-width the ArrayLike buffer is for cleanup.
+typedef enum { nodejsgl_int32, nodejsgl_float32 } nodejsgl_array_type;
+
 // Class to automatically handle V8 buffers (TypedArrays/Arrays) with
-// auto-cleanup.
+// auto-cleanup. Specify array type to automatically allocate a different byte
+// width (defaults to float).
 class ArrayLikeBuffer {
  public:
-  ArrayLikeBuffer() : data(nullptr), length(0), should_delete(false) {}
+  ArrayLikeBuffer()
+      : data(nullptr),
+        length(0),
+        should_delete(false),
+        array_type(nodejsgl_float32) {}
+
+  ArrayLikeBuffer(nodejsgl_array_type array_type)
+      : data(nullptr),
+        length(0),
+        should_delete(false),
+        array_type(array_type) {}
+
   ~ArrayLikeBuffer() {
     if (should_delete && data != nullptr) {
-      // TODO(kreeger): Need to figure out how to cast and delete this...
-      delete data;
+      switch (array_type) {
+        case nodejsgl_int32:
+          delete static_cast<int32_t *>(data);
+          break;
+        case nodejsgl_float32:
+          delete static_cast<float *>(data);
+          break;
+        default:
+          fprintf(
+              stderr,
+              "WARNING: Unknown Array buffer type will not be cleaned up\n");
+      }
     }
   }
 
   void *data;
   size_t length;
   bool should_delete;
+
+  nodejsgl_array_type array_type;
 };
 
 bool WebGLRenderingContext::CheckForErrors() {
@@ -289,18 +316,55 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
   nstatus = napi_is_array(env, array_like_value, &is_array);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
   if (is_array) {
-    // TODO(kreeger): write me...
+    uint32_t length;
+    nstatus = napi_get_array_length(env, array_like_value, &length);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+    alb->length = length;
 
-    // Return array expected error value and let the caller manually manage
-    // buffers as needed....
+    // Allocate a buffer based on the value set in ArrayLikeBuffer.
+    switch (alb->array_type) {
+      case nodejsgl_float32:
+        alb->data = malloc(sizeof(float) * length);
+        break;
+      case nodejsgl_int32:
+        alb->data = malloc(sizeof(int32_t) * length);
+        break;
+      default:
+        NAPI_THROW_ERROR(env, "Unsupported array type for generic arrays!");
+        return napi_invalid_arg;
+    }
 
-    // TODO(kreeger): Write me - this involves manually copying out the buffer
-    // for each JS object and ensuring that all items in the JS array are of the
-    // same type.
-    // https://github.com/google/node-gles/issues/19
-    NAPI_THROW_ERROR(env,
-                     "Generic JS array types are not currently supported!");
-    return napi_invalid_arg;
+    // Notify ArrayLikeBuffer to cleanup buffer on deconstruction:
+    alb->should_delete = true;
+
+    // Place values in buffer:
+    for (uint32_t i = 0; i < length; i++) {
+      napi_value cur_value;
+      nstatus = napi_get_element(env, array_like_value, i, &cur_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+      switch (alb->array_type) {
+        case nodejsgl_float32: {
+          double value;
+          nstatus = napi_get_value_double(env, cur_value, &value);
+          ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+          static_cast<float *>(alb->data)[i] = static_cast<float>(value);
+          break;
+        }
+        case nodejsgl_int32: {
+          int32_t value;
+          nstatus = napi_get_value_int32(env, cur_value, &value);
+          ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+          static_cast<int32_t *>(alb->data)[i] = value;
+          break;
+        }
+        default:
+          NAPI_THROW_ERROR(env, "Unsupported array type for generic arrays!");
+          return napi_invalid_arg;
+      }
+    }
   }
 
   NAPI_THROW_ERROR(env, "Invalid data type.");
@@ -312,8 +376,9 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
   //
-  // TODO(kreeger): Make this an option that can be passed into the binding when
-  // constructing a WebGL session: https://github.com/google/node-gles/issues/9
+  // TODO(kreeger): Make this an option that can be passed into the binding
+  // when constructing a WebGL session:
+  // https://github.com/google/node-gles/issues/9
   //
   GLContextOptions options;
   options.webgl_compatibility = true;
@@ -938,7 +1003,8 @@ void WebGLRenderingContext::Cleanup(napi_env env, void *native, void *hint) {
   delete context;
 }
 
-/** Exported WebGL wrapper methods ********************************************/
+/** Exported WebGL wrapper methods
+ * ********************************************/
 
 /* static */
 napi_value WebGLRenderingContext::ActiveTexture(napi_env env,
@@ -3872,8 +3938,8 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   ArrayLikeBuffer alb;
 
   // texImage2D has a WebGL1 API that only takes 6 args intead of 9. This
-  // argument is in place to allow the user to pass an HTML element. Handle the
-  // only types that are available to get the required properties.
+  // argument is in place to allow the user to pass an HTML element. Handle
+  // the only types that are available to get the required properties.
   if (argc == 6) {
     std::cerr << "... fallback - check for obj\n";
 
