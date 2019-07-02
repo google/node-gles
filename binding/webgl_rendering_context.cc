@@ -365,6 +365,8 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
           return napi_invalid_arg;
       }
     }
+
+    return napi_ok;
   }
 
   NAPI_THROW_ERROR(env, "Invalid data type.");
@@ -4457,7 +4459,7 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb;
+  ArrayLikeBuffer alb(nodejsgl_int32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4664,7 +4666,7 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb;
+  ArrayLikeBuffer alb(nodejsgl_int32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4718,7 +4720,7 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb;
+  ArrayLikeBuffer alb(nodejsgl_int32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4894,7 +4896,7 @@ napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb;
+  ArrayLikeBuffer alb(nodejsgl_int32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
