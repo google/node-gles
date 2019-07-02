@@ -3943,21 +3943,12 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   // argument is in place to allow the user to pass an HTML element. Handle
   // the only types that are available to get the required properties.
   if (argc == 6) {
-    std::cerr << "... fallback - check for obj\n";
-
     ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
     ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
     ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
     ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
     ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
     ENSURE_VALUE_IS_OBJECT_RETVAL(env, args[5], nullptr);
-
-    /*
-      () => gl.texImage2D(
-      gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-      pixels as ImageData | HTMLImageElement | HTMLCanvasElement |
-          HTMLVideoElement));
-     */
 
     nstatus = napi_get_value_uint32(env, args[3], &format);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -3979,18 +3970,27 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
     nstatus = napi_get_value_int32(env, height_value, &height);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    // Border always is zero (for now)?
+    // Default border to 0
+    // TODO(kreeger): Consider looking this up if a property exists.
     border = 0;
 
-    std::cerr << "WIDTH: " << width << ", HEIGHT: " << height << std::endl;
-    // nstatus = napi_get_prototype()
+    // Ensure that the object has at least a field named 'data'. All other
+    // objects are not supported at this time.
+    bool has_data_property = false;
+    nstatus = napi_has_named_property(env, args[5], "data", &has_data_property);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    // Next - extract image data.... bytes
+    if (!has_data_property) {
+      NAPI_THROW_ERROR(env, "Image types must have a property named 'data'!");
+      return nullptr;
+    }
 
-    NAPI_THROW_ERROR(env, "END DEBUG FOR NOW");
+    napi_value data_value;
+    nstatus = napi_get_named_property(env, args[5], "data", &data_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    // TODO - verify   //
-    // https://cs.corp.google.com/eureka_internal/chromium/src/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc?l=5654
+    nstatus = GetArrayLikeBuffer(env, data_value, &alb);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   } else {
     // If argc is not 6, it should match arguments for OpenGL ES API.
     ENSURE_ARGC_RETVAL(env, argc, 9, nullptr);
