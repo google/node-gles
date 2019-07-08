@@ -32,7 +32,10 @@
 namespace nodejsgl {
 
 // Basic type to control what byte-width the ArrayLike buffer is for cleanup.
-typedef enum { nodejsgl_int32, nodejsgl_float32 } nodejsgl_array_type;
+enum NodeJSGLArrayType {
+  kInt32 = 0,
+  kFloat32 = 1,
+};
 
 // Class to automatically handle V8 buffers (TypedArrays/Arrays) with
 // auto-cleanup. Specify array type to automatically allocate a different byte
@@ -40,12 +43,9 @@ typedef enum { nodejsgl_int32, nodejsgl_float32 } nodejsgl_array_type;
 class ArrayLikeBuffer {
  public:
   ArrayLikeBuffer()
-      : data(nullptr),
-        length(0),
-        should_delete(false),
-        array_type(nodejsgl_float32) {}
+      : data(nullptr), length(0), should_delete(false), array_type(kFloat32) {}
 
-  ArrayLikeBuffer(nodejsgl_array_type array_type)
+  ArrayLikeBuffer(NodeJSGLArrayType array_type)
       : data(nullptr),
         length(0),
         should_delete(false),
@@ -54,10 +54,10 @@ class ArrayLikeBuffer {
   ~ArrayLikeBuffer() {
     if (should_delete && data != nullptr) {
       switch (array_type) {
-        case nodejsgl_int32:
+        case kInt32:
           delete static_cast<int32_t *>(data);
           break;
-        case nodejsgl_float32:
+        case kFloat32:
           delete static_cast<float *>(data);
           break;
         default:
@@ -72,7 +72,7 @@ class ArrayLikeBuffer {
   size_t length;
   bool should_delete;
 
-  nodejsgl_array_type array_type;
+  NodeJSGLArrayType array_type;
 };
 
 bool WebGLRenderingContext::CheckForErrors() {
@@ -323,10 +323,10 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
 
     // Allocate a buffer based on the value set in ArrayLikeBuffer.
     switch (alb->array_type) {
-      case nodejsgl_float32:
+      case kFloat32:
         alb->data = malloc(sizeof(float) * length);
         break;
-      case nodejsgl_int32:
+      case kInt32:
         alb->data = malloc(sizeof(int32_t) * length);
         break;
       default:
@@ -344,7 +344,7 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
       ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
       switch (alb->array_type) {
-        case nodejsgl_float32: {
+        case kFloat32: {
           double value;
           nstatus = napi_get_value_double(env, cur_value, &value);
           ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
@@ -352,7 +352,7 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
           static_cast<float *>(alb->data)[i] = static_cast<float>(value);
           break;
         }
-        case nodejsgl_int32: {
+        case kInt32: {
           int32_t value;
           nstatus = napi_get_value_int32(env, cur_value, &value);
           ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
@@ -4459,7 +4459,7 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb(nodejsgl_int32);
+  ArrayLikeBuffer alb(kInt32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4666,7 +4666,7 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb(nodejsgl_int32);
+  ArrayLikeBuffer alb(kInt32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4720,7 +4720,7 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb(nodejsgl_int32);
+  ArrayLikeBuffer alb(kInt32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -4896,7 +4896,7 @@ napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  ArrayLikeBuffer alb(nodejsgl_int32);
+  ArrayLikeBuffer alb(kInt32);
   nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
