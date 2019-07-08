@@ -31,6 +31,50 @@
 
 namespace nodejsgl {
 
+// Basic type to control what byte-width the ArrayLike buffer is for cleanup.
+enum NodeJSGLArrayType {
+  kInt32 = 0,
+  kFloat32 = 1,
+};
+
+// Class to automatically handle V8 buffers (TypedArrays/Arrays) with
+// auto-cleanup. Specify array type to automatically allocate a different byte
+// width (defaults to float).
+class ArrayLikeBuffer {
+ public:
+  ArrayLikeBuffer()
+      : data(nullptr), length(0), should_delete(false), array_type(kFloat32) {}
+
+  ArrayLikeBuffer(NodeJSGLArrayType array_type)
+      : data(nullptr),
+        length(0),
+        should_delete(false),
+        array_type(array_type) {}
+
+  ~ArrayLikeBuffer() {
+    if (should_delete && data != nullptr) {
+      switch (array_type) {
+        case kInt32:
+          delete static_cast<int32_t *>(data);
+          break;
+        case kFloat32:
+          delete static_cast<float *>(data);
+          break;
+        default:
+          fprintf(
+              stderr,
+              "WARNING: Unknown Array buffer type will not be cleaned up\n");
+      }
+    }
+  }
+
+  void *data;
+  size_t length;
+  bool should_delete;
+
+  NodeJSGLArrayType array_type;
+};
+
 bool WebGLRenderingContext::CheckForErrors() {
   GLenum error;
   bool had_error = false;
@@ -248,7 +292,7 @@ static napi_status GetStringParam(napi_env env, napi_value string_value,
 // Returns a pointer to JS array-like objects. This method should be used when
 // accessing underlying datastores for all JS-Array-like objects.
 static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
-                                      void **data, size_t *length) {
+                                      ArrayLikeBuffer *alb) {
   ENSURE_VALUE_IS_ARRAY_LIKE_RETVAL(env, array_like_value, napi_invalid_arg);
 
   bool is_typed_array = false;
@@ -258,11 +302,11 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
   if (is_typed_array) {
     napi_value arraybuffer_value;
     nstatus = napi_get_typedarray_info(env, array_like_value, nullptr, nullptr,
-                                       data, &arraybuffer_value, nullptr);
+                                       &alb->data, &arraybuffer_value, nullptr);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-    nstatus =
-        napi_get_arraybuffer_info(env, arraybuffer_value, nullptr, length);
+    nstatus = napi_get_arraybuffer_info(env, arraybuffer_value, nullptr,
+                                        &alb->length);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
     return napi_ok;
@@ -272,13 +316,57 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
   nstatus = napi_is_array(env, array_like_value, &is_array);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
   if (is_array) {
-    // TODO(kreeger): Write me - this involves manually copying out the buffer
-    // for each JS object and ensuring that all items in the JS array are of the
-    // same type.
-    // https://github.com/google/node-gles/issues/19
-    NAPI_THROW_ERROR(env,
-                     "Generic JS array types are not currently supported!");
-    return napi_invalid_arg;
+    uint32_t length;
+    nstatus = napi_get_array_length(env, array_like_value, &length);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+    alb->length = length;
+
+    // Allocate a buffer based on the value set in ArrayLikeBuffer.
+    switch (alb->array_type) {
+      case kFloat32:
+        alb->data = malloc(sizeof(float) * length);
+        break;
+      case kInt32:
+        alb->data = malloc(sizeof(int32_t) * length);
+        break;
+      default:
+        NAPI_THROW_ERROR(env, "Unsupported array type for generic arrays!");
+        return napi_invalid_arg;
+    }
+
+    // Notify ArrayLikeBuffer to cleanup buffer on deconstruction:
+    alb->should_delete = true;
+
+    // Place values in buffer:
+    for (uint32_t i = 0; i < length; i++) {
+      napi_value cur_value;
+      nstatus = napi_get_element(env, array_like_value, i, &cur_value);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+      switch (alb->array_type) {
+        case kFloat32: {
+          double value;
+          nstatus = napi_get_value_double(env, cur_value, &value);
+          ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+          static_cast<float *>(alb->data)[i] = static_cast<float>(value);
+          break;
+        }
+        case kInt32: {
+          int32_t value;
+          nstatus = napi_get_value_int32(env, cur_value, &value);
+          ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+          static_cast<int32_t *>(alb->data)[i] = value;
+          break;
+        }
+        default:
+          NAPI_THROW_ERROR(env, "Unsupported array type for generic arrays!");
+          return napi_invalid_arg;
+      }
+    }
+
+    return napi_ok;
   }
 
   NAPI_THROW_ERROR(env, "Invalid data type.");
@@ -290,8 +378,9 @@ napi_ref WebGLRenderingContext::constructor_ref_;
 WebGLRenderingContext::WebGLRenderingContext(napi_env env)
     : env_(env), ref_(nullptr) {
   //
-  // TODO(kreeger): Make this an option that can be passed into the binding when
-  // constructing a WebGL session: https://github.com/google/node-gles/issues/9
+  // TODO(kreeger): Make this an option that can be passed into the binding
+  // when constructing a WebGL session:
+  // https://github.com/google/node-gles/issues/9
   //
   GLContextOptions options;
   options.webgl_compatibility = true;
@@ -916,7 +1005,8 @@ void WebGLRenderingContext::Cleanup(napi_env env, void *native, void *hint) {
   delete context;
 }
 
-/** Exported WebGL wrapper methods ********************************************/
+/** Exported WebGL wrapper methods
+ * ********************************************/
 
 /* static */
 napi_value WebGLRenderingContext::ActiveTexture(napi_env env,
@@ -1182,17 +1272,16 @@ napi_value WebGLRenderingContext::BufferData(napi_env env,
   nstatus = napi_typeof(env, args[1], &arg_type);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
+  ArrayLikeBuffer alb;
   uint32_t length;
   if (arg_type == napi_number) {
     nstatus = napi_get_value_uint32(env, args[1], &length);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   } else {
-    size_t length_t;
-    nstatus = GetArrayLikeBuffer(env, args[1], &data, &length_t);
+    nstatus = GetArrayLikeBuffer(env, args[1], &alb);
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-    length = length_t;
+    length = alb.length;
   }
 
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
@@ -1200,7 +1289,7 @@ napi_value WebGLRenderingContext::BufferData(napi_env env,
   nstatus = napi_get_value_uint32(env, args[2], &usage);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glBufferData(target, length, data, usage);
+  context->eglContextWrapper_->glBufferData(target, length, alb.data, usage);
 
 #if DEBUG
   context->CheckForErrors();
@@ -1236,11 +1325,11 @@ napi_value WebGLRenderingContext::BufferSubData(napi_env env,
   nstatus = napi_get_value_uint32(env, args[1], &offset);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[2], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  context->eglContextWrapper_->glBufferSubData(target, offset, length, data);
+  context->eglContextWrapper_->glBufferSubData(target, offset, alb.length,
+                                               alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -1504,9 +1593,8 @@ napi_value WebGLRenderingContext::CompressedTexImage2D(
   nstatus = napi_get_value_int32(env, args[5], &border);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[6], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[6], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -1515,7 +1603,7 @@ napi_value WebGLRenderingContext::CompressedTexImage2D(
 
   context->eglContextWrapper_->glCompressedTexImage2D(
       target, level, internal_format, width, height, border,
-      static_cast<GLsizei>(length), data);
+      static_cast<GLsizei>(alb.length), alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -1574,9 +1662,8 @@ napi_value WebGLRenderingContext::CompressedTexSubImage2D(
   nstatus = napi_get_value_uint32(env, args[6], &format);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[7], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[7], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -1585,7 +1672,7 @@ napi_value WebGLRenderingContext::CompressedTexSubImage2D(
 
   context->eglContextWrapper_->glCompressedTexSubImage2D(
       target, level, xoffset, yoffset, width, height, format,
-      static_cast<GLsizei>(length), data);
+      static_cast<GLsizei>(alb.length), alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -2451,6 +2538,7 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
 
   switch (name) {
     case GL_MAX_TEXTURE_SIZE:
+    case GL_MAX_TEXTURE_IMAGE_UNITS:
       GLint params;
       context->eglContextWrapper_->glGetIntegerv(name, &params);
 
@@ -2569,7 +2657,15 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+
+  // The texture can be null
+  napi_valuetype value_type;
+  nstatus = napi_typeof(env, args[3], &value_type);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  if (value_type != napi_null) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  }
+
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
 
   GLenum target;
@@ -2584,9 +2680,11 @@ napi_value WebGLRenderingContext::FramebufferTexture2D(
   nstatus = napi_get_value_uint32(env, args[2], &textarget);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLuint texture;
-  nstatus = napi_get_value_uint32(env, args[3], &texture);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  GLuint texture = 0;
+  if (value_type != napi_null) {
+    nstatus = napi_get_value_uint32(env, args[3], &texture);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
 
   GLint level;
   nstatus = napi_get_value_int32(env, args[4], &level);
@@ -2891,9 +2989,8 @@ napi_value WebGLRenderingContext::GetBufferSubData(napi_env env,
   nstatus = napi_get_value_uint32(env, args[1], &offset);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  size_t length = 0;
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[2], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -2901,11 +2998,11 @@ napi_value WebGLRenderingContext::GetBufferSubData(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   void *buffer = context->eglContextWrapper_->glMapBufferRange(
-      target, offset, length, GL_MAP_READ_BIT);
+      target, offset, alb.length, GL_MAP_READ_BIT);
 #if DEBUG
   context->CheckForErrors();
 #endif
-  memcpy(data, buffer, length);
+  memcpy(alb.data, buffer, alb.length);
 
   context->eglContextWrapper_->glUnmapBuffer(target);
 #if DEBUG
@@ -3669,8 +3766,8 @@ napi_value WebGLRenderingContext::ReadPixels(napi_env env,
   nstatus = napi_get_value_uint32(env, args[5], &type);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[6], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[6], &alb);
   if (nstatus != napi_ok) {
     napi_valuetype value_type;
     nstatus = napi_typeof(env, args[6], &value_type);
@@ -3683,7 +3780,7 @@ napi_value WebGLRenderingContext::ReadPixels(napi_env env,
   }
 
   context->eglContextWrapper_->glReadPixels(x, y, width, height, format, type,
-                                            data);
+                                            alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -3834,20 +3931,103 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   napi_value js_this;
   nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 9, nullptr);
 
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[5], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[6], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[7], nullptr);
+  GLsizei width;
+  GLsizei height;
+  GLsizei border;
+  GLenum format;
+  GLint type;
+  ArrayLikeBuffer alb;
 
-  WebGLRenderingContext *context = nullptr;
-  nstatus = UnwrapContext(env, js_this, &context);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  // texImage2D has a WebGL1 API that only takes 6 args intead of 9. This
+  // argument is in place to allow the user to pass an HTML element. Handle
+  // the only types that are available to get the required properties.
+  if (argc == 6) {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+    ENSURE_VALUE_IS_OBJECT_RETVAL(env, args[5], nullptr);
+
+    nstatus = napi_get_value_uint32(env, args[3], &format);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[4], &type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_value width_value;
+    nstatus = napi_get_named_property(env, args[5], "width", &width_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, width_value, &width);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_value height_value;
+    nstatus = napi_get_named_property(env, args[5], "height", &height_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, height_value, &height);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    // Default border to 0
+    // TODO(kreeger): Consider looking this up if a property exists.
+    border = 0;
+
+    // Ensure that the object has at least a field named 'data'. All other
+    // objects are not supported at this time.
+    bool has_data_property = false;
+    nstatus = napi_has_named_property(env, args[5], "data", &has_data_property);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    if (!has_data_property) {
+      NAPI_THROW_ERROR(env, "Image types must have a property named 'data'!");
+      return nullptr;
+    }
+
+    napi_value data_value;
+    nstatus = napi_get_named_property(env, args[5], "data", &data_value);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = GetArrayLikeBuffer(env, data_value, &alb);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else {
+    // If argc is not 6, it should match arguments for OpenGL ES API.
+    ENSURE_ARGC_RETVAL(env, argc, 9, nullptr);
+
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[5], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[6], nullptr);
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[7], nullptr);
+
+    nstatus = napi_get_value_int32(env, args[3], &width);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[4], &height);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[5], &border);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_uint32(env, args[6], &format);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    nstatus = napi_get_value_int32(env, args[7], &type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    napi_valuetype value_type;
+    nstatus = napi_typeof(env, args[8], &value_type);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+    if (value_type != napi_null) {
+      nstatus = GetArrayLikeBuffer(env, args[8], &alb);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+    }
+  }
 
   GLenum target;
   nstatus = napi_get_value_uint32(env, args[0], &target);
@@ -3861,43 +4041,13 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   nstatus = napi_get_value_uint32(env, args[2], &internal_format);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLsizei width;
-  nstatus = napi_get_value_int32(env, args[3], &width);
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLsizei height;
-  nstatus = napi_get_value_int32(env, args[4], &height);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint border;
-  nstatus = napi_get_value_int32(env, args[5], &border);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLenum format;
-  nstatus = napi_get_value_uint32(env, args[6], &format);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  GLint type;
-  nstatus = napi_get_value_int32(env, args[7], &type);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  napi_valuetype value_type;
-  nstatus = napi_typeof(env, args[8], &value_type);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-  if (value_type == napi_null) {
-    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
-                                              width, height, border, format,
-                                              type, nullptr);
-  } else {
-    void *data = nullptr;
-    nstatus = GetArrayLikeBuffer(env, args[8], &data, nullptr);
-    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-
-    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
-                                              width, height, border, format,
-                                              type, data);
-  }
+  context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
+                                            width, height, border, format, type,
+                                            alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -4241,12 +4391,12 @@ napi_value WebGLRenderingContext::TexSubImage2D(napi_env env,
   nstatus = napi_get_value_uint32(env, args[7], &type);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[8], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[8], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glTexSubImage2D(
-      target, level, xoffset, yoffset, width, height, format, type, data);
+      target, level, xoffset, yoffset, width, height, format, type, alb.data);
 
 #if DEBUG
   context->CheckForErrors();
@@ -4301,7 +4451,7 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   napi_value js_this;
   nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
-  ENSURE_ARGC_RETVAL(env, argc, 3, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
 
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
 
@@ -4309,17 +4459,17 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb(kInt32);
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform1iv(
-      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
+  context->eglContextWrapper_->glUniform1iv(location,
+                                            static_cast<GLsizei>(alb.length),
+                                            static_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4382,17 +4532,16 @@ napi_value WebGLRenderingContext::Uniform1fv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform1fv(location, length,
-                                            reinterpret_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glUniform1fv(
+      location, alb.length, reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4461,17 +4610,17 @@ napi_value WebGLRenderingContext::Uniform2fv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform2fv(
-      location, static_cast<GLsizei>(length), static_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glUniform2fv(location,
+                                            static_cast<GLsizei>(alb.length),
+                                            static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4517,16 +4666,16 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb(kInt32);
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform2iv(location, 1,
-                                            reinterpret_cast<GLint *>(data));
+  context->eglContextWrapper_->glUniform2iv(
+      location, 1, reinterpret_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4571,16 +4720,16 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb(kInt32);
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform3iv(location, 1,
-                                            reinterpret_cast<GLint *>(data));
+  context->eglContextWrapper_->glUniform3iv(
+      location, 1, reinterpret_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4655,18 +4804,17 @@ napi_value WebGLRenderingContext::Uniform3fv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform3fv(location,
-                                            static_cast<GLsizei>(length),
-                                            reinterpret_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glUniform3fv(
+      location, static_cast<GLsizei>(alb.length),
+      reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4693,18 +4841,17 @@ napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform4fv(location,
-                                            static_cast<GLsizei>(length),
-                                            reinterpret_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glUniform4fv(
+      location, static_cast<GLsizei>(alb.length),
+      reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4749,17 +4896,17 @@ napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, &length);
+  ArrayLikeBuffer alb(kInt32);
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform4iv(
-      location, static_cast<GLsizei>(length), static_cast<GLint *>(data));
+  context->eglContextWrapper_->glUniform4iv(location,
+                                            static_cast<GLsizei>(alb.length),
+                                            static_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4838,9 +4985,8 @@ napi_value WebGLRenderingContext::UniformMatrix2fv(napi_env env,
   nstatus = napi_get_value_bool(env, args[1], &transpose);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[2], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -4848,8 +4994,9 @@ napi_value WebGLRenderingContext::UniformMatrix2fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix2fv(
-      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
-      static_cast<const GLfloat *>(data));
+      location, static_cast<GLsizei>(alb.length),
+      static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4881,9 +5028,8 @@ napi_value WebGLRenderingContext::UniformMatrix3fv(napi_env env,
   nstatus = napi_get_value_bool(env, args[1], &transpose);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[2], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -4891,8 +5037,9 @@ napi_value WebGLRenderingContext::UniformMatrix3fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix3fv(
-      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
-      static_cast<const GLfloat *>(data));
+      location, static_cast<GLsizei>(alb.length),
+      static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4924,9 +5071,8 @@ napi_value WebGLRenderingContext::UniformMatrix4fv(napi_env env,
   nstatus = napi_get_value_bool(env, args[1], &transpose);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  size_t length;
-  nstatus = GetArrayLikeBuffer(env, args[2], &data, &length);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[2], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
@@ -4934,8 +5080,9 @@ napi_value WebGLRenderingContext::UniformMatrix4fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix4fv(
-      location, static_cast<GLsizei>(length), static_cast<GLboolean>(transpose),
-      static_cast<const GLfloat *>(data));
+      location, static_cast<GLsizei>(alb.length),
+      static_cast<GLboolean>(transpose),
+      static_cast<const GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -5036,16 +5183,16 @@ napi_value WebGLRenderingContext::VertexAttrib1fv(napi_env env,
   nstatus = napi_get_value_uint32(env, args[0], &index);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glVertexAttrib1fv(index,
-                                                 static_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glVertexAttrib1fv(
+      index, static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -5112,16 +5259,16 @@ napi_value WebGLRenderingContext::VertexAttrib2fv(napi_env env,
   nstatus = napi_get_value_uint32(env, args[0], &index);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glVertexAttrib2fv(index,
-                                                 static_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glVertexAttrib2fv(
+      index, static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -5194,16 +5341,16 @@ napi_value WebGLRenderingContext::VertexAttrib3fv(napi_env env,
   nstatus = napi_get_value_uint32(env, args[0], &index);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glVertexAttrib3fv(index,
-                                                 static_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glVertexAttrib3fv(
+      index, static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -5281,16 +5428,16 @@ napi_value WebGLRenderingContext::VertexAttrib4fv(napi_env env,
   nstatus = napi_get_value_uint32(env, args[0], &index);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  void *data = nullptr;
-  nstatus = GetArrayLikeBuffer(env, args[1], &data, nullptr);
+  ArrayLikeBuffer alb;
+  nstatus = GetArrayLikeBuffer(env, args[1], &alb);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glVertexAttrib4fv(index,
-                                                 static_cast<GLfloat *>(data));
+  context->eglContextWrapper_->glVertexAttrib4fv(
+      index, static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
