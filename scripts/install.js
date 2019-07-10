@@ -72,7 +72,11 @@ async function downloadAngleLibs(callback) {
   // http request.  the '...url.parse(ANGLE_BINARY_URI)' part fills in the host,
   // path, protocol, etc from the ANGLE_BINARY_URI and then we set the agent to
   // the default agent which is overridden a few lines down if there is a proxy
-  const options = {...url.parse(ANGLE_BINARY_URI), agent: https.globalAgent};
+  const options = {
+    ...url.parse(ANGLE_BINARY_URI),
+    agent: https.globalAgent,
+    headers: {'Cache-Control': 'no-cache'}
+  };
 
   if (proxy !== '') {
     options.agent = new HttpsProxyAgent(proxy);
