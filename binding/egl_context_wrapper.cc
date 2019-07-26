@@ -440,6 +440,12 @@ void EGLContextWrapper::BindProcAddresses() {
   glViewport =
       reinterpret_cast<PFNGLVIEWPORTPROC>(eglGetProcAddress("glViewport"));
 
+#if DEBUG
+  // Debug specific
+  glDebugMessageCallback = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKPROC>(
+      eglGetProcAddress("glDebugMessageCallback"));
+#endif
+
   // ANGLE specific
   glRequestExtensionANGLE = reinterpret_cast<PFNGLREQUESTEXTENSIONANGLEPROC>(
       eglGetProcAddress("glRequestExtensionANGLE"));

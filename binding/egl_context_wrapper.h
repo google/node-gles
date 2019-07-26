@@ -27,6 +27,7 @@
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES2/gl2ext.h"
 #include "angle/include/GLES3/gl3.h"
+#include "angle/include/GLES3/gl32.h"  // TODO - debug this?
 
 #include <iostream>
 #include <memory>
@@ -227,6 +228,11 @@ class EGLContextWrapper {
   PFNGLVERTEXATTRIB4FVPROC glVertexAttrib4fv;
   PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
   PFNGLVIEWPORTPROC glViewport;
+
+#if DEBUG
+  // Debug specific
+  PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback;
+#endif
 
   // ANGLE specific
   PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
