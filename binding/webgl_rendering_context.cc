@@ -2537,6 +2537,12 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   switch (name) {
+    case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
+    case GL_MAX_CUBE_MAP_TEXTURE_SIZE:
+    case GL_MAX_VERTEX_ATTRIBS:
+    case GL_MAX_VERTEX_UNIFORM_VECTORS:
+    case GL_MAX_VARYING_VECTORS:
+    case GL_MAX_FRAGMENT_UNIFORM_VECTORS:
     case GL_MAX_TEXTURE_SIZE:
     case GL_MAX_TEXTURE_IMAGE_UNITS:
       GLint params;
