@@ -74,7 +74,7 @@ napi_status GLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
-// ANGLEInstancedArray
+// ANGLEInstancedArrays
 
 napi_ref ANGLEInstancedArraysExtension::constructor_ref_;
 
