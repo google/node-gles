@@ -3202,7 +3202,7 @@ napi_value WebGLRenderingContext::GetShaderPrecisionFormat(
   nstatus = napi_create_object(env, &precision_format_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  nstatus = napi_set_named_property(env, precision_format_value, "prevision",
+  nstatus = napi_set_named_property(env, precision_format_value, "precision",
                                     precision_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
