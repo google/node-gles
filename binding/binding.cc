@@ -33,6 +33,7 @@ static napi_value CreateWebGLRenderingContext(napi_env env,
 }
 
 static napi_value InitBinding(napi_env env, napi_value exports) {
+  ANGLEInstancedArraysExtension::Register(env, exports);
   EXTBlendMinmaxExtension::Register(env, exports);
   EXTColorBufferFloatExtension::Register(env, exports);
   EXTColorBufferHalfFloatExtension::Register(env, exports);
