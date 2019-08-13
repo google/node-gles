@@ -2448,7 +2448,12 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
   EGLContextWrapper *egl_ctx = context->eglContextWrapper_;
 
   napi_value webgl_extension = nullptr;
-  if (strcmp(name, "EXT_blend_minmax") == 0 &&
+  if ((strcmp(name, "GL_ANGLE_instanced_arrays") == 0 ||
+              strcmp(name, "ANGLE_instanced_arrays") == 0) &&
+             ANGLEInstancedArraysExtension::IsSupported(egl_ctx)) {
+    nstatus = ANGLEInstancedArraysExtension::NewInstance(env, &webgl_extension,
+                                                        egl_ctx);
+  } else if (strcmp(name, "EXT_blend_minmax") == 0 &&
       EXTBlendMinmaxExtension::IsSupported(egl_ctx)) {
     nstatus =
         EXTBlendMinmaxExtension::NewInstance(env, &webgl_extension, egl_ctx);

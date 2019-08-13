@@ -74,6 +74,53 @@ napi_status GLExtensionBase::NewInstanceBase(napi_env env,
 }
 
 //==============================================================================
+// ANGLEInstancedArray
+
+napi_ref ANGLEInstancedArraysExtension::constructor_ref_;
+
+ANGLEInstancedArraysExtension::ANGLEInstancedArraysExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool ANGLEInstancedArraysExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_ANGLE_instanced_arrays");
+}
+
+/* static */
+napi_status ANGLEInstancedArraysExtension::Register(napi_env env,
+                                                 napi_value exports) {
+  napi_status nstatus;
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "GL_ANGLE_instanced_arrays", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr, 0,
+                              nullptr, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status ANGLEInstancedArraysExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_ANGLE_instanced_arrays");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
+
+//==============================================================================
 // EXTBlendMinmaxExtension
 
 napi_ref EXTBlendMinmaxExtension::constructor_ref_;

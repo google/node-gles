@@ -61,6 +61,18 @@ class GLExtensionBase {
 // extensions:
 // https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/webgl/
 
+
+// Provides 'GL_ANGLE_instanced_array':
+// https://www.khronos.org/registry/OpenGL/extensions/ANGLE/ANGLE_instanced_arrays.txt
+class ANGLEInstancedArraysExtension : public GLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  ANGLEInstancedArraysExtension(napi_env env);
+  virtual ~ANGLEInstancedArraysExtension() {}
+};
+
+
 // Provides 'EXT_blend_minmax':
 // https://www.khronos.org/registry/webgl/extensions/EXT_blend_minmax/
 class EXTBlendMinmaxExtension : public GLExtensionBase {
