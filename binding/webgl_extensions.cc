@@ -89,13 +89,13 @@ bool ANGLEInstancedArraysExtension::IsSupported(
 
 /* static */
 napi_status ANGLEInstancedArraysExtension::Register(napi_env env,
-                                                 napi_value exports) {
+                                                    napi_value exports) {
   napi_status nstatus;
 
   napi_value ctor_value;
-  nstatus = napi_define_class(env, "GL_ANGLE_instanced_arrays", NAPI_AUTO_LENGTH,
-                              GLExtensionBase::InitStubClass, nullptr, 0,
-                              nullptr, &ctor_value);
+  nstatus = napi_define_class(env, "GL_ANGLE_instanced_arrays",
+                              NAPI_AUTO_LENGTH, GLExtensionBase::InitStubClass,
+                              nullptr, 0, nullptr, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
@@ -118,7 +118,6 @@ napi_status ANGLEInstancedArraysExtension::NewInstance(
 
   return napi_ok;
 }
-
 
 //==============================================================================
 // EXTBlendMinmaxExtension
