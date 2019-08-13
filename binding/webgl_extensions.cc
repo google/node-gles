@@ -814,7 +814,7 @@ WebGLDepthTextureExtension::WebGLDepthTextureExtension(napi_env env)
 bool WebGLDepthTextureExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
   IS_EXTENSION_NAME_AVAILABLE("GL_OES_packed_depth_stencil");
-  IS_EXTENSION_NAME_AVAILABLE("GL_CHROMIUM_depth_texture");
+  IS_EXTENSION_NAME_AVAILABLE("GL_ANGLE_depth_texture");
 }
 
 /* static */
@@ -846,7 +846,7 @@ napi_status WebGLDepthTextureExtension::NewInstance(
   napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  egl_context_wrapper->glRequestExtensionANGLE("GL_CHROMIUM_depth_texture");
+  egl_context_wrapper->glRequestExtensionANGLE("GL_ANGLE_depth_texture");
   egl_context_wrapper->RefreshGLExtensions();
 
   return napi_ok;
