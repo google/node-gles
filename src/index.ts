@@ -21,4 +21,31 @@ import {NodeJsGlBinding} from './binding';
 
 const binding = bindings('nodejs_gl_binding') as NodeJsGlBinding;
 
-export {binding};
+
+interface ContextArguments {
+    width?: number,
+    height?: number,
+    webGLCompability?: boolean,
+    majorVersion?: number,
+    minorVersion?: number,
+};
+
+const createWebGLRenderingContext = function(args: ContextArguments = {}) {
+    const width =  args.width || 1;
+    const height = args.height || 1;
+    const webGLCompability = args.webGLCompability || false;
+    const majorVersion =  args.majorVersion || 3;
+    const minorVersion =  args.minorVersion || 0;
+    return binding.createWebGLRenderingContext(
+        width,
+        height,
+        majorVersion,
+        minorVersion,
+        webGLCompability,
+    );
+
+
+} 
+
+
+export { createWebGLRenderingContext };

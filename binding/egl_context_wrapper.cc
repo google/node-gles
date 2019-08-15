@@ -151,7 +151,7 @@ void EGLContextWrapper::InitEGL(napi_env env,
     return;
   }
 
-  EGLint surface_attribs[] = {EGL_WIDTH, (EGLint)1, EGL_HEIGHT, (EGLint)1,
+  EGLint surface_attribs[] = {EGL_WIDTH, (EGLint)context_options.width, EGL_HEIGHT, (EGLint)context_options.height,
                               EGL_NONE};
   surface = eglCreatePbufferSurface(display, config, surface_attribs);
   if (surface == EGL_NO_SURFACE) {

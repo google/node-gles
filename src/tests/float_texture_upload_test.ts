@@ -2,7 +2,7 @@ import * as gles from '../.';
 
 import {createTexture2D, ensureFramebufferAttachment, initEnvGL} from './test_utils';
 
-const gl = gles.binding.createWebGLRenderingContext();
+const gl = gles.createWebGLRenderingContext({});
 const gl2 = gl as WebGL2RenderingContext;
 
 gl.getExtension('OES_texture_float');

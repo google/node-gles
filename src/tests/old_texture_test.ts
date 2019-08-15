@@ -1,6 +1,6 @@
 import * as gles from '../.';
 
-const gl = gles.binding.createWebGLRenderingContext();
+const gl = gles.createWebGLRenderingContext();
 const gl2 = gl as WebGL2RenderingContext;
 gl.viewport(0, 0, 1, 1);
 

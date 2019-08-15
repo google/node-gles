@@ -375,17 +375,9 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
 
 napi_ref WebGLRenderingContext::constructor_ref_;
 
-WebGLRenderingContext::WebGLRenderingContext(napi_env env)
+WebGLRenderingContext::WebGLRenderingContext(napi_env env, GLContextOptions opts)
     : env_(env), ref_(nullptr) {
-  //
-  // TODO(kreeger): Make this an option that can be passed into the binding
-  // when constructing a WebGL session:
-  // https://github.com/google/node-gles/issues/9
-  //
-  GLContextOptions options;
-  options.webgl_compatibility = true;
-
-  eglContextWrapper_ = EGLContextWrapper::Create(env, options);
+  eglContextWrapper_ = EGLContextWrapper::Create(env, opts);
   if (!eglContextWrapper_) {
     NAPI_THROW_ERROR(env, "Could not create EGL context");
     return;
@@ -966,14 +958,22 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
 
 /* static */
 napi_status WebGLRenderingContext::NewInstance(napi_env env,
-                                               napi_value *instance) {
+                                               napi_value *instance,
+                                               napi_callback_info info) {
   napi_status nstatus;
 
   napi_value ctor_value;
   nstatus = napi_get_reference_value(env, constructor_ref_, &ctor_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
-  nstatus = napi_new_instance(env, ctor_value, 0, nullptr, instance);
+  size_t argc = 5;
+  napi_value args[5];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+  ENSURE_ARGC_RETVAL(env, argc, argc, nstatus);
+
+  nstatus = napi_new_instance(env, ctor_value, argc, args, instance);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   return napi_ok;
@@ -986,11 +986,30 @@ napi_value WebGLRenderingContext::InitInternal(napi_env env,
 
   ENSURE_CONSTRUCTOR_CALL_RETVAL(env, info, nullptr);
 
+  size_t argc = 5;
+  napi_value args[5];
   napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, 0, nullptr, &js_this, nullptr);
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  ENSURE_ARGC_RETVAL(env, argc, argc, nullptr);
+
+  GLContextOptions opts;
+  nstatus = napi_get_value_uint32(env, args[0], &opts.width);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  WebGLRenderingContext *context = new WebGLRenderingContext(env);
+  nstatus = napi_get_value_uint32(env, args[1], &opts.height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_get_value_uint32(env, args[2], &opts.client_major_es_version);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_get_value_uint32(env, args[3], &opts.client_minor_es_version);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  nstatus = napi_get_value_bool(env, args[4], &opts.webgl_compatibility);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = new WebGLRenderingContext(env, opts);
   ENSURE_VALUE_IS_NOT_NULL_RETVAL(env, context, nullptr);
 
   nstatus = napi_wrap(env, js_this, context, Cleanup, nullptr, &context->ref_);
@@ -4771,15 +4790,15 @@ napi_value WebGLRenderingContext::Uniform3f(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v0;
-  nstatus = napi_get_value_double(env, args[0], &v0);
+  nstatus = napi_get_value_double(env, args[1], &v0);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v1;
-  nstatus = napi_get_value_double(env, args[0], &v1);
+  nstatus = napi_get_value_double(env, args[2], &v1);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v2;
-  nstatus = napi_get_value_double(env, args[0], &v2);
+  nstatus = napi_get_value_double(env, args[3], &v2);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
