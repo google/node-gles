@@ -375,7 +375,8 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
 
 napi_ref WebGLRenderingContext::constructor_ref_;
 
-WebGLRenderingContext::WebGLRenderingContext(napi_env env, GLContextOptions opts)
+WebGLRenderingContext::WebGLRenderingContext(napi_env env,
+                                             GLContextOptions opts)
     : env_(env), ref_(nullptr) {
   eglContextWrapper_ = EGLContextWrapper::Create(env, opts);
   if (!eglContextWrapper_) {

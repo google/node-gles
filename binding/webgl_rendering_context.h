@@ -29,8 +29,8 @@ namespace nodejsgl {
 class WebGLRenderingContext {
  public:
   static napi_status Register(napi_env env, napi_value exports);
-  static napi_status NewInstance(napi_env env, napi_value* instance, 
-                                               napi_callback_info info);
+  static napi_status NewInstance(napi_env env, napi_value* instance,
+                                 napi_callback_info info);
 
  private:
   WebGLRenderingContext(napi_env env, GLContextOptions opts);
