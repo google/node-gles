@@ -4771,15 +4771,15 @@ napi_value WebGLRenderingContext::Uniform3f(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v0;
-  nstatus = napi_get_value_double(env, args[0], &v0);
+  nstatus = napi_get_value_double(env, args[1], &v0);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v1;
-  nstatus = napi_get_value_double(env, args[0], &v1);
+  nstatus = napi_get_value_double(env, args[2], &v1);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   double v2;
-  nstatus = napi_get_value_double(env, args[0], &v2);
+  nstatus = napi_get_value_double(env, args[3], &v2);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   WebGLRenderingContext *context = nullptr;
