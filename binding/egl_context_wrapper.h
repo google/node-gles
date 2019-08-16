@@ -37,8 +37,10 @@ namespace nodejsgl {
 // Provides initialization of EGL/GL context options.
 struct GLContextOptions {
   bool webgl_compatibility = false;
-  int client_major_es_version = 3;
-  int client_minor_es_version = 0;
+  uint32_t client_major_es_version = 3;
+  uint32_t client_minor_es_version = 0;
+  uint32_t width = 1;
+  uint32_t height = 1;
 };
 
 // Provides lookup of EGL/GL extensions.

@@ -26,7 +26,8 @@ namespace nodejsgl {
 static napi_value CreateWebGLRenderingContext(napi_env env,
                                               napi_callback_info info) {
   napi_value instance;
-  napi_status nstatus = WebGLRenderingContext::NewInstance(env, &instance);
+  napi_status nstatus =
+      WebGLRenderingContext::NewInstance(env, &instance, info);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   return instance;

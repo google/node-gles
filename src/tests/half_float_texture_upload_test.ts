@@ -2,7 +2,7 @@ import * as gles from '../.';
 
 import {createTexture2D, ensureFramebufferAttachment, initEnvGL} from './test_utils';
 
-const gl = gles.binding.createWebGLRenderingContext();
+const gl = gles.createWebGLRenderingContext();
 
 console.log('VERSION: ' + gl.getParameter(gl.VERSION));
 console.log('RENDERER: ' + gl.getParameter(gl.RENDERER));
