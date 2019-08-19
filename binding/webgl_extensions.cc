@@ -139,8 +139,8 @@ napi_status EXTBlendMinmaxExtension::Register(napi_env env,
   napi_status nstatus;
 
   napi_property_descriptor properties[] = {
-      NapiDefineIntProperty(env, GL_MAX_EXT, "MIN_EXT"),
-      NapiDefineIntProperty(env, GL_MIN_EXT, "MAX_EXT")};
+      NapiDefineIntProperty(env, GL_MAX_EXT, "MAX_EXT"),
+      NapiDefineIntProperty(env, GL_MIN_EXT, "MIN_EXT")};
 
   napi_value ctor_value;
   nstatus = napi_define_class(env, "EXT_blend_minmax", NAPI_AUTO_LENGTH,
