@@ -2551,9 +2551,8 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     nstatus =
         WebGLLoseContextExtension::NewInstance(env, &webgl_extension, egl_ctx);
   } else {
-    fprintf(stderr, "Extension: %s\n", name);
-    NAPI_THROW_ERROR(env, "Unsupported extension");
-    nstatus = napi_invalid_arg;
+    fprintf(stderr, "Unsupported extension: %s\n", name);
+    nstatus = napi_get_null(env, &webgl_extension);
   }
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
@@ -3149,12 +3148,13 @@ napi_value WebGLRenderingContext::GetProgramInfoLog(napi_env env,
   context->eglContextWrapper_->glGetProgramiv(program, GL_INFO_LOG_LENGTH,
                                               &log_length);
 
-  char *error = new char[log_length + 1];
-  context->eglContextWrapper_->glGetProgramInfoLog(program, log_length + 1,
+  char *error = new char[log_length];
+  context->eglContextWrapper_->glGetProgramInfoLog(program, log_length,
                                                    &log_length, error);
 
   napi_value error_value;
-  nstatus = napi_create_string_utf8(env, error, log_length + 1, &error_value);
+  nstatus = napi_create_string_utf8(env, error, log_length, &error_value);
+  delete[] error;
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -3178,7 +3178,18 @@ napi_value WebGLRenderingContext::GetProgramParameter(napi_env env,
   context->eglContextWrapper_->glGetProgramiv(args[0], args[1], &param);
 
   napi_value param_value;
-  nstatus = napi_create_int32(env, param, &param_value);
+
+  switch (args[1]) {
+    case GL_DELETE_STATUS:
+    case GL_LINK_STATUS:
+    case GL_VALIDATE_STATUS:
+      nstatus = napi_get_boolean(env, param, &param_value);
+      break;
+    default:
+      nstatus = napi_create_int32(env, param, &param_value);
+      break;
+  }
+
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -3277,12 +3288,13 @@ napi_value WebGLRenderingContext::GetShaderInfoLog(napi_env env,
   context->eglContextWrapper_->glGetShaderiv(shader, GL_INFO_LOG_LENGTH,
                                              &log_length);
 
-  char *error = new char[log_length + 1];
-  context->eglContextWrapper_->glGetShaderInfoLog(shader, log_length + 1,
+  char *error = new char[log_length];
+  context->eglContextWrapper_->glGetShaderInfoLog(shader, log_length,
                                                   &log_length, error);
 
   napi_value error_value;
-  nstatus = napi_create_string_utf8(env, error, log_length + 1, &error_value);
+  nstatus = napi_create_string_utf8(env, error, log_length, &error_value);
+  delete[] error;
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -3302,18 +3314,28 @@ napi_value WebGLRenderingContext::GetShaderParameter(napi_env env,
   nstatus = GetContextUint32Params(env, info, &context, 2, arg_values);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLint value;
+  GLint param;
   context->eglContextWrapper_->glGetShaderiv(arg_values[0], arg_values[1],
-                                             &value);
+                                             &param);
 
-  napi_value out_value;
-  nstatus = napi_create_uint32(env, value, &out_value);
+  napi_value param_value;
+
+  switch (arg_values[1]) {
+    case GL_DELETE_STATUS:
+    case GL_COMPILE_STATUS:
+      nstatus = napi_get_boolean(env, param, &param_value);
+      break;
+    default:
+      nstatus = napi_create_int32(env, param, &param_value);
+      break;
+  }
+
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
   context->CheckForErrors();
 #endif
-  return out_value;
+  return param_value;
 }
 
 /* static */
