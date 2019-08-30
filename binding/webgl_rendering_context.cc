@@ -4512,9 +4512,9 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform1iv(
-      location, static_cast<GLsizei>(alb.size()),
-      static_cast<GLint *>(alb.data));
+  context->eglContextWrapper_->glUniform1iv(location,
+                                            static_cast<GLsizei>(alb.size()),
+                                            static_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
