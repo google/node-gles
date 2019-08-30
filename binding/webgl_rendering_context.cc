@@ -3148,12 +3148,13 @@ napi_value WebGLRenderingContext::GetProgramInfoLog(napi_env env,
   context->eglContextWrapper_->glGetProgramiv(program, GL_INFO_LOG_LENGTH,
                                               &log_length);
 
-  char *error = new char[log_length + 1];
-  context->eglContextWrapper_->glGetProgramInfoLog(program, log_length + 1,
+  char *error = new char[log_length];
+  context->eglContextWrapper_->glGetProgramInfoLog(program, log_length,
                                                    &log_length, error);
 
   napi_value error_value;
-  nstatus = napi_create_string_utf8(env, error, log_length + 1, &error_value);
+  nstatus = napi_create_string_utf8(env, error, log_length, &error_value);
+  delete[] error;
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -3287,12 +3288,13 @@ napi_value WebGLRenderingContext::GetShaderInfoLog(napi_env env,
   context->eglContextWrapper_->glGetShaderiv(shader, GL_INFO_LOG_LENGTH,
                                              &log_length);
 
-  char *error = new char[log_length + 1];
-  context->eglContextWrapper_->glGetShaderInfoLog(shader, log_length + 1,
+  char *error = new char[log_length];
+  context->eglContextWrapper_->glGetShaderInfoLog(shader, log_length,
                                                   &log_length, error);
 
   napi_value error_value;
-  nstatus = napi_create_string_utf8(env, error, log_length + 1, &error_value);
+  nstatus = napi_create_string_utf8(env, error, log_length, &error_value);
+  delete[] error;
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
