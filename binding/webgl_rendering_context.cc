@@ -68,6 +68,20 @@ class ArrayLikeBuffer {
     }
   }
 
+  size_t size() {
+    switch (array_type) {
+      case kInt32:
+        return length / sizeof(int32_t);
+      case kFloat32:
+        return length / sizeof(float);
+      default:
+        fprintf(
+            stderr,
+            "WARNING: Cannot determine size of unknown array buffer type\n");
+        return 0;
+    }
+  }
+
   void *data;
   size_t length;
   bool should_delete;
@@ -4498,9 +4512,9 @@ napi_value WebGLRenderingContext::Uniform1iv(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform1iv(location,
-                                            static_cast<GLsizei>(alb.length),
-                                            static_cast<GLint *>(alb.data));
+  context->eglContextWrapper_->glUniform1iv(
+      location, static_cast<GLsizei>(alb.size()),
+      static_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4572,7 +4586,7 @@ napi_value WebGLRenderingContext::Uniform1fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform1fv(
-      location, alb.length, reinterpret_cast<GLfloat *>(alb.data));
+      location, alb.size(), reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4649,9 +4663,9 @@ napi_value WebGLRenderingContext::Uniform2fv(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform2fv(location,
-                                            static_cast<GLsizei>(alb.length),
-                                            static_cast<GLfloat *>(alb.data));
+  context->eglContextWrapper_->glUniform2fv(
+      location, static_cast<GLsizei>(alb.size() >> 1),
+      static_cast<GLfloat *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4706,7 +4720,8 @@ napi_value WebGLRenderingContext::Uniform2iv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform2iv(
-      location, 1, reinterpret_cast<GLint *>(alb.data));
+      location, static_cast<GLsizei>(alb.size() >> 1),
+      reinterpret_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4760,7 +4775,8 @@ napi_value WebGLRenderingContext::Uniform3iv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform3iv(
-      location, 1, reinterpret_cast<GLint *>(alb.data));
+      location, static_cast<GLsizei>(alb.size() / 3),
+      reinterpret_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -4844,7 +4860,7 @@ napi_value WebGLRenderingContext::Uniform3fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform3fv(
-      location, static_cast<GLsizei>(alb.length),
+      location, static_cast<GLsizei>(alb.size() / 3),
       reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
@@ -4881,7 +4897,7 @@ napi_value WebGLRenderingContext::Uniform4fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniform4fv(
-      location, static_cast<GLsizei>(alb.length),
+      location, static_cast<GLsizei>(alb.size() >> 2),
       reinterpret_cast<GLfloat *>(alb.data));
 
 #if DEBUG
@@ -4937,9 +4953,9 @@ napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glUniform4iv(location,
-                                            static_cast<GLsizei>(alb.length),
-                                            static_cast<GLint *>(alb.data));
+  context->eglContextWrapper_->glUniform4iv(
+      location, static_cast<GLsizei>(alb.size() >> 2),
+      static_cast<GLint *>(alb.data));
 
 #if DEBUG
   context->CheckForErrors();
@@ -5033,7 +5049,7 @@ napi_value WebGLRenderingContext::UniformMatrix2fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix2fv(
-      location, static_cast<GLsizei>(alb.length),
+      location, static_cast<GLsizei>(alb.size() >> 2),
       static_cast<GLboolean>(transpose),
       static_cast<const GLfloat *>(alb.data));
 
@@ -5076,7 +5092,7 @@ napi_value WebGLRenderingContext::UniformMatrix3fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix3fv(
-      location, static_cast<GLsizei>(alb.length),
+      location, static_cast<GLsizei>(alb.size() / 9),
       static_cast<GLboolean>(transpose),
       static_cast<const GLfloat *>(alb.data));
 
@@ -5119,7 +5135,7 @@ napi_value WebGLRenderingContext::UniformMatrix4fv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   context->eglContextWrapper_->glUniformMatrix4fv(
-      location, static_cast<GLsizei>(alb.length),
+      location, static_cast<GLsizei>(alb.size() >> 4),
       static_cast<GLboolean>(transpose),
       static_cast<const GLfloat *>(alb.data));
 
