@@ -3177,7 +3177,18 @@ napi_value WebGLRenderingContext::GetProgramParameter(napi_env env,
   context->eglContextWrapper_->glGetProgramiv(args[0], args[1], &param);
 
   napi_value param_value;
-  nstatus = napi_create_int32(env, param, &param_value);
+
+  switch (args[1]) {
+    case GL_DELETE_STATUS:
+    case GL_LINK_STATUS:
+    case GL_VALIDATE_STATUS:
+      nstatus = napi_get_boolean(env, param, &param_value);
+      break;
+    default:
+      nstatus = napi_create_int32(env, param, &param_value);
+      break;
+  }
+
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
@@ -3301,18 +3312,28 @@ napi_value WebGLRenderingContext::GetShaderParameter(napi_env env,
   nstatus = GetContextUint32Params(env, info, &context, 2, arg_values);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  GLint value;
+  GLint param;
   context->eglContextWrapper_->glGetShaderiv(arg_values[0], arg_values[1],
-                                             &value);
+                                             &param);
 
-  napi_value out_value;
-  nstatus = napi_create_uint32(env, value, &out_value);
+  napi_value param_value;
+
+  switch (arg_values[1]) {
+    case GL_DELETE_STATUS:
+    case GL_COMPILE_STATUS:
+      nstatus = napi_get_boolean(env, param, &param_value);
+      break;
+    default:
+      nstatus = napi_create_int32(env, param, &param_value);
+      break;
+  }
+
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
 #if DEBUG
   context->CheckForErrors();
 #endif
-  return out_value;
+  return param_value;
 }
 
 /* static */
