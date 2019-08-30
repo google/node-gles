@@ -2551,9 +2551,8 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
     nstatus =
         WebGLLoseContextExtension::NewInstance(env, &webgl_extension, egl_ctx);
   } else {
-    fprintf(stderr, "Extension: %s\n", name);
-    NAPI_THROW_ERROR(env, "Unsupported extension");
-    nstatus = napi_invalid_arg;
+    fprintf(stderr, "Unsupported extension: %s\n", name);
+    nstatus = napi_get_null(env, &webgl_extension);
   }
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
