@@ -4923,6 +4923,8 @@ napi_value WebGLRenderingContext::Uniform4iv(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
 
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+
   GLint location;
   nstatus = napi_get_value_int32(env, args[0], &location);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
@@ -4961,6 +4963,12 @@ napi_value WebGLRenderingContext::Uniform4f(napi_env env,
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
 
   GLint location;
   nstatus = napi_get_value_int32(env, args[0], &location);
