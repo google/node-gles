@@ -24,6 +24,7 @@ const tar = require('tar');
 const util = require('util');
 const os = require('os');
 const url = require('url');
+const zip = require('adm-zip');
 const HttpsProxyAgent = require('https-proxy-agent');
 const ProgressBar = require('progress');
 
@@ -94,9 +95,22 @@ async function downloadAngleLibs(callback) {
     });
 
     if (platform === 'win32') {
-      //
-      // TODO(kreeger): write me.
-      //
+      // Save zip file to disk, extract, and delete the downloaded zip file.
+      const tempFileName = path.join(__dirname, '_tmp.zip');
+      const outputFile = fs.createWriteStream(tempFileName);
+
+      response.on('data', chunk => bar.tick(chunk.length))
+          .pipe(outputFile)
+          .on('close', async () => {
+            const zipFile = new zip(tempFileName);
+            zipFile.extractAllTo(destPath, true /* overwrite */);
+
+            await unlink(tempFileName);
+
+            if (callback !== undefined) {
+              callback();
+            }
+          });
     } else {
       // All other platforms use a tarball:
       response
