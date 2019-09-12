@@ -30,6 +30,7 @@ const ProgressBar = require('progress');
 
 const mkdir = util.promisify(fs.mkdir);
 const exists = util.promisify(fs.exists);
+const rename = util.promisify(fs.rename);
 const unlink = util.promisify(fs.unlink);
 
 // Determine which tarball to download based on the OS platform and arch:
@@ -107,6 +108,18 @@ async function downloadAngleLibs(callback) {
             zipFile.extractAllTo(depsPath, true /* overwrite */);
 
             await unlink(tempFileName);
+
+            // The .lib files for the two .dll files we care about have a name
+            // the compiler doesn't like - rename them:
+            await rename(
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libGLESv2.dll.lib'),
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libGLESv2.lib'));
+            await rename(
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libEGL.dll.lib'),
+                path.join(depsPath, 'angle', 'out', 'Release', 'libEGL.lib'));
 
             if (callback !== undefined) {
               callback();
