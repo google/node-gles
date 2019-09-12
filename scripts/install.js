@@ -24,11 +24,14 @@ const tar = require('tar');
 const util = require('util');
 const os = require('os');
 const url = require('url');
+const zip = require('adm-zip');
 const HttpsProxyAgent = require('https-proxy-agent');
 const ProgressBar = require('progress');
 
 const mkdir = util.promisify(fs.mkdir);
 const exists = util.promisify(fs.exists);
+const rename = util.promisify(fs.rename);
+const unlink = util.promisify(fs.unlink);
 
 // Determine which tarball to download based on the OS platform and arch:
 const platform = os.platform().toLowerCase();
@@ -40,7 +43,10 @@ if (platform === 'darwin') {
 } else if (platform === 'linux') {
   // TODO(add debug flag?)
   ANGLE_BINARY_URI += `angle-3729-${platformArch}.tar.gz`;
+} else if (platform === 'win32') {
+  ANGLE_BINARY_URI += `angle-3729-${platformArch}.zip`;
 } else {
+  console.log('platform: ' + platform);
   throw new Error(`The platform ${platformArch} is not currently supported!`);
 }
 
@@ -91,9 +97,34 @@ async function downloadAngleLibs(callback) {
     });
 
     if (platform === 'win32') {
-      //
-      // TODO(kreeger): write me.
-      //
+      // Save zip file to disk, extract, and delete the downloaded zip file.
+      const tempFileName = path.join(__dirname, '_tmp.zip');
+      const outputFile = fs.createWriteStream(tempFileName);
+
+      response.on('data', chunk => bar.tick(chunk.length))
+          .pipe(outputFile)
+          .on('close', async () => {
+            const zipFile = new zip(tempFileName);
+            zipFile.extractAllTo(depsPath, true /* overwrite */);
+
+            await unlink(tempFileName);
+
+            // The .lib files for the two .dll files we care about have a name
+            // the compiler doesn't like - rename them:
+            await rename(
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libGLESv2.dll.lib'),
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libGLESv2.lib'));
+            await rename(
+                path.join(
+                    depsPath, 'angle', 'out', 'Release', 'libEGL.dll.lib'),
+                path.join(depsPath, 'angle', 'out', 'Release', 'libEGL.lib'));
+
+            if (callback !== undefined) {
+              callback();
+            }
+          });
     } else {
       // All other platforms use a tarball:
       response

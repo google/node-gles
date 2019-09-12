@@ -53,6 +53,13 @@
           ],
           'library_dirs' : ['<(angle_lib_dir)'],
         }
+      ],
+      [
+        'OS=="win"', {
+          'defines': ['COMPILER_MSVC'],
+          'libraries': ['libGLESv2', 'libEGL'],
+          'library_dirs' : ['<(angle_lib_dir)'],
+        },
       ]
     ]
   }]

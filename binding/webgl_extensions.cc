@@ -856,6 +856,9 @@ napi_status WebGLDepthTextureExtension::NewInstance(
 
 napi_ref WebGLLoseContextExtension::constructor_ref_;
 
+WebGLLoseContextExtension::WebGLLoseContextExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
 /* static */
 bool WebGLLoseContextExtension::IsSupported(
     EGLContextWrapper* egl_context_wrapper) {
