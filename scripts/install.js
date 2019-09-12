@@ -30,6 +30,7 @@ const ProgressBar = require('progress');
 
 const mkdir = util.promisify(fs.mkdir);
 const exists = util.promisify(fs.exists);
+const unlink = util.promisify(fs.unlink);
 
 // Determine which tarball to download based on the OS platform and arch:
 const platform = os.platform().toLowerCase();
@@ -103,7 +104,7 @@ async function downloadAngleLibs(callback) {
           .pipe(outputFile)
           .on('close', async () => {
             const zipFile = new zip(tempFileName);
-            zipFile.extractAllTo(destPath, true /* overwrite */);
+            zipFile.extractAllTo(depsPath, true /* overwrite */);
 
             await unlink(tempFileName);
 

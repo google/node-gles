@@ -28,6 +28,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace nodejsgl {
 
@@ -155,9 +156,10 @@ static napi_status GetContextBoolParams(napi_env env, napi_callback_info info,
   napi_status nstatus;
 
   size_t argc = param_length;
-  napi_value args[param_length];
+  std::vector<napi_value> args;
+  args.resize(param_length);
   napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  nstatus = napi_get_cb_info(env, info, &argc, args.data(), &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
@@ -183,9 +185,10 @@ static napi_status GetContextUint32Params(napi_env env, napi_callback_info info,
   napi_status nstatus;
 
   size_t argc = param_length;
-  napi_value args[param_length];
+  std::vector<napi_value> args;
+  args.resize(param_length);
   napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  nstatus = napi_get_cb_info(env, info, &argc, args.data(), &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
@@ -219,9 +222,10 @@ static napi_status GetContextInt32Params(napi_env env, napi_callback_info info,
   napi_status nstatus;
 
   size_t argc = param_length;
-  napi_value args[param_length];
+  std::vector<napi_value> args;
+  args.resize(param_length);
   napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  nstatus = napi_get_cb_info(env, info, &argc, args.data(), &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
@@ -254,9 +258,10 @@ static napi_status GetContextDoubleParams(napi_env env, napi_callback_info info,
   napi_status nstatus;
 
   size_t argc = param_length;
-  napi_value args[param_length];
+  std::vector<napi_value> args;
+  args.resize(param_length);
   napi_value js_this;
-  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  nstatus = napi_get_cb_info(env, info, &argc, args.data(), &js_this, nullptr);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
 
   ENSURE_ARGC_RETVAL(env, argc, param_length, napi_invalid_arg);
@@ -2798,9 +2803,10 @@ napi_value WebGLRenderingContext::GetAttachedShaders(napi_env env,
 #endif
 
   GLsizei count;
-  GLuint shaders[attached_shader_count];
+  std::vector<GLuint> shaders;
+  shaders.resize(attached_shader_count);
   context->eglContextWrapper_->glGetAttachedShaders(
-      program, attached_shader_count, &count, shaders);
+      program, attached_shader_count, &count, shaders.data());
 #if DEBUG
   context->CheckForErrors();
 #endif
