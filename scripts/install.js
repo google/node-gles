@@ -40,7 +40,10 @@ if (platform === 'darwin') {
 } else if (platform === 'linux') {
   // TODO(add debug flag?)
   ANGLE_BINARY_URI += `angle-3729-${platformArch}.tar.gz`;
+} else if (platform === 'win32') {
+  ANGLE_BINARY_URI += `angle-3729-${platformArch}.zip`;
 } else {
+  console.log('platform: ' + platform);
   throw new Error(`The platform ${platformArch} is not currently supported!`);
 }
 
