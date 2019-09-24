@@ -3749,7 +3749,14 @@ napi_value WebGLRenderingContext::PixelStorei(napi_env env,
   ENSURE_ARGC_RETVAL(env, argc, 2, nullptr);
 
   ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
-  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  napi_valuetype result;
+  nstatus = napi_typeof(env, args[1], &result);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  if (result == napi_boolean) {
+    ENSURE_VALUE_IS_BOOLEAN_RETVAL(env, args[1], nullptr);
+  } else {
+    ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  }
 
   WebGLRenderingContext *context = nullptr;
   nstatus = UnwrapContext(env, js_this, &context);
@@ -3760,8 +3767,13 @@ napi_value WebGLRenderingContext::PixelStorei(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   GLint param;
-  nstatus = napi_get_value_int32(env, args[1], &param);
-  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  if (result == napi_boolean) {
+    nstatus = napi_get_value_bool(env, args[1], (bool *)&param);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  } else {
+    nstatus = napi_get_value_int32(env, args[1], &param);
+    ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+  }
 
   context->eglContextWrapper_->glPixelStorei(pname, param);
 
