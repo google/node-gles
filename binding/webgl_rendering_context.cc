@@ -403,6 +403,11 @@ WebGLRenderingContext::WebGLRenderingContext(napi_env env,
     return;
   }
   alloc_count_ = 0;
+
+  unpack_alignment = false;
+  unpack_colorspace_conversion = false;
+  unpack_flip_y = false;
+  unpack_premultiply_alpha = false;
 }
 
 WebGLRenderingContext::~WebGLRenderingContext() {
@@ -3775,7 +3780,31 @@ napi_value WebGLRenderingContext::PixelStorei(napi_env env,
     ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
   }
 
-  context->eglContextWrapper_->glPixelStorei(pname, param);
+  // https://github.com/stackgl/headless-gl/blob/master/src/native/webgl.cc#L377
+  // Handle WebGL specific extensions
+
+  switch (pname) {
+    case 0x9240:
+      context->unpack_flip_y = param != 0;
+      break;
+
+    case 0x9241:
+      context->unpack_premultiply_alpha = param != 0;
+      break;
+
+    case 0x9243:
+      context->unpack_colorspace_conversion = param;
+      break;
+
+    case GL_UNPACK_ALIGNMENT:
+      context->unpack_alignment = param;
+      context->eglContextWrapper_->glPixelStorei(pname, param);
+      break;
+
+    default:
+      context->eglContextWrapper_->glPixelStorei(pname, param);
+      break;
+  }
 
 #if DEBUG
   context->CheckForErrors();
@@ -4130,14 +4159,111 @@ napi_value WebGLRenderingContext::TexImage2D(napi_env env,
   nstatus = UnwrapContext(env, js_this, &context);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
-                                            width, height, border, format, type,
-                                            alb.data);
+  // TODO have
+  // https://github.com/stackgl/headless-gl/blob/master/src/native/webgl.cc#L814
+  if (context->unpack_flip_y || context->unpack_premultiply_alpha) {
+    unsigned char *data = context->unpackPixels(type, format, width, height,
+                                                (unsigned char *)alb.data);
+    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
+                                              width, height, border, format,
+                                              type, data);
+  } else {
+    context->eglContextWrapper_->glTexImage2D(target, level, internal_format,
+                                              width, height, border, format,
+                                              type, alb.data);
+  }
 
 #if DEBUG
   context->CheckForErrors();
 #endif
   return nullptr;
+}
+
+// https://github.com/stackgl/headless-gl/blob/master/src/native/webgl.cc#L719
+unsigned char *WebGLRenderingContext::unpackPixels(GLenum type, GLenum format,
+                                                   GLint width, GLint height,
+                                                   unsigned char *pixels) {
+  // Compute pixel size
+  GLint pixelSize = 1;
+  if (type == GL_UNSIGNED_BYTE || type == GL_FLOAT) {
+    if (type == GL_FLOAT) {
+      pixelSize = 4;
+    }
+    switch (format) {
+      case GL_ALPHA:
+      case GL_LUMINANCE:
+        break;
+      case GL_LUMINANCE_ALPHA:
+        pixelSize *= 2;
+        break;
+      case GL_RGB:
+        pixelSize *= 3;
+        break;
+      case GL_RGBA:
+        pixelSize *= 4;
+        break;
+    }
+  } else {
+    pixelSize = 2;
+  }
+
+  // Compute row stride
+  GLint rowStride = pixelSize * width;
+  if ((rowStride % unpack_alignment) != 0) {
+    rowStride += unpack_alignment - (rowStride % unpack_alignment);
+  }
+
+  GLint imageSize = rowStride * height;
+  unsigned char *unpacked = new unsigned char[imageSize];
+
+  if (unpack_flip_y) {
+    for (int i = 0, j = height - 1; j >= 0; ++i, --j) {
+      memcpy(reinterpret_cast<void *>(unpacked + j * rowStride),
+             reinterpret_cast<void *>(pixels + i * rowStride),
+             width * pixelSize);
+    }
+  } else {
+    memcpy(reinterpret_cast<void *>(unpacked), reinterpret_cast<void *>(pixels),
+           imageSize);
+  }
+
+  // Premultiply alpha unpacking
+  if (unpack_premultiply_alpha &&
+      (format == GL_LUMINANCE_ALPHA || format == GL_RGBA)) {
+    for (int row = 0; row < height; ++row) {
+      for (int col = 0; col < width; ++col) {
+        unsigned char *pixel = unpacked + (row * rowStride) + (col * pixelSize);
+        if (format == GL_LUMINANCE_ALPHA) {
+          pixel[0] *= pixel[1] / 255.0;
+        } else if (type == GL_UNSIGNED_BYTE) {
+          float scale = pixel[3] / 255.0;
+          pixel[0] *= scale;
+          pixel[1] *= scale;
+          pixel[2] *= scale;
+        } else if (type == GL_UNSIGNED_SHORT_4_4_4_4) {
+          int r = pixel[0] & 0x0f;
+          int g = pixel[0] >> 4;
+          int b = pixel[1] & 0x0f;
+          int a = pixel[1] >> 4;
+
+          float scale = a / 15.0;
+          r *= scale;
+          g *= scale;
+          b *= scale;
+
+          pixel[0] = r + (g << 4);
+          pixel[1] = b + (a << 4);
+        } else if (type == GL_UNSIGNED_SHORT_5_5_5_1) {
+          if ((pixel[0] & 1) == 0) {
+            pixel[0] = 1;  // why does this get set to 1?!?!?!
+            pixel[1] = 0;
+          }
+        }
+      }
+    }
+  }
+
+  return unpacked;
 }
 
 /* static */
