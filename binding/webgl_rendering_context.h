@@ -197,8 +197,8 @@ class WebGLRenderingContext {
 
   std::atomic<size_t> alloc_count_;
   // WebGL specific
-  size_t unpack_alignment;
-  size_t unpack_colorspace_conversion;
+  GLint unpack_alignment;
+  GLint unpack_colorspace_conversion;
   bool unpack_flip_y;
   bool unpack_premultiply_alpha;
   unsigned char* unpackPixels(GLenum type, GLenum format, GLint width,

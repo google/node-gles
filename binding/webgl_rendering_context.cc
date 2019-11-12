@@ -404,10 +404,10 @@ WebGLRenderingContext::WebGLRenderingContext(napi_env env,
   }
   alloc_count_ = 0;
 
-  unpack_alignment = false;
+  unpack_alignment = 4;
   unpack_colorspace_conversion = false;
   unpack_flip_y = false;
-  unpack_premultiply_alpha = false;
+  unpack_premultiply_alpha = 0x9244;
 }
 
 WebGLRenderingContext::~WebGLRenderingContext() {
