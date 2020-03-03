@@ -51,6 +51,7 @@ static napi_value InitBinding(napi_env env, napi_value exports) {
   WebGLDebugRendererInfoExtension::Register(env, exports);
   WebGLDepthTextureExtension::Register(env, exports);
   WebGLLoseContextExtension::Register(env, exports);
+  WebGLDrawBuffersExtension::Register(env, exports);
   WebGLRenderingContext::Register(env, exports);
 
   napi_property_descriptor properties[] = {

@@ -444,6 +444,10 @@ void EGLContextWrapper::BindProcAddresses() {
   // ANGLE specific
   glRequestExtensionANGLE = reinterpret_cast<PFNGLREQUESTEXTENSIONANGLEPROC>(
       eglGetProcAddress("glRequestExtensionANGLE"));
+
+  // GL ES
+  glGetFloatv =
+      reinterpret_cast<PFNGLGETFLOATVPROC>(eglGetProcAddress("glGetFloatv"));
 }
 
 void EGLContextWrapper::RefreshGLExtensions() {

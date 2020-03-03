@@ -960,6 +960,55 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NapiDefineIntProperty(env, GL_RED, "RED"),
       NapiDefineIntProperty(env, GL_SYNC_GPU_COMMANDS_COMPLETE,
                             "SYNC_GPU_COMMANDS_COMPLETE"),
+      NapiDefineIntProperty(env, GL_MAX_VERTEX_UNIFORM_COMPONENTS,
+                            "MAX_VERTEX_UNIFORM_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_VERTEX_UNIFORM_BLOCKS,
+                            "MAX_VERTEX_UNIFORM_BLOCKS"),
+      NapiDefineIntProperty(env, GL_MAX_VERTEX_OUTPUT_COMPONENTS,
+                            "MAX_VERTEX_OUTPUT_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_VARYING_COMPONENTS,
+                            "MAX_VARYING_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
+                            "MAX_FRAGMENT_UNIFORM_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_FRAGMENT_UNIFORM_BLOCKS,
+                            "MAX_FRAGMENT_UNIFORM_BLOCKS"),
+      NapiDefineIntProperty(env, GL_MAX_FRAGMENT_INPUT_COMPONENTS,
+                            "MAX_FRAGMENT_INPUT_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MIN_PROGRAM_TEXEL_OFFSET,
+                            "MIN_PROGRAM_TEXEL_OFFSET"),
+      NapiDefineIntProperty(env, GL_MAX_PROGRAM_TEXEL_OFFSET,
+                            "MAX_PROGRAM_TEXEL_OFFSET"),
+      NapiDefineIntProperty(env, GL_MAX_DRAW_BUFFERS, "MAX_DRAW_BUFFERS"),
+      NapiDefineIntProperty(env, GL_MAX_COLOR_ATTACHMENTS,
+                            "MAX_COLOR_ATTACHMENTS"),
+      NapiDefineIntProperty(env, GL_MAX_SAMPLES, "MAX_SAMPLES"),
+      NapiDefineIntProperty(env, GL_MAX_3D_TEXTURE_SIZE, "MAX_3D_TEXTURE_SIZE"),
+      NapiDefineIntProperty(env, GL_MAX_ARRAY_TEXTURE_LAYERS,
+                            "MAX_ARRAY_TEXTURE_LAYERS"),
+      NapiDefineIntProperty(env, GL_MAX_TEXTURE_LOD_BIAS,
+                            "MAX_TEXTURE_LOD_BIAS"),
+      NapiDefineIntProperty(env, GL_MAX_UNIFORM_BUFFER_BINDINGS,
+                            "MAX_UNIFORM_BUFFER_BINDINGS"),
+      NapiDefineIntProperty(env, GL_MAX_UNIFORM_BLOCK_SIZE,
+                            "MAX_UNIFORM_BLOCK_SIZE"),
+      NapiDefineIntProperty(env, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT,
+                            "UNIFORM_BUFFER_OFFSET_ALIGNMENT"),
+      NapiDefineIntProperty(env, GL_MAX_COMBINED_UNIFORM_BLOCKS,
+                            "MAX_COMBINED_UNIFORM_BLOCKS"),
+      NapiDefineIntProperty(env, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS,
+                            "MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS,
+                            "MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS"),
+      NapiDefineIntProperty(env,
+                            GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS,
+                            "MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS,
+                            "MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS"),
+      NapiDefineIntProperty(env, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS,
+                            "MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS"),
+      NapiDefineIntProperty(env, GL_MAX_ELEMENT_INDEX, "MAX_ELEMENT_INDEX"),
+      NapiDefineIntProperty(env, GL_MAX_SERVER_WAIT_TIMEOUT,
+                            "MAX_SERVER_WAIT_TIMEOUT"),
   };
 
   // Create constructor
@@ -2555,6 +2604,10 @@ napi_value WebGLRenderingContext::GetExtension(napi_env env,
              WebGLLoseContextExtension::IsSupported(egl_ctx)) {
     nstatus =
         WebGLLoseContextExtension::NewInstance(env, &webgl_extension, egl_ctx);
+  } else if (strcmp(name, "WEBGL_draw_buffers") == 0 &&
+             WebGLDrawBuffersExtension::IsSupported(egl_ctx)) {
+    nstatus =
+        WebGLDrawBuffersExtension::NewInstance(env, &webgl_extension, egl_ctx);
   } else {
     fprintf(stderr, "Unsupported extension: %s\n", name);
     nstatus = napi_get_null(env, &webgl_extension);
@@ -2579,6 +2632,41 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
   switch (name) {
+    // Int32
+    case GL_MAX_DRAW_BUFFERS:
+    case GL_MAX_RENDERBUFFER_SIZE:
+    case GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT:
+    case GL_MAX_VERTEX_UNIFORM_COMPONENTS:
+    case GL_MAX_VERTEX_UNIFORM_BLOCKS:
+    case GL_MAX_VERTEX_OUTPUT_COMPONENTS:
+    case GL_MAX_VARYING_COMPONENTS:
+    case GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
+    case GL_MAX_FRAGMENT_UNIFORM_BLOCKS:
+    case GL_MAX_FRAGMENT_INPUT_COMPONENTS:
+    case GL_MIN_PROGRAM_TEXEL_OFFSET:
+    case GL_MAX_PROGRAM_TEXEL_OFFSET:
+    case GL_MAX_COLOR_ATTACHMENTS:
+    case GL_MAX_SAMPLES:
+    case GL_MAX_3D_TEXTURE_SIZE:
+    case GL_MAX_ARRAY_TEXTURE_LAYERS:
+    case GL_MAX_TEXTURE_LOD_BIAS:
+    case GL_MAX_UNIFORM_BUFFER_BINDINGS:
+    case GL_MAX_UNIFORM_BLOCK_SIZE:
+    case GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT:
+    case GL_MAX_COMBINED_UNIFORM_BLOCKS:
+    case GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS:
+    case GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS:
+    case GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS:
+    case GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS:
+    case GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS:
+    case GL_MAX_ELEMENT_INDEX:
+    case GL_MAX_SERVER_WAIT_TIMEOUT:
+    case GL_RED_BITS:
+    case GL_GREEN_BITS:
+    case GL_BLUE_BITS:
+    case GL_ALPHA_BITS:
+    case GL_DEPTH_BITS:
+    case GL_STENCIL_BITS:
     case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
     case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
     case GL_MAX_CUBE_MAP_TEXTURE_SIZE:
@@ -2587,7 +2675,7 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
     case GL_MAX_VARYING_VECTORS:
     case GL_MAX_FRAGMENT_UNIFORM_VECTORS:
     case GL_MAX_TEXTURE_SIZE:
-    case GL_MAX_TEXTURE_IMAGE_UNITS:
+    case GL_MAX_TEXTURE_IMAGE_UNITS: {
       GLint params;
       context->eglContextWrapper_->glGetIntegerv(name, &params);
 
@@ -2596,7 +2684,12 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
       ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
       return params_value;
+    }
 
+    // String
+    case GL_SHADING_LANGUAGE_VERSION:
+    case GL_VENDOR:
+    case GL_RENDERER:
     case GL_VERSION: {
       const GLubyte *str = context->eglContextWrapper_->glGetString(name);
       if (str) {
@@ -2623,18 +2716,53 @@ napi_value WebGLRenderingContext::GetParameter(napi_env env,
       return previous_buffer_value;
     }
 
-    case GL_RENDERER: {
-      const GLubyte *str = context->eglContextWrapper_->glGetString(name);
-      if (str) {
-        const char *str_c_str = reinterpret_cast<const char *>(str);
-        napi_value str_value;
-        nstatus = napi_create_string_utf8(env, str_c_str, strlen(str_c_str),
-                                          &str_value);
-        ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+    // Int32Array
+    case GL_MAX_VIEWPORT_DIMS: {
+      int length = 2;
 
-        return str_value;
-      }
-      break;
+      GLint values[4] = {0};
+      context->eglContextWrapper_->glGetIntegerv(name, values);
+
+      size_t byte_length = sizeof(GLint) * length;
+
+      napi_value arraybuffer;
+      void *arraybuffer_data = nullptr;
+      nstatus = napi_create_arraybuffer(env, byte_length, &arraybuffer_data,
+                                        &arraybuffer);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      memcpy(arraybuffer_data, values, byte_length);
+
+      napi_value int32array;
+      nstatus = napi_create_typedarray(env, napi_int32_array, length,
+                                       arraybuffer, 0, &int32array);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+      return int32array;
+    }
+
+    // Float32Array
+    case GL_ALIASED_POINT_SIZE_RANGE:
+    case GL_ALIASED_LINE_WIDTH_RANGE: {
+      int length = 2;
+
+      GLfloat values[4] = {0};
+      context->eglContextWrapper_->glGetFloatv(name, values);
+
+      size_t byte_length = sizeof(GLfloat) * length;
+
+      napi_value arraybuffer;
+      void *arraybuffer_data = nullptr;
+      nstatus = napi_create_arraybuffer(env, byte_length, &arraybuffer_data,
+                                        &arraybuffer);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+      memcpy(arraybuffer_data, values, byte_length);
+
+      napi_value float32array;
+      nstatus = napi_create_typedarray(env, napi_float32_array, length,
+                                       arraybuffer, 0, &float32array);
+      ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+      return float32array;
     }
 
       // TODO(kreeger): Add more of these
@@ -3136,7 +3264,7 @@ napi_value WebGLRenderingContext::GetContextAttributes(
                                     stencil_value);
   ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
 
-  return stencil_value;
+  return context_attr_value;
 }
 
 /* static */
