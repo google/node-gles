@@ -235,6 +235,7 @@ class EGLContextWrapper {
 
   // GL ES
   PFNGLGETFLOATVPROC glGetFloatv;
+  PFNGLGETBOOLEANVPROC glGetBooleanv;
 
   // Refreshes extensions list:
   void RefreshGLExtensions();

@@ -448,6 +448,8 @@ void EGLContextWrapper::BindProcAddresses() {
   // GL ES
   glGetFloatv =
       reinterpret_cast<PFNGLGETFLOATVPROC>(eglGetProcAddress("glGetFloatv"));
+  glGetBooleanv = reinterpret_cast<PFNGLGETBOOLEANVPROC>(
+      eglGetProcAddress("glGetBooleanv"));
 }
 
 void EGLContextWrapper::RefreshGLExtensions() {
