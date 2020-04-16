@@ -233,6 +233,10 @@ class EGLContextWrapper {
   // ANGLE specific
   PFNGLREQUESTEXTENSIONANGLEPROC glRequestExtensionANGLE;
 
+  // GL ES
+  PFNGLGETFLOATVPROC glGetFloatv;
+  PFNGLGETBOOLEANVPROC glGetBooleanv;
+
   // Refreshes extensions list:
   void RefreshGLExtensions();
 

@@ -239,6 +239,16 @@ class WebGLLoseContextExtension : public GLExtensionBase {
   static void Cleanup(napi_env env, void* native, void* hint);
 };
 
+// Provides 'WEBGL_draw_buffers':
+// https://www.khronos.org/registry/webgl/extensions/WEBGL_draw_buffers/
+class WebGLDrawBuffersExtension : public GLExtensionBase {
+  NAPI_BOOTSTRAP_METHODS
+
+ protected:
+  WebGLDrawBuffersExtension(napi_env env);
+  virtual ~WebGLDrawBuffersExtension() {}
+};
+
 }  // namespace nodejsgl
 
 #endif  // NODEJS_GL_WEBGL_EXTENSIONS_H_

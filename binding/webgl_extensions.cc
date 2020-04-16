@@ -936,4 +936,56 @@ napi_value WebGLLoseContextExtension::RestoreContext(napi_env env,
   return nullptr;
 }
 
+//==============================================================================
+// WebGLDrawBuffersExtension
+
+napi_ref WebGLDrawBuffersExtension::constructor_ref_;
+
+WebGLDrawBuffersExtension::WebGLDrawBuffersExtension(napi_env env)
+    : GLExtensionBase(env) {}
+
+/* static */
+bool WebGLDrawBuffersExtension::IsSupported(
+    EGLContextWrapper* egl_context_wrapper) {
+  IS_EXTENSION_NAME_AVAILABLE("GL_EXT_draw_buffers");
+}
+
+/* static */
+napi_status WebGLDrawBuffersExtension::Register(napi_env env,
+                                                napi_value exports) {
+  napi_status nstatus;
+
+  napi_property_descriptor properties[] = {
+      NapiDefineIntProperty(env, GL_MAX_COLOR_ATTACHMENTS,
+                            "MAX_COLOR_ATTACHMENTS_WEBGL"),
+      NapiDefineIntProperty(env, GL_MAX_DRAW_BUFFERS, "MAX_DRAW_BUFFERS_WEBGL"),
+  };
+
+  napi_value ctor_value;
+  nstatus = napi_define_class(env, "WEBGL_draw_buffers", NAPI_AUTO_LENGTH,
+                              GLExtensionBase::InitStubClass, nullptr,
+                              ARRAY_SIZE(properties), properties, &ctor_value);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  nstatus = napi_create_reference(env, ctor_value, 1, &constructor_ref_);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  return napi_ok;
+}
+
+/* static */
+napi_status WebGLDrawBuffersExtension::NewInstance(
+    napi_env env, napi_value* instance,
+    EGLContextWrapper* egl_context_wrapper) {
+  ENSURE_EXTENSION_IS_SUPPORTED
+
+  napi_status nstatus = NewInstanceBase(env, constructor_ref_, instance);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nstatus);
+
+  egl_context_wrapper->glRequestExtensionANGLE("GL_EXT_draw_buffers");
+  egl_context_wrapper->RefreshGLExtensions();
+
+  return napi_ok;
+}
+
 }  // namespace nodejsgl
