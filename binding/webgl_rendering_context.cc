@@ -392,6 +392,17 @@ static napi_status GetArrayLikeBuffer(napi_env env, napi_value array_like_value,
   return napi_invalid_arg;
 }
 
+#if DEBUG
+void DebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                          GLenum severity, GLsizei length,
+                          const GLchar *message, const void *userParam) {
+  fprintf(stderr,
+          "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+          (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity,
+          message);
+}
+#endif
+
 napi_ref WebGLRenderingContext::constructor_ref_;
 
 WebGLRenderingContext::WebGLRenderingContext(napi_env env,
@@ -403,6 +414,11 @@ WebGLRenderingContext::WebGLRenderingContext(napi_env env,
     return;
   }
   alloc_count_ = 0;
+
+#if DEBUG
+  eglContextWrapper_->glEnable(GL_DEBUG_OUTPUT);
+  eglContextWrapper_->glDebugMessageCallback(DebugMessageCallback, 0);
+#endif
 }
 
 WebGLRenderingContext::~WebGLRenderingContext() {
