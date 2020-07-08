@@ -1,0 +1,110 @@
+# The release configuration.
+# This is executed for releases only and will upload the artifact to Github.
+- configuration: release
+  version: "{build}"
+  branches:
+    only:
+      - release
+      - /\d\.\d\.\d/
+    except:
+      - master
+  os: Visual Studio 2013
+  platform:
+    - x64
+  build: off
+  clone_folder: C:\repositories\node-gles
+  # This is adapted from the appveyor.yml in node-sass.
+  # http://www.wintellect.com/devcenter/jrobbins/pdb-files-what-every-developer-must-know
+  # http://help.appveyor.com/discussions/kb/32-how-to-build-on-logical-drive-created-by-subst
+  init:
+    - cmd: >-
+        subst S: C:\repositories
+    - ps: set-location -path S:\node-gles
+  environment:
+    NODE_GLES_SKIP_BINARY_DOWNLOAD_FOR_CI: true
+    matrix:
+      - nodejs_version: 10
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 11
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 12
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 13
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 14
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  install:
+    - git submodule update --init --recursive
+    - ps: Install-Product node $env:nodejs_version $env:platform
+    - node --version
+    - npm --version
+    - npm install -g yarn
+    - yarn --version
+    - yarn install
+  build_script:
+    - yarn build
+  artifacts:
+    - path: node-gles-*-*-*.node
+      name: node-gles
+  deploy:
+    - provider: GitHub
+      artifact: node-gles
+      auth_token:
+        secure: ADD YOUR APPVEYOR KEY HERE
+      draft: false
+      prerelease: false
+      on:
+        appveyor_repo_tag: true
+# The testing configuration.
+# This will be executed for master and all pull requests and wont upload any artifacts.
+- configuration: testing
+  version: "{build}"
+  branches:
+    except:
+      - release
+      - /\d\.\d\.\d/
+  skip_tags: true
+  os: Visual Studio 2013
+  platform:
+    - x64
+  build: off
+  clone_folder: C:\repositories\node-gles
+  # This is adapted from the appveyor.yml in node-sass.
+  # http://www.wintellect.com/devcenter/jrobbins/pdb-files-what-every-developer-must-know
+  # http://help.appveyor.com/discussions/kb/32-how-to-build-on-logical-drive-created-by-subst
+  init:
+    - cmd: >-
+        subst S: c:\repositories
+    - ps: set-location -path S:\node-gles
+  environment:
+    NODE_GLES_SKIP_BINARY_DOWNLOAD_FOR_CI: true
+    matrix:
+      - nodejs_version: 10
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 11
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 12
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 13
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      - nodejs_version: 14
+        GYP_MSVS_VERSION: 2015
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  install:
+    - ps: Install-Product node $env:nodejs_version $env:platform
+    - node --version
+    - npm --version
+    - npm install -g yarn
+    - yarn --version
+    - yarn install
+  build_script:
+    - yarn build
