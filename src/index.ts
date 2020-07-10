@@ -15,37 +15,37 @@
  * =============================================================================
  */
 
+import * as fs from "fs";
+import { qualifiedName } from "../scripts/file-name";
+
+if (!fs.existsSync(qualifiedName)) {
+  throw new Error(`Unable to find native addon file "${qualifiedName}".`);
+}
+
 // tslint:disable-next-line:no-require-imports
-import bindings = require('bindings');
-import {NodeJsGlBinding} from './binding';
-
-const binding = bindings('nodejs_gl_binding') as NodeJsGlBinding;
-
+const binding = require(qualifiedName);
 
 interface ContextArguments {
-    width?: number,
-    height?: number,
-    webGLCompability?: boolean,
-    majorVersion?: number,
-    minorVersion?: number,
+  width?: number;
+  height?: number;
+  webGLCompability?: boolean;
+  majorVersion?: number;
+  minorVersion?: number;
+}
+
+const createWebGLRenderingContext = function (args: ContextArguments = {}) {
+  const width = args.width || 1;
+  const height = args.height || 1;
+  const webGLCompability = args.webGLCompability || false;
+  const majorVersion = args.majorVersion || 3;
+  const minorVersion = args.minorVersion || 0;
+  return binding.createWebGLRenderingContext(
+    width,
+    height,
+    majorVersion,
+    minorVersion,
+    webGLCompability
+  );
 };
-
-const createWebGLRenderingContext = function(args: ContextArguments = {}) {
-    const width =  args.width || 1;
-    const height = args.height || 1;
-    const webGLCompability = args.webGLCompability || false;
-    const majorVersion =  args.majorVersion || 3;
-    const minorVersion =  args.minorVersion || 0;
-    return binding.createWebGLRenderingContext(
-        width,
-        height,
-        majorVersion,
-        minorVersion,
-        webGLCompability,
-    );
-
-
-} 
-
 
 export { createWebGLRenderingContext };

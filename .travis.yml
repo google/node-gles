@@ -1,0 +1,70 @@
+language: node_js
+compiler: gcc
+env:
+  global:
+    - NODE_GLES_SKIP_BINARY_DOWNLOAD_FOR_CI=true
+jobs:
+  include:
+    - stage: build
+      node_js: "10"
+      os: linux
+    - stage: build
+      node_js: "11"
+      os: linux
+    - stage: build
+      node_js: "12"
+      os: linux
+    - stage: build
+      node_js: "13"
+      os: linux
+    - stage: build
+      node_js: "14"
+      os: linux
+    - stage: build
+      node_js: "10"
+      os: osx
+    - stage: build
+      node_js: "11"
+      os: osx
+    - stage: build
+      node_js: "12"
+      os: osx
+    - stage: build
+      node_js: "13"
+      os: osx
+    - stage: build
+      node_js: "14"
+      os: osx
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+      - make
+      - git
+before_install:
+  - npm install -g yarn
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then
+    export CC="gcc-7";
+    export CXX="g++-7";
+    export LINK="gcc-7";
+    export LINKXX="g++-7";
+    fi
+  - node --version
+  - yarn --version
+script:
+  - yarn build
+after_script:
+  - "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+cache: yarn
+deploy:
+  provider: releases
+  api_key:
+    secure: ADD YOUR TRAVIS KEY HERE
+  file_glob: true
+  file: "node-gles-*-*-*.node"
+  skip_cleanup: true
+  on:
+    tags: true

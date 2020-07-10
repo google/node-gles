@@ -10,3 +10,4 @@ demo/train-*
 .nyc_output/
 coverage/
 .DS_Store
+*.node
