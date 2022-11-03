@@ -17,18 +17,17 @@
 
 #include "webgl_rendering_context.h"
 
-#include "utils.h"
-#include "webgl_extensions.h"
-#include "webgl_sync.h"
-
-#include "angle/include/GLES2/gl2.h"
-#include "angle/include/GLES3/gl3.h"
-#include "angle/include/GLES3/gl32.h"
-
 #include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "angle/include/GLES2/gl2.h"
+#include "angle/include/GLES3/gl3.h"
+#include "angle/include/GLES3/gl32.h"
+#include "utils.h"
+#include "webgl_extensions.h"
+#include "webgl_sync.h"
 
 namespace nodejsgl {
 
@@ -530,6 +529,7 @@ napi_status WebGLRenderingContext::Register(napi_env env, napi_value exports) {
       NAPI_DEFINE_METHOD("stencilMaskSeparate", StencilMaskSeparate),
       NAPI_DEFINE_METHOD("stencilOp", StencilOp),
       NAPI_DEFINE_METHOD("stencilOpSeparate", StencilOpSeparate),
+      NAPI_DEFINE_METHOD("texStorage2D", TexStorage2D),
       NAPI_DEFINE_METHOD("texImage2D", TexImage2D),
       NAPI_DEFINE_METHOD("texParameteri", TexParameteri),
       NAPI_DEFINE_METHOD("texParameterf", TexParameterf),
@@ -3998,6 +3998,56 @@ napi_value WebGLRenderingContext::Scissor(napi_env env,
 
   context->eglContextWrapper_->glScissor(x, y, width, height);
 
+#if DEBUG
+  context->CheckForErrors();
+#endif
+  return nullptr;
+}
+
+napi_value WebGLRenderingContext::TexStorage2D(napi_env env,
+                                               napi_callback_info info) {
+  LOG_CALL("TexStorage2D");
+
+  napi_status nstatus;
+
+  size_t argc = 5;
+  napi_value args[5];
+  napi_value js_this;
+  nstatus = napi_get_cb_info(env, info, &argc, args, &js_this, nullptr);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[0], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[1], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[2], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[3], nullptr);
+  ENSURE_VALUE_IS_NUMBER_RETVAL(env, args[4], nullptr);
+
+  GLenum target;
+  nstatus = napi_get_value_uint32(env, args[0], &target);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei levels;
+  nstatus = napi_get_value_int32(env, args[1], &levels);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLenum internal_format;
+  nstatus = napi_get_value_uint32(env, args[2], &internal_format);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei width;
+  nstatus = napi_get_value_int32(env, args[3], &width);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  GLsizei height;
+  nstatus = napi_get_value_int32(env, args[4], &height);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  WebGLRenderingContext *context = nullptr;
+  nstatus = UnwrapContext(env, js_this, &context);
+  ENSURE_NAPI_OK_RETVAL(env, nstatus, nullptr);
+
+  context->eglContextWrapper_->glTexStorage2D(target, levels, internal_format,
+                                              width, height);
 #if DEBUG
   context->CheckForErrors();
 #endif

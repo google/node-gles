@@ -17,12 +17,11 @@
 
 #include "egl_context_wrapper.h"
 
-#include "utils.h"
+#include <vector>
 
 #include "angle/include/EGL/egl.h"
 #include "angle/include/EGL/eglext.h"
-
-#include <vector>
+#include "utils.h"
 
 namespace nodejsgl {
 
@@ -370,6 +369,8 @@ void EGLContextWrapper::BindProcAddresses() {
       eglGetProcAddress("glStencilOpSeparate"));
   glTexImage2D =
       reinterpret_cast<PFNGLTEXIMAGE2DPROC>(eglGetProcAddress("glTexImage2D"));
+  glTexStorage2D = reinterpret_cast<PFNGLTEXSTORAGE2DPROC>(
+      eglGetProcAddress("glTexStorage2D"));
   glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(
       eglGetProcAddress("glTexParameteri"));
   glTexParameterf = reinterpret_cast<PFNGLTEXPARAMETERFPROC>(
