@@ -151,6 +151,7 @@ class WebGLRenderingContext {
   static napi_value StencilMaskSeparate(napi_env env, napi_callback_info info);
   static napi_value StencilOp(napi_env env, napi_callback_info info);
   static napi_value StencilOpSeparate(napi_env env, napi_callback_info info);
+  static napi_value TexStorage2D(napi_env env, napi_callback_info info);
   static napi_value TexImage2D(napi_env env, napi_callback_info info);
   static napi_value TexParameteri(napi_env env, napi_callback_info info);
   static napi_value TexParameterf(napi_env env, napi_callback_info info);
