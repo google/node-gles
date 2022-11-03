@@ -23,14 +23,14 @@
 // Use generated EGL includes from ANGLE:
 #define EGL_EGL_PROTOTYPES 1
 
+#include <iostream>
+#include <memory>
+#include <string>
+
 #include "angle/include/EGL/egl.h"
 #include "angle/include/GLES2/gl2.h"
 #include "angle/include/GLES2/gl2ext.h"
 #include "angle/include/GLES3/gl3.h"
-
-#include <iostream>
-#include <memory>
-#include <string>
 
 namespace nodejsgl {
 
@@ -193,6 +193,7 @@ class EGLContextWrapper {
   PFNGLSTENCILMASKSEPARATEPROC glStencilMaskSeparate;
   PFNGLSTENCILOPPROC glStencilOp;
   PFNGLSTENCILOPSEPARATEPROC glStencilOpSeparate;
+  PFNGLTEXSTORAGE2DPROC glTexStorage2D;
   PFNGLTEXIMAGE2DPROC glTexImage2D;
   PFNGLTEXPARAMETERIPROC glTexParameteri;
   PFNGLTEXPARAMETERFPROC glTexParameterf;
